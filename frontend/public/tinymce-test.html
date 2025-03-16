@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TinyMCE Test</title>
+  <script src="/tinymce/tinymce.min.js"></script>
+  <script>
+    window.onload = function() {
+      // Check if TinyMCE loaded
+      if (window.tinymce) {
+        document.getElementById('status').textContent = 'TinyMCE loaded successfully!';
+      } else {
+        document.getElementById('status').textContent = 'Failed to load TinyMCE';
+      }
+
+      // Try to initialize TinyMCE
+      try {
+        tinymce.init({
+          selector: '#editor',
+          base_url: '/tinymce',
+          plugins: 'autolink',
+          toolbar: 'undo redo | bold italic',
+        });
+        document.getElementById('init-status').textContent = 'TinyMCE initialized successfully!';
+      } catch (error) {
+        document.getElementById('init-status').textContent = 'Error initializing TinyMCE: ' + error.message;
+        console.error(error);
+      }
+    };
+  </script>
+</head>
+<body>
+  <h1>TinyMCE Test Page</h1>
+  <p id="status">Checking TinyMCE status...</p>
+  <p id="init-status">Initializing TinyMCE...</p>
+  <div id="editor">This is a test editor area</div>
+</body>
+</html> 

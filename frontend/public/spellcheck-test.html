@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Spellchecker Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #results { margin-top: 20px; border: 1px solid #ccc; padding: 10px; }
+    .pass { color: green; }
+    .fail { color: red; }
+    button { margin: 10px 0; padding: 8px 16px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    .file-contents { max-height: 300px; overflow: auto; border: 1px solid #ccc; padding: 10px; margin-top: 10px; white-space: pre; font-family: monospace; font-size: 12px; }
+    .actions { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <h1>Typo.js Dictionary Test</h1>
+  <p>This page tests if the Typo.js dictionary is loaded and functioning correctly.</p>
+  
+  <div class="actions">
+    <button id="testBtn">Run Dictionary Tests</button>
+    <button id="inspectBtn">Inspect Dictionary Files</button>
+    <button id="createDictBtn">Create Test Dictionary</button>
+    <button id="fixDictBtn">Fix Dictionary Files</button>
+  </div>
+  
+  <div id="results"></div>
+  
+  <script src="/vendors/typo.js"></script>
+  <script src="/fix-dictionaries.js"></script>
+  <script>
+    document.getElementById('testBtn').addEventListener('click', runTests);
+    document.getElementById('inspectBtn').addEventListener('click', inspectDictionaryFiles);
+    document.getElementById('createDictBtn').addEventListener('click', createTestDictionary);
+    document.getElementById('fixDictBtn').addEventListener('click', fixDictionaryFiles);
+    
+    // Function to fetch file contents
+    async function fetchFile(url, charset = "ISO8859-1") {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch ${url}: ${response.status}`);
+        }
+        // Use the fetch Response's text() method, which handles encoding
+        return await response.text();
+      } catch (error) {
+        console.error('Fetch error:', error);
+        return null;
+      }
+    }
+    
+    // Function to inspect dictionary files
+    async function inspectDictionaryFiles() {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '<h3>Inspecting Dictionary Files...</h3>';
+      
+      try {
+        // Fetch the dictionary files
+        const affFileContent = await fetchFile('/dictionaries/en_US.aff');
+        const dicFileContent = await fetchFile('/dictionaries/en_US.dic');
+        
+        if (!affFileContent || !dicFileContent) {
+          resultsDiv.innerHTML = '<h3 class="fail">Failed to load dictionary files</h3>';
+          return;
+        }
+        
+        // Basic diagnostics
+        const affLines = affFileContent.split('\n');
+        const dicLines = dicFileContent.split('\n');
+        const wordCount = dicLines[0].trim();
+        
+        let html = `
+          <h3>Dictionary File Analysis</h3>
+          <ul>
+            <li>AFF File Size: ${affFileContent.length} bytes</li>
+            <li>DIC File Size: ${dicFileContent.length} bytes</li>
+            <li>Word Count from DIC file: ${wordCount}</li>
+            <li>Actual Line Count in DIC file: ${dicLines.length}</li>
+          </ul>
+        `;
+        
+        // Check encoding in AFF file
+        const encodingLine = affLines.find(line => line.startsWith('SET '));
+        html += `<p>Encoding: ${encodingLine || 'Not specified'}</p>`;
+        
+        // Display sample of files
+        html += '<h4>AFF File (first 20 lines):</h4>';
+        html += `<div class="file-contents">${affLines.slice(0, 20).join('\n')}</div>`;
+        
+        html += '<h4>DIC File (first 20 lines):</h4>';
+        html += `<div class="file-contents">${dicLines.slice(0, 20).join('\n')}</div>`;
+        
+        // Check for common issues
+        let issues = [];
+        
+        // Check for BOM at the beginning of files
+        if (affFileContent.charCodeAt(0) === 0xFEFF) {
+          issues.push('AFF file has a BOM marker which can cause parsing issues');
+        }
+        if (dicFileContent.charCodeAt(0) === 0xFEFF) {
+          issues.push('DIC file has a BOM marker which can cause parsing issues');
+        }
+        
+        // Check if count is accurate
+        if (parseInt(wordCount) !== dicLines.length - 1) {
+          issues.push(`Word count (${wordCount}) doesn't match actual line count (${dicLines.length - 1})`);
+        }
+        
+        // Check for DOS/Windows line endings
+        if (affFileContent.includes('\r\n')) {
+          issues.push('AFF file uses Windows-style line endings (CRLF) which might cause issues');
+        }
+        if (dicFileContent.includes('\r\n')) {
+          issues.push('DIC file uses Windows-style line endings (CRLF) which might cause issues');
+        }
+        
+        if (issues.length > 0) {
+          html += '<h4 class="fail">Potential Issues Detected:</h4>';
+          html += '<ul>';
+          for (const issue of issues) {
+            html += `<li>${issue}</li>`;
+          }
+          html += '</ul>';
+          html += '<p>Click the "Fix Dictionary Files" button to automatically correct these issues.</p>';
+        } else {
+          html += '<h4 class="pass">No obvious issues detected in file structure</h4>';
+        }
+        
+        resultsDiv.innerHTML = html;
+      } catch (error) {
+        resultsDiv.innerHTML = `<h3 class="fail">Error: ${error.message}</h3>
+                               <pre>${error.stack}</pre>`;
+      }
+    }
+    
+    // Function to create a test dictionary
+    async function createTestDictionary() {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '<h3>Creating Test Dictionary...</h3>';
+      
+      try {
+        // Create simple dictionary data
+        const basicWords = [
+          'hello', 'world', 'test', 'dictionary', 'typo', 'javascript',
+          'example', 'word', 'computer', 'program', 'spellcheck', 'correct',
+          'incorrect', 'misspelled', 'language', 'english', 'text', 'editor',
+          'tinymce', 'plugin', 'browser', 'web', 'development', 'programming'
+        ];
+        
+        // Create simple aff file - use ISO8859-1 to match application requirements
+        const affData = `SET ISO8859-1
+TRY esianrtolcdugmphbyfvkwzESIANRTOLCDUGMPHBYFVKWZ'
+WORDCHARS 0123456789'`;
+        
+        // Create simple dic file
+        const dicData = `${basicWords.length}
+${basicWords.join('\n')}`;
+        
+        // Show the created files
+        let html = `
+          <h3>Test Dictionary Created</h3>
+          <p>Created a minimal dictionary with ${basicWords.length} words.</p>
+          
+          <h4>AFF File:</h4>
+          <div class="file-contents">${affData}</div>
+          
+          <h4>DIC File:</h4>
+          <div class="file-contents">${dicData}</div>
+        `;
+        
+        // Now try to use the test dictionary
+        try {
+          const testDict = new Typo("test", affData, dicData, { 
+            platform: "any",
+            dictionaryEncoding: "ISO8859-1"
+          });
+          
+          // Test the dictionary
+          const testResults = [];
+          for (const word of basicWords) {
+            testResults.push({
+              word,
+              result: testDict.check(word),
+              expected: true
+            });
+          }
+          
+          // Add some negative test cases
+          const typoList = ['helo', 'wrold', 'tset', 'dictionairy', 'typoo'];
+          for (const word of typoList) {
+            testResults.push({
+              word,
+              result: testDict.check(word),
+              expected: false
+            });
+          }
+          
+          // Show test results
+          let resultsTable = '<h4>Test Results:</h4>';
+          resultsTable += '<table><tr><th>Word</th><th>Expected</th><th>Result</th><th>Status</th></tr>';
+          
+          let allPassed = true;
+          for (const test of testResults) {
+            const pass = test.result === test.expected;
+            if (!pass) allPassed = false;
+            
+            resultsTable += `<tr>
+              <td>${test.word}</td>
+              <td>${test.expected}</td>
+              <td>${test.result}</td>
+              <td class="${pass ? 'pass' : 'fail'}">${pass ? 'PASS' : 'FAIL'}</td>
+            </tr>`;
+          }
+          
+          resultsTable += '</table>';
+          html += resultsTable;
+          
+          // Show dictionary stats
+          html += `
+            <h4>Test Dictionary Statistics:</h4>
+            <ul>
+              <li>Dictionary rules: ${Object.keys(testDict.rules).length}</li>
+              <li>Dictionary words: ${Object.keys(testDict.dictionaryTable).length}</li>
+            </ul>
+            <h4 class="${allPassed ? 'pass' : 'fail'}">${allPassed ? 'TEST DICTIONARY WORKS!' : 'TEST DICTIONARY HAS ISSUES'}</h4>
+          `;
+          
+          html += `
+            <p>If the test dictionary works but the regular one doesn't, the problem is likely with the dictionary files, not Typo.js itself.</p>
+            <p>Steps to fix:</p>
+            <ol>
+              <li>Make sure the first line of the .dic file is exactly the number of words in the file</li>
+              <li>Make sure both files use Unix-style line endings (LF not CRLF)</li>
+              <li>Make sure there's no BOM character at the start of either file</li>
+              <li>Try using the format of this working test dictionary as a reference</li>
+            </ol>
+            <p>Or simply click the "Fix Dictionary Files" button to automatically repair the files.</p>
+          `;
+          
+        } catch (e) {
+          html += `<h4 class="fail">Error testing dictionary: ${e.message}</h4>
+                   <pre>${e.stack}</pre>`;
+        }
+        
+        resultsDiv.innerHTML = html;
+      } catch (error) {
+        resultsDiv.innerHTML = `<h3 class="fail">Error: ${error.message}</h3>
+                               <pre>${error.stack}</pre>`;
+      }
+    }
+    
+    function runTests() {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '<h3>Loading dictionary...</h3>';
+      
+      try {
+        // Try to load dictionary with direct file loading for more reliability
+        console.time('Dictionary Load');
+        
+        // First fetch the dictionary files
+        Promise.all([
+          fetchFile('/dictionaries/en_US.aff', "ISO8859-1"), 
+          fetchFile('/dictionaries/en_US.dic', "ISO8859-1")
+        ]).then(([affData, dicData]) => {
+          try {
+            console.log("AFF file size:", affData.length);
+            console.log("DIC file size:", dicData.length);
+            console.log("AFF first line:", affData.split('\n')[0]);
+            console.log("DIC first line:", dicData.split('\n')[0]);
+            
+            // Now use the file data directly
+            const dictionary = new Typo("en_US", affData, dicData, { 
+              platform: "any",
+              dictionaryEncoding: "ISO8859-1",
+              debug: true
+            });
+            
+            console.timeEnd('Dictionary Load');
+            
+            // Check if dictionary loaded properly
+            if (!dictionary) {
+              resultsDiv.innerHTML = '<h3 class="fail">FAILED: Dictionary failed to load</h3>';
+              return;
+            }
+            
+            // Display dictionary stats
+            const stats = `
+              <h3>Dictionary Statistics</h3>
+              <ul>
+                <li>Dictionary rules: ${Object.keys(dictionary.rules).length}</li>
+                <li>Dictionary words: ${Object.keys(dictionary.dictionaryTable).length}</li>
+                <li>Compound rules: ${dictionary.compoundRules.length}</li>
+              </ul>
+            `;
+            
+            // Test dictionary with known words
+            const testWords = [
+              {word: 'hello', expected: true},
+              {word: 'Hello', expected: true},
+              {word: 'helo', expected: false},
+              {word: 'We', expected: true},
+              {word: 'apple', expected: true},
+              {word: 'applepi', expected: false},
+              {word: 'computer', expected: true},
+              {word: 'computador', expected: false},
+              {word: 'the', expected: true},
+              {word: 'they', expected: true},
+              {word: 'teh', expected: false}
+            ];
+            
+            let allPassed = true;
+            let resultsHTML = '<h3>Test Results</h3><table><tr><th>Word</th><th>Expected</th><th>Result</th><th>Status</th></tr>';
+            
+            testWords.forEach(test => {
+              const result = dictionary.check(test.word);
+              const pass = result === test.expected;
+              if (!pass) allPassed = false;
+              
+              resultsHTML += `<tr>
+                <td>${test.word}</td>
+                <td>${test.expected}</td>
+                <td>${result}</td>
+                <td class="${pass ? 'pass' : 'fail'}">${pass ? 'PASS' : 'FAIL'}</td>
+              </tr>`;
+            });
+            
+            resultsHTML += '</table>';
+            
+            // Test suggestions
+            let suggestionsHTML = '<h3>Suggestions Test</h3><table><tr><th>Misspelled Word</th><th>Top Suggestions</th></tr>';
+            
+            const misspellings = ['helo', 'teh', 'computador', 'applepi'];
+            misspellings.forEach(word => {
+              const suggestions = dictionary.suggest(word) || [];
+              suggestionsHTML += `<tr>
+                <td>${word}</td>
+                <td>${suggestions.slice(0, 5).join(', ') || 'None'}</td>
+              </tr>`;
+            });
+            
+            suggestionsHTML += '</table>';
+            
+            // Display results
+            resultsDiv.innerHTML = `
+              ${stats}
+              ${resultsHTML}
+              ${suggestionsHTML}
+              <h3 class="${allPassed ? 'pass' : 'fail'}">${allPassed ? 'ALL TESTS PASSED' : 'SOME TESTS FAILED'}</h3>
+              
+              <div class="actions">
+                <button onclick="inspectDictionaryFiles()">Diagnose Dictionary Issues</button>
+                <button onclick="fixDictionaryFiles()">Fix Dictionary Files</button>
+              </div>
+            `;
+            
+          } catch (error) {
+            resultsDiv.innerHTML = `<h3 class="fail">ERROR: ${error.message}</h3>
+                                   <pre>${error.stack}</pre>`;
+            console.error('Dictionary test error:', error);
+          }
+        });
+      } catch (error) {
+        resultsDiv.innerHTML = `<h3 class="fail">ERROR: ${error.message}</h3>
+                               <pre>${error.stack}</pre>`;
+        console.error('Dictionary test error:', error);
+      }
+    }
+  </script>
+</body>
+</html> 

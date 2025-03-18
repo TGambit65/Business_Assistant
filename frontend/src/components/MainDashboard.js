@@ -5,6 +5,8 @@ import {
   Star,
   AlertCircle,
   Bell,
+  Menu,
+  X,
 } from "lucide-react";
 import { Editor } from "@tinymce/tinymce-react";
 
@@ -79,44 +81,55 @@ function EmailEditModal({ isOpen, onClose, email }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div className="bg-white dark:bg-dark-card-bg rounded-lg shadow-lg p-6 w-full max-w-3xl relative">
+    <div className="fixed inset-0 z-50 flex items-start md:items-center justify-center bg-black bg-opacity-50 p-2 md:p-4 overflow-y-auto">
+      <div className="bg-white dark:bg-dark-card-bg rounded-lg shadow-lg p-3 md:p-6 w-full max-w-3xl relative mt-10 md:mt-0">
         <button
           onClick={handleCancel}
-          className="absolute top-2 right-2 text-black dark:text-white"
+          className="absolute top-2 right-2 text-black dark:text-white p-2 touch-manipulation"
+          aria-label="Close"
         >
-          ✕
+          <X className="h-5 w-5" />
         </button>
-        <h2 className="text-2xl font-bold mb-4">
+        <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 pr-8">
           {email.subject} — {email.mode === "draft" ? "Draft" : "Edit"}
         </h2>
         <Editor
           id="email-modal-editor"
           inline={false}
-          init={getDefaultTinyMCEConfig(400, true)}
+          init={{
+            ...getDefaultTinyMCEConfig(300, true),
+            mobile: {
+              menubar: false,
+              toolbar_mode: 'sliding',
+              toolbar: 'undo redo | formatselect | bold italic | bullist numlist | link image',
+            },
+          }}
           initialValue={editorContent}
           onEditorChange={handleEditorChange}
         />
-        <div className="flex justify-end mt-4 space-x-2">
-          {/* Updated Button Styles */}
+        <div className="flex flex-wrap justify-end gap-2 mt-4">
+          {/* Updated Button Styles with better touch targets */}
           <button
             onClick={handleCancel}
-            className="px-3 py-2 rounded-md font-medium text-white transition-colors 
-                       bg-blue-500 hover:bg-blue-600 dark:bg-orange-500 dark:hover:bg-orange-600"
+            className="px-4 py-3 rounded-md font-medium text-white transition-colors 
+                       bg-blue-500 hover:bg-blue-600 dark:bg-orange-500 dark:hover:bg-orange-600
+                       touch-manipulation min-w-[80px]"
           >
             Cancel
           </button>
           <button
             onClick={handleSaveDraft}
-            className="px-3 py-2 rounded-md font-medium text-white transition-colors 
-                       bg-blue-500 hover:bg-blue-600 dark:bg-orange-500 dark:hover:bg-orange-600"
+            className="px-4 py-3 rounded-md font-medium text-white transition-colors 
+                       bg-blue-500 hover:bg-blue-600 dark:bg-orange-500 dark:hover:bg-orange-600
+                       touch-manipulation min-w-[80px]"
           >
-            Save Draft
+            Save
           </button>
           <button
             onClick={handleSend}
-            className="px-3 py-2 rounded-md font-medium text-white transition-colors 
-                       bg-blue-500 hover:bg-blue-600 dark:bg-orange-500 dark:hover:bg-orange-600"
+            className="px-4 py-3 rounded-md font-medium text-white transition-colors 
+                       bg-blue-500 hover:bg-blue-600 dark:bg-orange-500 dark:hover:bg-orange-600
+                       touch-manipulation min-w-[80px]"
           >
             Send
           </button>
@@ -142,6 +155,9 @@ export default function MainDashboard() {
 
   // Whether the TinyMCE Email Edit Modal is open
   const [editingEmail, setEditingEmail] = useState(null);
+  
+  // Whether the mobile sidebar is open
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
   // Default categories/boxes
   const [boxes, setBoxes] = useState([
@@ -354,25 +370,58 @@ export default function MainDashboard() {
     setBoxes([...boxes, newBox]);
     return newBox;
   };
+  
+  // Close mobile sidebar when a category is selected
+  const handleCategorySelect = (boxId) => {
+    setSelectedBox(boxId);
+    setShowMobileSidebar(false);
+  };
 
   return (
-    <div className={`${darkMode ? "dark" : ""} flex h-screen bg-light-bg dark:bg-dark-bg`}>
+    <div className={`${darkMode ? "dark" : ""} flex flex-col md:flex-row h-screen bg-light-bg dark:bg-dark-bg`}>
+      {/* ---------------------------------------------------------------------- */}
+      {/*                         MOBILE HEADER (VISIBLE ON MOBILE ONLY)         */}
+      {/* ---------------------------------------------------------------------- */}
+      <div className="md:hidden flex items-center justify-between p-3 bg-light-sidebar-bg dark:bg-dark-sidebar-bg border-b border-light-unread-bg dark:border-dark-border">
+        <button 
+          className="p-2 text-black dark:text-white touch-manipulation"
+          onClick={() => setShowMobileSidebar(!showMobileSidebar)}
+          aria-label="Toggle menu"
+        >
+          <Menu className="h-6 w-6" />
+        </button>
+        <h1 className="text-xl font-bold text-black dark:text-dark-text">
+          {selectedBox === "all" ? "Inbox" : boxes.find((b) => b.id === selectedBox)?.name}
+        </h1>
+        <div className="flex items-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="border border-white dark:border-orange-500"
+            onClick={() => setShowSettings(true)}
+          >
+            <Settings className="h-5 w-5 text-black dark:text-dark-text" />
+            <span className="sr-only">Settings</span>
+          </Button>
+        </div>
+      </div>
+
       {/* ---------------------------------------------------------------------- */}
       {/*                         MAIN INBOX CONTAINER                          */}
       {/* ---------------------------------------------------------------------- */}
       <div
         className="
-          flex-1 overflow-auto
+          flex-1 overflow-auto order-2 md:order-1
           bg-gradient-to-br from-white to-blue-50 border-2 border-blue-500
           dark:bg-gradient-to-br dark:from-[#4A3E36] dark:to-[#5A4A40] dark:border-dark-border
-          rounded-lg m-2 shadow-xl dark:shadow-none
+          rounded-none md:rounded-lg m-0 md:m-2 shadow-xl dark:shadow-none
           transition-all duration-300
         "
       >
-        {/* INBOX HEADER */}
+        {/* INBOX HEADER - DESKTOP ONLY */}
         <div
           className="
-            w-full
+            hidden md:block w-full
             bg-light-sidebar-bg dark:bg-dark-sidebar-bg
             border-b border-light-unread-bg dark:border-dark-border
             p-4
@@ -388,7 +437,7 @@ export default function MainDashboard() {
         {/* EMAIL CONTENT AREA */}
         <div
           className="
-            p-6
+            p-3 md:p-6
             bg-transparent dark:bg-dark-sidebar-bg
             transition-colors
           "
@@ -410,15 +459,29 @@ export default function MainDashboard() {
       </div>
 
       {/* ---------------------------------------------------------------------- */}
+      {/*                      MOBILE SIDEBAR OVERLAY                           */}
+      {/* ---------------------------------------------------------------------- */}
+      {showMobileSidebar && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={() => setShowMobileSidebar(false)}
+        />
+      )}
+
+      {/* ---------------------------------------------------------------------- */}
       {/*                                SIDEBAR                                 */}
       {/* ---------------------------------------------------------------------- */}
       <div
-        className="
+        className={`
+          fixed md:static top-0 bottom-0 left-0 z-50
           flex flex-col
-          w-[300px] bg-light-sidebar-bg dark:bg-dark-sidebar-bg
-          border-l border-light-unread-bg dark:border-dark-border
-          shadow-lg rounded-lg m-2
-        "
+          w-[280px] md:w-[300px] bg-light-sidebar-bg dark:bg-dark-sidebar-bg
+          border-r border-light-unread-bg dark:border-dark-border
+          shadow-lg rounded-none md:rounded-lg m-0 md:m-2
+          transform transition-transform duration-300 ease-in-out
+          ${showMobileSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+          md:order-2
+        `}
       >
         {/* SIDEBAR HEADER */}
         <div className="flex items-center justify-between p-4 border-b border-light-unread-bg dark:border-dark-border">
@@ -426,7 +489,16 @@ export default function MainDashboard() {
             Email Assistant
           </h2>
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-black dark:text-dark-text">
+            {/* Close button on mobile */}
+            <button 
+              className="md:hidden p-2 text-black dark:text-white"
+              onClick={() => setShowMobileSidebar(false)}
+              aria-label="Close menu"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            
+            <span className="text-sm hidden md:inline text-black dark:text-dark-text">
               {darkMode ? "Dark Mode" : "Light Mode"}
             </span>
             <button
@@ -436,6 +508,7 @@ export default function MainDashboard() {
                 ${darkMode ? "bg-dark-border" : "bg-light-unread-bg"}
               `}
               onClick={() => setDarkMode(!darkMode)}
+              aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
             >
               <span
                 className={`
@@ -454,7 +527,7 @@ export default function MainDashboard() {
               <CategoryBox
                 key={box.id}
                 box={box}
-                onClick={() => setSelectedBox(box.id)}
+                onClick={() => handleCategorySelect(box.id)}
                 isSelected={selectedBox === box.id}
                 toggleImportant={toggleImportant}
               />
@@ -517,13 +590,13 @@ function EmailCard({ email, setEditingEmail }) {
     <div
       className="
         relative bg-light-card-bg dark:bg-dark-card-bg
-        border-[3px] border-blue-500 dark:border-dark-border
-        rounded-lg shadow-sm p-4 mb-4 hover:shadow-md
+        border-[2px] md:border-[3px] border-blue-500 dark:border-dark-border
+        rounded-lg shadow-sm p-3 md:p-4 mb-3 md:mb-4 hover:shadow-md
         transition-all duration-200 transform hover:-translate-y-1
       "
     >
       <div className="mb-2">
-        <p className="text-xl font-semibold text-black dark:text-dark-preview-text">
+        <p className="text-lg md:text-xl font-semibold text-black dark:text-dark-preview-text">
           {email.subject}
         </p>
         <p className="text-xs text-gray-600 dark:text-gray-300">
@@ -537,34 +610,34 @@ function EmailCard({ email, setEditingEmail }) {
           {email.bcc && <span className="ml-2">BCC: {email.bcc}</span>}
         </p>
       </div>
-      <div className="mb-4">
+      <div className="mb-3 md:mb-4">
         <p className="text-sm text-black dark:text-dark-text">
           {showFullSummary ? email.fullSummary : email.quickSummary}
         </p>
       </div>
 
       {/* ACTION BUTTONS */}
-      <div className="flex justify-center mt-4 space-x-2">
+      <div className="flex flex-wrap justify-center gap-2 mt-3 md:mt-4">
         <button
-          className="px-3 py-2 rounded-md font-medium text-white transition-colors bg-blue-500 hover:bg-blue-600 dark:bg-orange-500 dark:hover:bg-orange-600"
+          className="px-3 py-2 rounded-md font-medium text-white transition-colors bg-blue-500 hover:bg-blue-600 dark:bg-orange-500 dark:hover:bg-orange-600 min-w-[70px] touch-manipulation"
           onClick={() => alert("Mark as read logic goes here.")}
         >
           Read
         </button>
         <button
-          className="px-3 py-2 rounded-md font-medium text-white transition-colors bg-blue-500 hover:bg-blue-600 dark:bg-orange-500 dark:hover:bg-orange-600"
+          className="px-3 py-2 rounded-md font-medium text-white transition-colors bg-blue-500 hover:bg-blue-600 dark:bg-orange-500 dark:hover:bg-orange-600 min-w-[70px] touch-manipulation"
           onClick={() => setEditingEmail({ ...email, mode: "edit" })}
         >
           Edit
         </button>
         <button
-          className="px-3 py-2 rounded-md font-medium text-white transition-colors bg-blue-500 hover:bg-blue-600 dark:bg-orange-500 dark:hover:bg-orange-600"
+          className="px-3 py-2 rounded-md font-medium text-white transition-colors bg-blue-500 hover:bg-blue-600 dark:bg-orange-500 dark:hover:bg-orange-600 min-w-[70px] touch-manipulation"
           onClick={() => setShowFullSummary(!showFullSummary)}
         >
-          Summary
+          {showFullSummary ? "Less" : "More"}
         </button>
         <button
-          className="px-3 py-2 rounded-md font-medium text-white transition-colors bg-blue-500 hover:bg-blue-600 dark:bg-orange-500 dark:hover:bg-orange-600"
+          className="px-3 py-2 rounded-md font-medium text-white transition-colors bg-blue-500 hover:bg-blue-600 dark:bg-orange-500 dark:hover:bg-orange-600 min-w-[70px] touch-manipulation"
           onClick={() => setEditingEmail({ ...email, mode: "draft" })}
         >
           Draft
@@ -612,7 +685,7 @@ function CategoryBox({ box, onClick, isSelected, toggleImportant }) {
           e.stopPropagation();
           toggleImportant(box.id);
         }}
-        className="ml-1"
+        className="ml-1 p-1 touch-manipulation"
         title="Toggle Important"
       >
         {box.important ? (

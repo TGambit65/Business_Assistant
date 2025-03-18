@@ -1,7 +1,7 @@
 "use client" // Remove if not using Next.js app router
 
 import React, { useState } from "react"
-import { Save } from "lucide-react"
+import { Save, X } from "lucide-react"
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd"
 
 /* ---------- Button placeholder ---------- */
@@ -13,7 +13,7 @@ function Button({ onClick, children, disabled, className }) {
       className={`
         px-3 py-2 rounded-md border transition-colors focus:outline-none 
         focus:ring-2 focus:ring-blue-400 dark:focus:ring-orange-400
-        hover:opacity-90
+        hover:opacity-90 touch-manipulation
         ${className}
       `}
     >
@@ -105,7 +105,7 @@ function Tabs({ defaultValue, children }) {
 }
 function TabsList({ active, setActive, children, className }) {
   return (
-    <div className={`flex space-x-2 ${className}`}>
+    <div className={`flex overflow-x-auto pb-2 gap-2 ${className}`}>
       {React.Children.map(children, (child) => {
         if (!React.isValidElement(child)) return child
         if (child.type === TabsTrigger) {
@@ -121,8 +121,9 @@ function TabsTrigger({ value, active, setActive, children }) {
   return (
     <button
       className={`
-        px-3 py-1 rounded-md font-medium focus:outline-none 
+        px-3 py-2 rounded-md font-medium focus:outline-none whitespace-nowrap
         focus:ring-2 focus:ring-blue-400 dark:focus:ring-orange-400
+        touch-manipulation
         ${
           isActive
             ? "bg-blue-500 text-white dark:bg-orange-500"
@@ -193,37 +194,40 @@ export default function SettingsPage({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+    <div className="fixed inset-0 z-50 flex items-start md:items-center justify-center bg-black bg-opacity-50 p-2 md:p-4 overflow-y-auto">
       <div
         className="
           bg-white dark:bg-[#2A2A2A]
           text-gray-800 dark:text-gray-100
-          rounded-lg p-6 w-full max-w-4xl relative shadow-xl
+          rounded-lg p-3 md:p-6 w-full max-w-4xl relative shadow-xl
+          mt-10 md:mt-0
         "
       >
         {/* Close button */}
         <button
           onClick={onClose}
           className="
-            absolute top-2 right-2 
+            absolute top-2 right-2 p-2
             text-gray-600 dark:text-gray-200
             hover:text-black dark:hover:text-white
             focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-orange-400
+            touch-manipulation
           "
+          aria-label="Close"
         >
-          ✕
+          <X className="h-5 w-5" />
         </button>
 
         {/* Header */}
         <div className="mb-4">
-          <h1 className="text-3xl font-bold">Settings</h1>
+          <h1 className="text-2xl md:text-3xl font-bold pr-6">Settings</h1>
         </div>
 
         <Tabs defaultValue="general">
-          <TabsList className="flex justify-start space-x-2 w-full">
+          <TabsList className="flex justify-start w-full">
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="email-boxes">Email Boxes</TabsTrigger>
-            <TabsTrigger value="keyboard-shortcuts">Keyboard Shortcuts</TabsTrigger>
+            <TabsTrigger value="keyboard-shortcuts">Shortcuts</TabsTrigger>
             <TabsTrigger value="privacy">Privacy</TabsTrigger>
           </TabsList>
 
@@ -254,8 +258,8 @@ export default function SettingsPage({
               Reorder, edit, delete, or star/unstar your email boxes below.
             </p>
             <div
-              style={{ maxHeight: "300px" }}
-              className="overflow-y-auto border-2 border-gray-300 dark:border-gray-600 p-3 rounded-md"
+              style={{ maxHeight: "60vh" }}
+              className="overflow-y-auto border-2 border-gray-300 dark:border-gray-600 p-2 md:p-3 rounded-md"
             >
               <DragDropContext onDragEnd={handleDragEnd}>
                 <Droppable droppableId="email-boxes-list">
@@ -269,7 +273,7 @@ export default function SettingsPage({
                               {...providedInner.draggableProps}
                               {...providedInner.dragHandleProps}
                               className="
-                                p-3 border-2 border-gray-300 dark:border-gray-600 
+                                p-2 md:p-3 border-2 border-gray-300 dark:border-gray-600 
                                 rounded-md bg-gray-50 dark:bg-gray-900 
                                 shadow-sm
                               "
@@ -302,42 +306,42 @@ export default function SettingsPage({
                                     value={tempKeywords}
                                     onChange={(e) => setTempKeywords(e.target.value)}
                                   />
-                                  <div className="flex justify-end space-x-2">
+                                  <div className="flex justify-end gap-2 mt-2">
                                     <Button
                                       onClick={() => saveEdits(box.id)}
-                                      className="text-xs bg-blue-500 dark:bg-orange-500 text-white px-2 py-1"
+                                      className="text-xs bg-blue-500 dark:bg-orange-500 text-white px-3 py-2"
                                     >
                                       Save
                                     </Button>
                                     <Button
                                       onClick={() => setEditingBoxId(null)}
-                                      className="text-xs bg-gray-500 text-white px-2 py-1"
+                                      className="text-xs bg-gray-500 text-white px-3 py-2"
                                     >
                                       Cancel
                                     </Button>
                                   </div>
                                 </>
                               ) : (
-                                <div className="flex items-center justify-between">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
                                   <span className="text-sm font-medium dark:text-gray-100">
                                     {box.name}
                                   </span>
-                                  <div className="flex space-x-2">
+                                  <div className="flex flex-wrap gap-2">
                                     <Button
                                       onClick={() => startEditing(box)}
-                                      className="text-xs bg-blue-500 dark:bg-orange-500 text-white px-2 py-1"
+                                      className="text-xs bg-blue-500 dark:bg-orange-500 text-white px-3 py-2"
                                     >
                                       Edit
                                     </Button>
                                     <Button
                                       onClick={() => handleDeleteBox(box.id)}
-                                      className="text-xs bg-red-500 text-white px-2 py-1"
+                                      className="text-xs bg-red-500 text-white px-3 py-2"
                                     >
                                       Delete
                                     </Button>
                                     <Button
                                       onClick={() => toggleImportant(box.id)}
-                                      className="text-xs bg-blue-500 dark:bg-orange-500 text-white px-2 py-1"
+                                      className="text-xs bg-blue-500 dark:bg-orange-500 text-white px-3 py-2"
                                     >
                                       {box.important ? "Unstar" : "Star"}
                                     </Button>
@@ -362,7 +366,7 @@ export default function SettingsPage({
                 setTempInstructions("")
                 setTempKeywords("")
               }}
-              className="mt-2 bg-blue-500 dark:bg-orange-500 text-white hover:bg-blue-600 dark:hover:bg-orange-600"
+              className="mt-2 bg-blue-500 dark:bg-orange-500 text-white hover:bg-blue-600 dark:hover:bg-orange-600 py-3"
             >
               + Add Box
             </Button>
@@ -414,6 +418,7 @@ export default function SettingsPage({
               bg-blue-500 dark:bg-orange-500 text-white 
               hover:bg-blue-600 dark:hover:bg-orange-600
               focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-orange-400
+              px-4 py-3
             "
           >
             {isLoading ? (

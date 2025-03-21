@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta
       name="description"
-      content="A smart email assistant that helps you manage and respond to emails efficiently"
+      content="A smart business assistant that helps you manage and respond to emails, create documents, and organize your work efficiently"
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <!--
@@ -18,22 +18,21 @@
     -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     
-    <!-- Load TinyMCE directly -->
-    <script src="%PUBLIC_URL%/tinymce/tinymce.min.js"></script>
+    <!-- TinyMCE -->
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
     
     <!-- Preconnect to improve loading performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <title>Email Assistant</title>
+    <title>Business Assistant</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     
-    <!-- Load Typo.js for a robust spellchecker plugin -->
+    <!-- Spellcheck libraries -->
     <script src="%PUBLIC_URL%/vendors/typo.js"></script>
-    <!-- Load robust_spellchecker plugin -->
     <script src="%PUBLIC_URL%/tinymce-plugins/robust_spellchecker.js"></script>
     
     <!-- The build step will place the bundled scripts into the <body> tag. -->

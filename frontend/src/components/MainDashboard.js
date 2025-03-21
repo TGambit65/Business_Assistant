@@ -7,11 +7,11 @@ import {
   Bell,
   Menu,
   X,
+  Sparkles,
 } from "lucide-react";
-import { Editor } from "@tinymce/tinymce-react";
+import RichTextEditor from "./RichTextEditor";
 
 import SettingsPage from "./SettingsPage";
-import { getDefaultTinyMCEConfig } from "../tinymcePreloader";
 
 /* -------------------------------------------------------------------------- */
 /*                                HELPER COMPONENTS                           */
@@ -48,20 +48,17 @@ function EmailEditModal({ isOpen, onClose, email }) {
   /**
    * If this email is opened via "Draft," we show `email.draft`.
    * If opened via "Edit," we show `email.fullSummary`.
-   * If neither is found, we fallback to empty string.
    */
-  const [editorContent, setEditorContent] = useState(() => {
-    if (!email) return "";
-    if (email.mode === "draft" && email.draft) {
-      return email.draft;
-    }
-    return email.fullSummary || "";
-  });
-
-  if (!isOpen || !email) return null;
+  const initialContent = email?.draft || email?.fullSummary || "";
+  const [content, setContent] = useState(initialContent);
+  
+  // When the email changes, update the content
+  React.useEffect(() => {
+    setContent(email?.draft || email?.fullSummary || "");
+  }, [email]);
 
   const handleEditorChange = (content) => {
-    setEditorContent(content);
+    setContent(content);
   };
 
   const handleCancel = () => {
@@ -69,70 +66,66 @@ function EmailEditModal({ isOpen, onClose, email }) {
   };
 
   const handleSaveDraft = () => {
-    // Placeholder for saving as draft
-    console.log("Saving as draft:", editorContent);
+    console.log("Saving draft:", content);
     onClose();
   };
 
   const handleSend = () => {
-    // Placeholder for sending the email
-    console.log("Sending email:", editorContent);
+    console.log("Sending email:", content);
     onClose();
   };
 
+  if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-start md:items-center justify-center bg-black bg-opacity-50 p-2 md:p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-dark-card-bg rounded-lg shadow-lg p-3 md:p-6 w-full max-w-3xl relative mt-10 md:mt-0">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="relative w-full max-w-3xl max-h-[90vh] overflow-auto bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg">
         <button
-          onClick={handleCancel}
-          className="absolute top-2 right-2 text-black dark:text-white p-2 touch-manipulation"
-          aria-label="Close"
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          onClick={onClose}
         >
-          <X className="h-5 w-5" />
+          <X size={20} />
         </button>
-        <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 pr-8">
-          {email.subject} — {email.mode === "draft" ? "Draft" : "Edit"}
+
+        <h2 className="text-lg font-semibold mb-4">
+          {email?.draft ? "Edit Draft" : "Edit Email"}
         </h2>
-        <Editor
-          id="email-modal-editor"
-          inline={false}
-          init={{
-            ...getDefaultTinyMCEConfig(300, true),
-            mobile: {
-              menubar: false,
-              toolbar_mode: 'sliding',
-              toolbar: 'undo redo | formatselect | bold italic | bullist numlist | link image',
-            },
-          }}
-          initialValue={editorContent}
-          onEditorChange={handleEditorChange}
-        />
-        <div className="flex flex-wrap justify-end gap-2 mt-4">
-          {/* Updated Button Styles with better touch targets */}
-          <button
-            onClick={handleCancel}
-            className="px-4 py-3 rounded-md font-medium text-white transition-colors 
-                       bg-blue-500 hover:bg-blue-600 dark:bg-orange-500 dark:hover:bg-orange-600
-                       touch-manipulation min-w-[80px]"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSaveDraft}
-            className="px-4 py-3 rounded-md font-medium text-white transition-colors 
-                       bg-blue-500 hover:bg-blue-600 dark:bg-orange-500 dark:hover:bg-orange-600
-                       touch-manipulation min-w-[80px]"
-          >
-            Save
-          </button>
-          <button
-            onClick={handleSend}
-            className="px-4 py-3 rounded-md font-medium text-white transition-colors 
-                       bg-blue-500 hover:bg-blue-600 dark:bg-orange-500 dark:hover:bg-orange-600
-                       touch-manipulation min-w-[80px]"
-          >
-            Send
-          </button>
+
+        <div className="mb-4">
+          <div className="flex flex-col space-y-2 mb-4">
+            <div className="flex items-center">
+              <span className="w-16 text-gray-600 dark:text-gray-400">To:</span>
+              <input
+                type="text"
+                className="flex-grow p-1 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700"
+                defaultValue={email?.to || ""}
+              />
+            </div>
+            <div className="flex items-center">
+              <span className="w-16 text-gray-600 dark:text-gray-400">
+                Subject:
+              </span>
+              <input
+                type="text"
+                className="flex-grow p-1 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700"
+                defaultValue={email?.subject || ""}
+              />
+            </div>
+          </div>
+
+          <div className="border border-gray-300 dark:border-gray-600 rounded overflow-hidden">
+            <RichTextEditor
+              initialContent={content}
+              onChange={handleEditorChange}
+              darkMode={document.documentElement.classList.contains('dark')}
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end space-x-2">
+          <Button onClick={handleCancel}>Cancel</Button>
+          <Button onClick={handleSaveDraft}>Save Draft</Button>
+          <Button onClick={handleSend}>Send</Button>
         </div>
       </div>
     </div>
@@ -486,7 +479,7 @@ export default function MainDashboard() {
         {/* SIDEBAR HEADER */}
         <div className="flex items-center justify-between p-4 border-b border-light-unread-bg dark:border-dark-border">
           <h2 className="text-xl font-semibold text-black dark:text-dark-text">
-            Email Assistant
+            Business Assistant
           </h2>
           <div className="flex items-center space-x-2">
             {/* Close button on mobile */}

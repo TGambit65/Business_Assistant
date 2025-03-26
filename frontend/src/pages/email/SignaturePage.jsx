@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
-import { Plus, Edit2, Trash2, FileText, Check, X, Sparkles, Loader2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, FileText, Check, X, Sparkles, Loader2, HelpCircle, ChevronDown } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSignatures } from '../../hooks/useSignatures';
 import RichTextEditor from '../../components/RichTextEditor';
+import { useFeatureInfo } from '../../hooks/useFeatureInfo';
+import FeatureInfoModal from '../../components/ui/FeatureInfoModal';
+import DeepseekService from '../../services/DeepseekService';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../components/ui/dropdown-menu';
 
 export default function SignaturePage() {
   const { success, error, warning, info } = useToast();
@@ -20,7 +24,6 @@ export default function SignaturePage() {
   } = useSignatures();
   
   const [showAddSignatureForm, setShowAddSignatureForm] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [isGeneratingSignature, setIsGeneratingSignature] = useState(false);
   const [newSignature, setNewSignature] = useState({
@@ -54,19 +57,35 @@ export default function SignaturePage() {
     github: ''
   });
   
+  const { isOpen, currentFeature, showFeatureInfo, closeFeatureInfo } = useFeatureInfo();
+  
+  // Handle clicking the AI Help button
+  const handleAIHelpClick = () => {
+    showFeatureInfo('signatureHelp');
+  };
+  
+  // Handle selecting a signature from the dropdown
+  const handleSelectSignature = (signature) => {
+    setShowAddSignatureForm(true);
+    setEditingId(signature.id);
+    setNewSignature({
+      name: signature.name,
+      content: signature.content,
+      default: signature.default
+    });
+  };
+  
   const handleAddSignature = () => {
     if (!newSignature.name) {
-      error({
-        title: 'Error',
-        description: 'Please provide a signature name'
+      error('Please provide a signature name', {
+        title: 'Error'
       });
       return;
     }
     
     if (!newSignature.content) {
-      error({
-        title: 'Error',
-        description: 'Please provide signature content'
+      error('Please provide signature content', {
+        title: 'Error'
       });
       return;
     }
@@ -74,6 +93,7 @@ export default function SignaturePage() {
     const success = addSignature(newSignature);
     
     if (success) {
+      setShowAddSignatureForm(false);
       setNewSignature({
         name: '',
         content: '',
@@ -83,20 +103,16 @@ export default function SignaturePage() {
   };
   
   const handleUpdateSignature = () => {
-    if (!editingId) return;
-    
     if (!newSignature.name) {
-      error({
-        title: 'Error',
-        description: 'Please provide a signature name'
+      error('Please provide a signature name', {
+        title: 'Error'
       });
       return;
     }
     
     if (!newSignature.content) {
-      error({
-        title: 'Error',
-        description: 'Please provide signature content'
+      error('Please provide signature content', {
+        title: 'Error'
       });
       return;
     }
@@ -104,18 +120,18 @@ export default function SignaturePage() {
     const success = updateSignature(editingId, newSignature);
     
     if (success) {
-      setIsEditing(false);
+      setShowAddSignatureForm(false);
       setEditingId(null);
-      setNewSignature({
-        name: '',
-        content: '',
-        default: false
-      });
+    setNewSignature({
+      name: '',
+      content: '',
+      default: false
+    });
     }
   };
   
   const handleEditSignature = (signature) => {
-    setIsEditing(true);
+    setShowAddSignatureForm(true);
     setEditingId(signature.id);
     setNewSignature({
       name: signature.name,
@@ -132,27 +148,101 @@ export default function SignaturePage() {
     setDefaultSignature(id);
   };
   
-  // Add more robust AI signature generation function
-  const generateSignatureWithAI = () => {
+  // Modify the generateSignatureWithAI function to add more debugging
+  const generateSignatureWithAI = async () => {
     if (!newSignature.name) {
-      error("Error", {
-        description: 'Please provide a signature name before generating'
+      error('Please provide a signature name before generating', {
+        title: 'Error'
       });
       return;
     }
-    
+
     setIsGeneratingSignature(true);
-    
-    // Simulate AI generation with a timeout
-    setTimeout(() => {
-      setIsGeneratingSignature(false);
+
+    try {
+      // Create a prompt for the AI
+      const prompt = `
+        Generate an HTML email signature with the following details:
+        - Name: ${userInfo.name}
+        ${aiOptions.includePosition ? `- Position: ${userInfo.position}` : ''}
+        ${aiOptions.includeCompany ? `- Company: ${userInfo.company}` : ''}
+        ${aiOptions.includeEmail ? `- Email: ${userInfo.email}` : ''}
+        ${aiOptions.includePhone ? `- Phone: ${userInfo.phone}` : ''}
+        ${aiOptions.includeWebsite ? `- Website: ${userInfo.website}` : ''}
+        ${aiOptions.includeSocialLinks ? `- Include social links` : ''}
+        ${aiOptions.includeDisclaimer ? `- Include a confidentiality disclaimer` : ''}
+        - Style: ${aiStyle} (professional, minimal, modern, or colorful)
+        
+        The signature should be in HTML format suitable for embedding in emails.
+        Return only the HTML markup, no explanations.
+      `;
+      
+      // Call the Deepseek API with logging
+      console.log('Calling Deepseek API with style:', aiStyle);
+      console.log('Using prompt:', prompt);
+      
+      // Add timeout handling for API call
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('API request timed out')), 15000)
+      );
+      
+      const apiPromise = DeepseekService.generateResponse(prompt, {
+        useContext: false,
+        temperature: 0.7
+      });
+      
+      // Race between actual API call and timeout
+      const response = await Promise.race([apiPromise, timeoutPromise]);
+      
+      console.log('Received API response:', response);
+      
+      // Extract the assistant's message
+      if (!response || !response.choices || !response.choices[0] || !response.choices[0].message) {
+        console.error('Invalid response format:', response);
+        throw new Error('Invalid response format from API');
+      }
+      
+      // Extract the HTML content from the response
+      const assistantMessage = response.choices[0].message.content;
+      console.log('Extracted assistant message:', assistantMessage);
+      
+      // Try to extract HTML from the response
+      let htmlContent = assistantMessage;
+      
+      // Look for HTML tags to extract just the HTML portion
+      const htmlMatch = assistantMessage.match(/<div[\s\S]*<\/div>/);
+      if (htmlMatch) {
+        htmlContent = htmlMatch[0];
+        console.log('Found HTML div content:', htmlContent);
+      } else {
+        console.log('No div HTML content found, using raw message');
+      }
+      
+      // Update the signature content
+      setNewSignature({
+        ...newSignature,
+        content: htmlContent
+      });
+      
+      success('Signature generated successfully with AI', {
+        title: 'Success'
+      });
+    } catch (err) {
+      console.error('Error generating signature with AI:', err);
+      console.error('Error details:', err.message);
+      
+      warning('Could not generate signature with AI. Using local fallback.', {
+        title: 'AI Generation Failed'
+      });
+      
+      // Fallback to local generation if AI fails
       setNewSignature({
         ...newSignature,
         content: generateSignatureBasedOnStyle(aiStyle, aiOptions)
       });
-      
-      success("Signature generated successfully");
-    }, 2000);
+    } finally {
+      setIsGeneratingSignature(false);
+    }
   };
 
   // Enhanced signature generator with more styles and options
@@ -161,10 +251,10 @@ export default function SignaturePage() {
     
     switch(style) {
       case 'professional':
-        signatureContent = `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #333333; line-height: 1.5;">
+      signatureContent = `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #333333; line-height: 1.5;">
           <p style="margin-bottom: 10px;"><strong>${userInfo.name}</strong>${options.includePosition ? `<br>${userInfo.position}` : ''}${options.includeCompany ? `<br>${userInfo.company}` : ''}</p>
-          
-          <p style="margin-bottom: 10px;">
+        
+        <p style="margin-bottom: 10px;">
           ${options.includeEmail ? `<span style="color: #666666;">Email:</span> ${userInfo.email}<br>` : ''}
           ${options.includePhone ? `<span style="color: #666666;">Phone:</span> ${userInfo.phone}<br>` : ''}
           ${options.includeWebsite ? `<span style="color: #666666;">Website:</span> <a href="https://${userInfo.website}" style="color: #1a73e8; text-decoration: none;">${userInfo.website}</a>` : ''}
@@ -179,80 +269,73 @@ export default function SignaturePage() {
           
           ${options.includeDisclaimer ? 
             `<p style="font-size: 12px; color: #777777; border-top: 1px solid #dddddd; padding-top: 10px; margin-top: 10px;">
-              This email and any files transmitted with it are confidential and intended solely for the use of the individual or entity to whom they are addressed.
+        This email and any files transmitted with it are confidential and intended solely for the use of the individual or entity to whom they are addressed.
             </p>` : ''}
-        </div>`;
+      </div>`;
         break;
         
       case 'minimal':
-        signatureContent = `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #333333; line-height: 1.5;">
-          <p>
+      signatureContent = `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #333333; line-height: 1.5;">
+        <p>
           ${userInfo.name}<br>
           ${options.includeEmail ? userInfo.email : ''}
-          </p>
-        </div>`;
+        </p>
+      </div>`;
         break;
         
       case 'modern':
-        signatureContent = `<div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; color: #333333; line-height: 1.5;">
-          <table cellpadding="0" cellspacing="0" border="0">
-            <tr>
-              <td width="20" style="background-color: #1a73e8;"></td>
-              <td width="20"></td>
-              <td>
+      signatureContent = `<div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; color: #333333; line-height: 1.5;">
+        <table cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td width="20" style="background-color: #1a73e8;"></td>
+            <td width="20"></td>
+            <td>
                 <p style="margin-bottom: 10px; font-size: 16px;"><strong>${userInfo.name}</strong></p>
-                ${options.includePosition || options.includeCompany ? 
-                  `<p style="margin-bottom: 15px; color: #666666;">${options.includePosition ? userInfo.position : ''}${options.includePosition && options.includeCompany ? ' | ' : ''}${options.includeCompany ? userInfo.company : ''}</p>` : ''}
-                
-                ${options.includeEmail || options.includePhone || options.includeWebsite ? 
-                  `<p style="margin-bottom: 10px;">
-                    ${options.includeEmail ? `<a href="mailto:${userInfo.email}" style="color: #1a73e8; text-decoration: none;">${userInfo.email}</a><br>` : ''}
-                    ${options.includePhone ? `<span style="color: #666666;">${userInfo.phone}</span><br>` : ''}
-                    ${options.includeWebsite ? `<a href="https://${userInfo.website}" style="color: #1a73e8; text-decoration: none;">${userInfo.website}</a>` : ''}
-                  </p>` : ''}
-                
-                ${options.includeSocialLinks ? 
-                  `<p style="margin-bottom: 10px;">
-                    ${userInfo.linkedin ? `<a href="${userInfo.linkedin}" style="display: inline-block; margin-right: 8px;"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/linkedin.svg" alt="LinkedIn" width="16" height="16"></a>` : ''}
-                    ${userInfo.twitter ? `<a href="${userInfo.twitter}" style="display: inline-block; margin-right: 8px;"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/twitter.svg" alt="Twitter" width="16" height="16"></a>` : ''}
-                    ${userInfo.github ? `<a href="${userInfo.github}" style="display: inline-block;"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/github.svg" alt="GitHub" width="16" height="16"></a>` : ''}
-                  </p>` : ''}
-                
-                ${options.includeDisclaimer ? 
-                  `<p style="font-size: 11px; color: #999999;">
-                    This email and any files transmitted with it are confidential and intended solely for the use of the individual or entity to whom they are addressed.
-                  </p>` : ''}
-              </td>
-            </tr>
-          </table>
-        </div>`;
+                ${options.includePosition && options.includeCompany ? 
+                  `<p style="margin-bottom: 15px; color: #666666;">${userInfo.position} | ${userInfo.company}</p>` : 
+                  options.includePosition ? 
+                    `<p style="margin-bottom: 15px; color: #666666;">${userInfo.position}</p>` : 
+                    options.includeCompany ? 
+                      `<p style="margin-bottom: 15px; color: #666666;">${userInfo.company}</p>` : ''}
+              
+              <p style="margin-bottom: 10px;">
+                  ${options.includeEmail ? `<a href="mailto:${userInfo.email}" style="color: #1a73e8; text-decoration: none;">${userInfo.email}</a><br>` : ''}
+                  ${options.includePhone ? `<span style="color: #666666;">${userInfo.phone}</span>` : ''}
+              </p>
+            </td>
+          </tr>
+        </table>
+          
+          ${options.includeDisclaimer ? 
+            `<p style="font-size: 12px; color: #777777; border-top: 1px solid #dddddd; padding-top: 10px; margin-top: 10px;">
+              This email and any files transmitted with it are confidential and intended solely for the use of the individual or entity to whom they are addressed.
+            </p>` : ''}
+      </div>`;
         break;
         
       case 'colorful':
         signatureContent = `<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 14px; color: #333333; line-height: 1.5;">
-          <table cellpadding="0" cellspacing="0" border="0">
-            <tr>
-              <td style="padding: 10px 15px; background: linear-gradient(135deg, #6e8efb, #a777e3); border-radius: 4px; color: white;">
-                <p style="margin-bottom: 5px; font-size: 18px;"><strong>${userInfo.name}</strong></p>
-                ${options.includePosition ? `<p style="margin-bottom: 5px; font-size: 14px; opacity: 0.9;">${userInfo.position}</p>` : ''}
-                ${options.includeCompany ? `<p style="margin-bottom: 10px; font-size: 14px; opacity: 0.9;">${userInfo.company}</p>` : ''}
+        <table cellpadding="0" cellspacing="0" border="0">
+          <tr>
+              <td style="padding: 10px; background: linear-gradient(135deg, #6e8efb, #a777e3); border-radius: 5px;">
+                <p style="margin-bottom: 5px; font-size: 18px; color: white;"><strong>${userInfo.name}</strong></p>
+                ${options.includePosition ? `<p style="margin-bottom: 5px; color: rgba(255,255,255,0.8); font-size: 14px;">${userInfo.position}</p>` : ''}
+                ${options.includeCompany ? `<p style="margin-bottom: 10px; color: rgba(255,255,255,0.9); font-size: 16px;">${userInfo.company}</p>` : ''}
                 
-                ${options.includeEmail || options.includePhone || options.includeWebsite ? 
-                  `<p style="margin-bottom: 0; font-size: 13px;">
-                    ${options.includeEmail ? `<a href="mailto:${userInfo.email}" style="color: white; text-decoration: none;">${userInfo.email}</a><br>` : ''}
-                    ${options.includePhone ? `<span>${userInfo.phone}</span><br>` : ''}
-                    ${options.includeWebsite ? `<a href="https://${userInfo.website}" style="color: white; text-decoration: none;">${userInfo.website}</a>` : ''}
-                  </p>` : ''}
+                <p style="margin-bottom: 5px;">
+                  ${options.includeEmail ? `<a href="mailto:${userInfo.email}" style="color: white; text-decoration: none;">${userInfo.email}</a><br>` : ''}
+                  ${options.includePhone ? `<span style="color: rgba(255,255,255,0.9);">${userInfo.phone}</span><br>` : ''}
+                  ${options.includeWebsite ? `<a href="https://${userInfo.website}" style="color: white; text-decoration: none;">${userInfo.website}</a>` : ''}
+                </p>
               </td>
-            </tr>
-            ${options.includeDisclaimer ? 
-              `<tr>
-                <td style="padding-top: 10px; font-size: 11px; color: #888888;">
-                  This email and any files transmitted with it are confidential.
-                </td>
-              </tr>` : ''}
-          </table>
-        </div>`;
+                </tr>
+              </table>
+              
+          ${options.includeDisclaimer ? 
+            `<p style="font-size: 12px; color: #777777; padding-top: 10px; margin-top: 10px;">
+              This email and any files transmitted with it are confidential and intended solely for the use of the individual or entity to whom they are addressed.
+            </p>` : ''}
+      </div>`;
         break;
         
       default:
@@ -263,15 +346,54 @@ export default function SignaturePage() {
   };
   
   return (
-    <div className="p-4 sm:p-6">
-      <div className="flex flex-col mb-6 sm:mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Email Signatures</h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          Create and manage your email signatures for professional communications.
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Email Signatures</h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          Create and manage professional email signatures
         </p>
       </div>
       
-      <div className="flex justify-end mb-6">
+      <div className="flex flex-wrap justify-between items-center mb-6">
+        <div className="flex space-x-2 mb-2 sm:mb-0">
+          <Button 
+            variant="outline"
+            onClick={handleAIHelpClick}
+            className="flex items-center gap-2"
+          >
+            <HelpCircle size={16} />
+            <span>AI Help</span>
+          </Button>
+          
+          {signatures.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="flex items-center gap-2">
+                  <FileText size={16} />
+                  <span>Select Signature</span>
+                  <ChevronDown size={14} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                {signatures.map(signature => (
+                  <DropdownMenuItem 
+                    key={signature.id}
+                    onClick={() => handleSelectSignature(signature)}
+                    className="flex items-center justify-between"
+                  >
+                    <span>{signature.name}</span>
+                    {signature.default && (
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full dark:bg-green-800/30 dark:text-green-400">
+                        Default
+                      </span>
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+        
         <Button 
           onClick={() => {
             setShowAddSignatureForm(!showAddSignatureForm);
@@ -347,9 +469,9 @@ export default function SignaturePage() {
                       <option value="modern">Modern</option>
                       <option value="colorful">Colorful</option>
                     </select>
-                  </div>
-                  
-                  <div>
+              </div>
+              
+              <div>
                     <label className="block text-sm font-medium mb-2">Your Information</label>
                     <div className="space-y-2">
                       <input
@@ -502,7 +624,7 @@ export default function SignaturePage() {
                 <span>Cancel</span>
               </Button>
               <Button
-                onClick={handleUpdateSignature}
+                onClick={editingId !== null ? handleUpdateSignature : handleAddSignature}
                 className="flex items-center gap-2"
               >
                 <Check size={16} />
@@ -566,11 +688,9 @@ export default function SignaturePage() {
                   variant="outline"
                   className="w-full mt-4 text-sm"
                   onClick={() => {
-                    // Functionality to use signature would go here
                     setTimeout(() => {
-                      success({
-                        title: 'Success',
-                        description: `Signature "${signature.name}" selected`
+                      success(`Signature "${signature.name}" selected`, {
+                        title: 'Success'
                       });
                     }, 0);
                   }}
@@ -602,6 +722,18 @@ export default function SignaturePage() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Feature Info Modal */}
+      {isOpen && currentFeature && (
+        <FeatureInfoModal
+          isOpen={isOpen}
+          onClose={closeFeatureInfo}
+          title={currentFeature.title}
+          description={currentFeature.description}
+          benefits={currentFeature.benefits}
+          releaseDate={currentFeature.releaseDate}
+        />
       )}
     </div>
   );

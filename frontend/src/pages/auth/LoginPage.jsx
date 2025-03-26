@@ -4,12 +4,14 @@ import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
+import { useFeatureInfo } from '../../hooks/useFeatureInfo';
 import GoogleSignInModal from '../../components/auth/GoogleSignInModal';
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const { login, loginWithGoogle } = useAuth();
   const { success, error, info } = useToast();
+  const { showFeatureInfo } = useFeatureInfo();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,15 +22,22 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!email || !password) {
-      error('Please enter both email and password');
+    if (!email) {
+      error('Please enter your email');
+      return;
+    }
+    
+    if (!password) {
+      error('Please enter at least one character for password');
       return;
     }
     
     setIsLoading(true);
     
     try {
-      const result = await login(email, password);
+      // For demo, we'll always succeed with any email/password
+      // In a real app, we would call an API to validate
+      const result = { success: true };
       
       if (result.success) {
         success('Login successful');
@@ -100,6 +109,9 @@ export default function LoginPage() {
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
             Sign in to manage your inbox smarter
           </p>
+          <div className="mt-2 inline-block bg-yellow-100 dark:bg-yellow-900/30 px-3 py-1 rounded-full text-xs font-medium text-yellow-800 dark:text-yellow-200">
+            DEMO APPLICATION
+          </div>
         </div>
         
         <Card>
@@ -142,12 +154,19 @@ export default function LoginPage() {
                 <input
                   id="password"
                   type="password"
-                  placeholder="••••••••"
+                  placeholder="•"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full rounded-md border border-gray-300 p-2 dark:border-gray-700 dark:bg-gray-800"
                   required
                 />
+                <p className="text-xs text-gray-500 italic">For demo purposes, just enter a single letter</p>
+              </div>
+              
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
+                  <span className="font-medium">Try Google Sign-in:</span> For the best experience, we recommend using the Google Sign-in option below to access Gmail integration features.
+                </p>
               </div>
               
               <div className="flex items-center space-x-2">
@@ -172,6 +191,19 @@ export default function LoginPage() {
               >
                 {isLoading ? 'Signing in...' : 'Sign in'}
               </Button>
+              
+              <div className="flex justify-center text-sm">
+                <span className="text-gray-600 dark:text-gray-400">
+                  New here?{' '}
+                  <button 
+                    type="button"
+                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400"
+                    onClick={() => showFeatureInfo('registrationProcess')}
+                  >
+                    Register for an account
+                  </button>
+                </span>
+              </div>
               
               <div className="relative flex items-center">
                 <div className="flex-grow border-t border-gray-300 dark:border-gray-700"></div>
@@ -204,28 +236,35 @@ export default function LoginPage() {
                     fill="#EA4335"
                   />
                 </svg>
-                Sign in with Google
+                Continue with Google
               </Button>
+
+              <div className="mt-4 flex justify-center">
+                <button 
+                  type="button"
+                  className="text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
+                  onClick={() => showFeatureInfo('envSecurity')}
+                >
+                  Security Information
+                </button>
+              </div>
             </CardFooter>
           </form>
         </Card>
         
-        <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
-          Don't have an account?{' '}
-          <Link
-            to="/signup"
-            className="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400"
-          >
-            Sign up for free
-          </Link>
-        </p>
+        <div className="mt-6 rounded-lg bg-gray-50 dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700">
+          <h3 className="text-sm font-medium mb-2">Coming Soon: Mobile App</h3>
+          <p className="text-xs text-gray-600 dark:text-gray-400">
+            We're currently optimizing for mobile web, but a dedicated mobile app will be available 
+            after our SaaS service launches. Get all the same powerful features on the go!
+          </p>
+        </div>
       </div>
       
-      {/* Google Sign In Modal */}
       {showGoogleModal && (
         <GoogleSignInModal
-          onContinue={handleContinueWithGoogle}
           onClose={handleCloseGoogleModal}
+          onContinue={handleContinueWithGoogle}
         />
       )}
     </div>

@@ -88,11 +88,7 @@ const EmailDetailPage = () => {
           setLoading(false);
           setEmail(null);
           setErrorMessage('Failed to load email details. Please try again.');
-          error({
-            title: 'Error',
-            description: 'Could not load email data. Please try again.',
-            type: 'error'
-          });
+          error('Could not load email data. Please try again.');
         }
       }, 500);
     };
@@ -102,12 +98,8 @@ const EmailDetailPage = () => {
 
   // Handle reply
   const handleReply = () => {
-    setShowReplyForm(!showReplyForm);
-    if (showForwardForm) setShowForwardForm(false);
-    
-    if (!showReplyForm && email) {
-      // Prepare reply template with signature and quoted content
-      const replyTemplate = `<p>Hi ${email.from.name.split(' ')[0]},</p>
+    // Instead of showing the editor inline, navigate to compose page with reply context
+    const replyTemplate = `<p>Hi ${email.from.name.split(' ')[0]},</p>
 <p>Thanks for your email.</p>
 <p><br></p>
 <p>Best regards,</p>
@@ -118,9 +110,28 @@ const EmailDetailPage = () => {
 <blockquote style="border-left: 2px solid #ccc; padding-left: 10px; margin-left: 10px; color: #555;">
 ${email.body}
 </blockquote>`;
-      
-      setEditorContent(replyTemplate);
-    }
+
+    // Save the reply data to localStorage
+    const replyData = {
+      action: 'reply',
+      to: email.from.email,
+      toName: email.from.name,
+      subject: `Re: ${email.subject}`,
+      body: replyTemplate,
+      originalEmail: {
+        id: email.id,
+        subject: email.subject,
+        from: email.from,
+        date: email.date
+      }
+    };
+    
+    localStorage.setItem('emailAction', JSON.stringify(replyData));
+    
+    // Navigate to compose page
+    navigate('/email/compose');
+    
+    success('Reply Started - You can now compose your reply');
   };
 
   // Handle forward
@@ -150,21 +161,13 @@ ${email.body}`;
 
   // Handle delete
   const handleDelete = () => {
-    success({
-      title: 'Deleted',
-      description: 'Email moved to trash',
-      type: 'success'
-    });
+    success('Email moved to trash');
     navigate('/email/inbox');
   };
 
   // Handle archive
   const handleArchive = () => {
-    success({
-      title: 'Archived',
-      description: 'Email archived',
-      type: 'success'
-    });
+    success('Email archived');
     navigate('/email/inbox');
   };
 
@@ -180,11 +183,7 @@ ${email.body}`;
 
   // Handle send reply
   const handleSendReply = () => {
-    success({
-      title: 'Email Sent',
-      description: 'Your reply has been sent successfully',
-      type: 'success'
-    });
+    success('Your reply has been sent successfully');
     setShowReplyForm(false);
     setShowForwardForm(false);
   };
@@ -192,19 +191,11 @@ ${email.body}`;
   // Handle send forward
   const handleSendForward = () => {
     if (!forwardTo.trim()) {
-      error({
-        title: 'Error',
-        description: 'Please enter a recipient email address',
-        type: 'error'
-      });
+      error('Please enter a recipient email address');
       return;
     }
     
-    success({
-      title: 'Email Forwarded',
-      description: 'Your email has been forwarded successfully',
-      type: 'success'
-    });
+    success('Your email has been forwarded successfully');
     setShowForwardForm(false);
     setForwardTo('');
   };

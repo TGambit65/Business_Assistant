@@ -239,6 +239,52 @@ body {
   .hide-on-mobile {
     display: none;
   }
+  
+  /* Improve spacing on mobile */
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  /* Make buttons more touchable */
+  button, 
+  .button,
+  [role="button"],
+  .btn,
+  input[type="submit"],
+  input[type="button"] {
+    min-height: 2.5rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  /* Stack horizontal layouts on mobile */
+  .mobile-stack {
+    flex-direction: column;
+  }
+  
+  /* Make text inputs easier to use on mobile */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea,
+  select {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+}
+
+/* Better mobile toolbar visibility */
+@media (max-width: 640px) {
+  .toolbar-compact {
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.5rem;
+  }
+  
+  .toolbar-compact::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Responsive typography */

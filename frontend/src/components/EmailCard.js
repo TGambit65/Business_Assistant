@@ -19,9 +19,9 @@ export default function EmailCard({
     touch-manipulation border
     ${
       email.isRead
-        ? `bg-gray-50 dark:bg-gray-800 
+        ? `bg-muted dark:bg-gray-800 
            border-gray-300 dark:border-gray-700`
-        : `bg-white dark:bg-[#3A3A3A] font-medium 
+        : `bg-background dark:bg-[#3A3A3A] font-medium 
            border-blue-200 dark:border-orange-800 
            shadow-blue-100 dark:shadow-orange-900/30`
     }
@@ -75,7 +75,7 @@ export default function EmailCard({
           )}
           
           {/* Subject line with improved mobile handling */}
-          <h3 className="text-gray-900 dark:text-gray-100 font-medium text-base md:text-lg truncate max-w-[250px] md:max-w-md">
+          <h3 className="text-foreground dark:text-gray-100 font-medium text-base md:text-lg truncate max-w-[250px] md:max-w-md">
             {email.subject || "(No subject)"}
           </h3>
         </div>
@@ -112,7 +112,7 @@ export default function EmailCard({
         
         {/* AI Summary section if available */}
         {email.summary && (
-          <div className="mt-3 border-t border-gray-200 dark:border-gray-700 pt-2">
+          <div className="mt-3 border-t border-border dark:border-gray-700 pt-2">
             <div className="flex items-center mb-1">
               <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
                 AI SUMMARY:
@@ -126,7 +126,7 @@ export default function EmailCard({
       </div>
       
       {/* Action buttons with better touch targets */}
-      <div className="flex flex-wrap items-center justify-end gap-2 mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
+      <div className="flex flex-wrap items-center justify-end gap-2 mt-3 pt-2 border-t border-border dark:border-gray-700">
         {!email.isRead && (
           <button
             onClick={(e) => {

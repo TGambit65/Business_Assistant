@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react'; // Import useCallback
 
 export function useLocalStorage(key, initialValue) {
+  // Wrap readValue in useCallback
+  const readValue = useCallback(() => {
   // Get from local storage then
   // parse stored json or return initialValue
-  const readValue = () => {
     // Prevent build error "window is undefined" but keeps working
     if (typeof window === 'undefined') {
       return initialValue;
@@ -16,7 +17,7 @@ export function useLocalStorage(key, initialValue) {
       console.warn(`Error reading localStorage key "${key}":`, error);
       return initialValue;
     }
-  };
+  }, [initialValue, key]);
 
   // State to store our value
   // Pass initial state function to useState so logic is only executed once
@@ -54,7 +55,7 @@ export function useLocalStorage(key, initialValue) {
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, [key]);
+  }, [key, readValue]); // Add readValue to dependency array
 
   return [storedValue, setValue];
 } 

@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+  <!-- Background -->
+  <rect width="1280" height="800" fill="#f8fafc" />
+  
+  <!-- Left Sidebar -->
+  <rect x="0" y="0" width="240" height="800" fill="#f1f5f9" />
+  <text x="30" y="50" font-family="Arial, sans-serif" font-size="24" fill="#1e40af">Email Assistant</text>
+  
+  <!-- Sidebar Menu Items -->
+  <rect x="20" y="100" width="200" height="40" rx="4" fill="#f1f5f9" />
+  <text x="60" y="125" font-family="Arial, sans-serif" font-size="16" fill="#334155">Inbox</text>
+  <text x="180" y="125" font-family="Arial, sans-serif" font-size="16" fill="#334155">24</text>
+  
+  <rect x="20" y="150" width="200" height="40" rx="4" fill="#f1f5f9" />
+  <text x="60" y="175" font-family="Arial, sans-serif" font-size="16" fill="#334155">Drafts</text>
+  <text x="180" y="175" font-family="Arial, sans-serif" font-size="16" fill="#334155">3</text>
+  
+  <rect x="20" y="200" width="200" height="40" rx="4" fill="#f1f5f9" />
+  <text x="60" y="225" font-family="Arial, sans-serif" font-size="16" fill="#334155">Sent</text>
+  <text x="180" y="225" font-family="Arial, sans-serif" font-size="16" fill="#334155">12</text>
+  
+  <rect x="20" y="250" width="200" height="40" rx="4" fill="#f1f5f9" />
+  <text x="60" y="275" font-family="Arial, sans-serif" font-size="16" fill="#334155">Templates</text>
+  
+  <!-- Compose Button (highlighted) -->
+  <rect x="20" y="700" width="200" height="50" rx="25" fill="#1e40af" />
+  <text x="85" y="730" font-family="Arial, sans-serif" font-size="16" fill="white">Compose</text>
+  
+  <!-- Compose Area -->
+  <rect x="240" y="0" width="1040" height="800" fill="white" />
+  
+  <!-- Compose Header -->
+  <rect x="240" y="0" width="1040" height="60" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <text x="260" y="38" font-family="Arial, sans-serif" font-size="22" fill="#1e293b">New Message</text>
+  
+  <!-- To Field -->
+  <rect x="260" y="80" width="1000" height="50" rx="4" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <text x="280" y="110" font-family="Arial, sans-serif" font-size="16" fill="#94a3b8">To:</text>
+  
+  <!-- CC/BCC Links -->
+  <text x="350" y="110" font-family="Arial, sans-serif" font-size="16" fill="#1e40af">Cc</text>
+  <text x="390" y="110" font-family="Arial, sans-serif" font-size="16" fill="#1e40af">Bcc</text>
+  
+  <!-- Subject Field -->
+  <rect x="260" y="140" width="1000" height="50" rx="4" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <text x="280" y="170" font-family="Arial, sans-serif" font-size="16" fill="#94a3b8">Subject:</text>
+  
+  <!-- Formatting Toolbar -->
+  <rect x="260" y="200" width="1000" height="40" rx="4" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
+  
+  <!-- Message Body -->
+  <rect x="260" y="250" width="1000" height="450" rx="4" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <text x="280" y="280" font-family="Arial, sans-serif" font-size="16" fill="#94a3b8">Write your message here...</text>
+  
+  <!-- Action Buttons -->
+  <rect x="260" y="720" width="150" height="50" rx="4" fill="#1e40af" />
+  <text x="310" y="750" font-family="Arial, sans-serif" font-size="16" fill="white">Send</text>
+  
+  <rect x="420" y="720" width="150" height="50" rx="4" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <text x="455" y="750" font-family="Arial, sans-serif" font-size="16" fill="#334155">Save Draft</text>
+  
+  <rect x="580" y="720" width="150" height="50" rx="4" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <text x="625" y="750" font-family="Arial, sans-serif" font-size="16" fill="#334155">Discard</text>
+</svg> 

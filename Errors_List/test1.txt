@@ -1,0 +1,889 @@
+(base) thoder@Dev-Linux:~/Desktop/Cursor/email-assistant$ npm test -- --clearCache
+
+> email-assistant@1.0.0 test
+> jest --clearCache
+
+Cleared /tmp/jest_rs
+(base) thoder@Dev-Linux:~/Desktop/Cursor/email-assistant$ npm test -- --verbose
+
+> email-assistant@1.0.0 test
+> jest --verbose
+
+jest-haste-map: Haste module naming collision: tinymce
+  The following files share their name; please adjust your hasteImpl:
+    * <rootDir>/frontend/build/tinymce/package.json
+    * <rootDir>/frontend/public/tinymce/package.json
+
+ FAIL  src/spellchecker/tests/dictionary-utils.test.ts
+  ● Test suite failed to run
+
+    src/spellchecker/tests/dictionary-utils.test.ts:22:48 - error TS2554: Expected 2-4 arguments, but got 1.
+
+    22       const dictionary = await DictionaryUtils.loadDictionaryFile('en-US');
+                                                      ~~~~~~~~~~~~~~~~~~
+
+      src/spellchecker/dictionary-utils.ts:24:5
+        24     language: string,
+               ~~~~~~~~~~~~~~~~
+        An argument for 'language' was not provided.
+    src/spellchecker/tests/dictionary-utils.test.ts:24:25 - error TS2339: Property 'size' does not exist on type 'DictionaryData'.
+
+    24       expect(dictionary.size).toBe(3);
+                               ~~~~
+    src/spellchecker/tests/dictionary-utils.test.ts:25:25 - error TS2339: Property 'has' does not exist on type 'DictionaryData'.
+
+    25       expect(dictionary.has('word1')).toBe(true);
+                               ~~~
+    src/spellchecker/tests/dictionary-utils.test.ts:26:25 - error TS2339: Property 'has' does not exist on type 'DictionaryData'.
+
+    26       expect(dictionary.has('word2')).toBe(true);
+                               ~~~
+    src/spellchecker/tests/dictionary-utils.test.ts:27:25 - error TS2339: Property 'has' does not exist on type 'DictionaryData'.
+
+    27       expect(dictionary.has('word3')).toBe(true);
+                               ~~~
+    src/spellchecker/tests/dictionary-utils.test.ts:33:48 - error TS2554: Expected 2-4 arguments, but got 1.
+
+    33       const dictionary = await DictionaryUtils.loadDictionaryFile('en-US');
+                                                      ~~~~~~~~~~~~~~~~~~
+
+      src/spellchecker/dictionary-utils.ts:24:5
+        24     language: string,
+               ~~~~~~~~~~~~~~~~
+        An argument for 'language' was not provided.
+    src/spellchecker/tests/dictionary-utils.test.ts:34:25 - error TS2339: Property 'size' does not exist on type 'DictionaryData'.
+
+    34       expect(dictionary.size).toBe(0);
+                               ~~~~
+    src/spellchecker/tests/dictionary-utils.test.ts:40:36 - error TS2554: Expected 2-4 arguments, but got 1.
+
+    40       await expect(DictionaryUtils.loadDictionaryFile('en-US'))
+                                          ~~~~~~~~~~~~~~~~~~
+
+      src/spellchecker/dictionary-utils.ts:24:5
+        24     language: string,
+               ~~~~~~~~~~~~~~~~
+        An argument for 'language' was not provided.
+    src/spellchecker/tests/dictionary-utils.test.ts:53:66 - error TS2345: Argument of type 'Map<string, boolean>' is not assignable to parameter of type 'DictionaryData'.
+      Property 'words' is missing in type 'Map<string, boolean>' but required in type 'DictionaryData'.
+
+    53       const suggestions = DictionaryUtils.getSuggestions('helo', dictionary);
+                                                                        ~~~~~~~~~~
+
+      src/spellchecker/types.ts:49:3
+        49   words: Set<string>;
+             ~~~~~
+        'words' is declared here.
+    src/spellchecker/tests/dictionary-utils.test.ts:60:66 - error TS2345: Argument of type 'Map<any, any>' is not assignable to parameter of type 'DictionaryData'.
+      Property 'words' is missing in type 'Map<any, any>' but required in type 'DictionaryData'.
+
+    60       const suggestions = DictionaryUtils.getSuggestions('test', new Map());
+                                                                        ~~~~~~~~~
+
+      src/spellchecker/types.ts:49:3
+        49   words: Set<string>;
+             ~~~~~
+        'words' is declared here.
+    src/spellchecker/tests/dictionary-utils.test.ts:73:66 - error TS2345: Argument of type 'Map<string, boolean>' is not assignable to parameter of type 'DictionaryData'.
+      Property 'words' is missing in type 'Map<string, boolean>' but required in type 'DictionaryData'.
+
+    73       const suggestions = DictionaryUtils.getSuggestions('word', dictionary, 3);
+                                                                        ~~~~~~~~~~
+
+      src/spellchecker/types.ts:49:3
+        49   words: Set<string>;
+             ~~~~~
+        'words' is declared here.
+
+ FAIL  src/spellchecker/tests/utils.test.ts
+  ● Test suite failed to run
+
+    src/spellchecker/tests/utils.test.ts:1:80 - error TS2307: Cannot find module '../utils' or its corresponding type declarations.
+
+    1 import { calculateLevenshteinDistance, normalizeWord, splitCompoundWord } from '../utils';
+                                                                                     ~~~~~~~~~~
+
+ FAIL  src/tests/integration/deepseek.integration.test.ts
+  ● Test suite failed to run
+
+    src/tests/integration/deepseek.integration.test.ts:40:67 - error TS2345: Argument of type 'GenerationOptions' is not assignable to parameter of type '{ useContext: boolean; temperature?: number | undefined; maxTokens?: number | undefined; context?: AIContext | undefined; }'.
+      Property 'useContext' is missing in type 'GenerationOptions' but required in type '{ useContext: boolean; temperature?: number | undefined; maxTokens?: number | undefined; context?: AIContext | undefined; }'.
+
+    40       const response = await service.generateResponse(promptText, options);
+                                                                         ~~~~~~~
+
+      src/services/deepseek/DeepseekService.ts:72:7
+        72       useContext: boolean;
+                 ~~~~~~~~~~
+        'useContext' is declared here.
+    src/tests/integration/deepseek.integration.test.ts:69:67 - error TS2345: Argument of type 'GenerationOptions' is not assignable to parameter of type '{ useContext: boolean; temperature?: number | undefined; maxTokens?: number | undefined; context?: AIContext | undefined; }'.
+      Property 'useContext' is missing in type 'GenerationOptions' but required in type '{ useContext: boolean; temperature?: number | undefined; maxTokens?: number | undefined; context?: AIContext | undefined; }'.
+
+    69       const response = await service.generateResponse(promptText, options);
+                                                                         ~~~~~~~
+
+      src/services/deepseek/DeepseekService.ts:72:7
+        72       useContext: boolean;
+                 ~~~~~~~~~~
+        'useContext' is declared here.
+    src/tests/integration/deepseek.integration.test.ts:94:67 - error TS2345: Argument of type 'GenerationOptions' is not assignable to parameter of type '{ useContext: boolean; temperature?: number | undefined; maxTokens?: number | undefined; context?: AIContext | undefined; }'.
+      Property 'useContext' is missing in type 'GenerationOptions' but required in type '{ useContext: boolean; temperature?: number | undefined; maxTokens?: number | undefined; context?: AIContext | undefined; }'.
+
+    94       const response = await service.generateResponse(promptText, options);
+                                                                         ~~~~~~~
+
+      src/services/deepseek/DeepseekService.ts:72:7
+        72       useContext: boolean;
+                 ~~~~~~~~~~
+        'useContext' is declared here.
+    src/tests/integration/deepseek.integration.test.ts:104:49 - error TS2551: Property 'apiKeys' does not exist on type 'DeepseekConfig'. Did you mean 'apiKey'?
+
+    104           'Authorization': `Bearer ${mockConfig.apiKeys[0]}`
+                                                        ~~~~~~~
+
+      src/types/deepseek.ts:8:3
+        8   apiKey: string;
+            ~~~~~~
+        'apiKey' is declared here.
+    src/tests/integration/deepseek.integration.test.ts:110:50 - error TS2345: Argument of type 'GenerationOptions' is not assignable to parameter of type '{ useContext: boolean; temperature?: number | undefined; maxTokens?: number | undefined; context?: AIContext | undefined; }'.
+      Property 'useContext' is missing in type 'GenerationOptions' but required in type '{ useContext: boolean; temperature?: number | undefined; maxTokens?: number | undefined; context?: AIContext | undefined; }'.
+
+    110       await service.generateResponse(promptText, options);
+                                                         ~~~~~~~
+
+      src/services/deepseek/DeepseekService.ts:72:7
+        72       useContext: boolean;
+                 ~~~~~~~~~~
+        'useContext' is declared here.
+    src/tests/integration/deepseek.integration.test.ts:115:49 - error TS2551: Property 'apiKeys' does not exist on type 'DeepseekConfig'. Did you mean 'apiKey'?
+
+    115           'Authorization': `Bearer ${mockConfig.apiKeys[1]}`
+                                                        ~~~~~~~
+
+      src/types/deepseek.ts:8:3
+        8   apiKey: string;
+            ~~~~~~
+        'apiKey' is declared here.
+    src/tests/integration/deepseek.integration.test.ts:121:64 - error TS2353: Object literal may only specify known properties, and 'requestId' does not exist in type '{ useContext: boolean; temperature?: number | undefined; maxTokens?: number | undefined; context?: AIContext | undefined; }'.
+
+    121       await service.generateResponse(promptText, { ...options, requestId: 'different-id' });
+                                                                       ~~~~~~~~~
+    src/tests/integration/deepseek.integration.test.ts:142:9 - error TS2353: Object literal may only specify known properties, and 'timeout' does not exist in type '{ useContext: boolean; temperature?: number | undefined; maxTokens?: number | undefined; context?: AIContext | undefined; }'.
+
+    142         timeout: 1000 // 1 second timeout
+                ~~~~~~~
+    src/tests/integration/deepseek.integration.test.ts:158:75 - error TS2353: Object literal may only specify known properties, and 'requestId' does not exist in type '{ useContext: boolean; temperature?: number | undefined; maxTokens?: number | undefined; context?: AIContext | undefined; }'.
+
+    158       const promise1 = service.generateResponse(promptText, { ...options, requestId });
+                                                                                  ~~~~~~~~~
+    src/tests/integration/deepseek.integration.test.ts:159:75 - error TS2353: Object literal may only specify known properties, and 'requestId' does not exist in type '{ useContext: boolean; temperature?: number | undefined; maxTokens?: number | undefined; context?: AIContext | undefined; }'.
+
+    159       const promise2 = service.generateResponse(promptText, { ...options, requestId });
+                                                                                  ~~~~~~~~~
+    src/tests/integration/deepseek.integration.test.ts:183:67 - error TS2345: Argument of type 'GenerationOptions' is not assignable to parameter of type '{ useContext: boolean; temperature?: number | undefined; maxTokens?: number | undefined; context?: AIContext | undefined; }'.
+      Property 'useContext' is missing in type 'GenerationOptions' but required in type '{ useContext: boolean; temperature?: number | undefined; maxTokens?: number | undefined; context?: AIContext | undefined; }'.
+
+    183       const response = await service.generateResponse(promptText, options);
+                                                                          ~~~~~~~
+
+      src/services/deepseek/DeepseekService.ts:72:7
+        72       useContext: boolean;
+                 ~~~~~~~~~~
+        'useContext' is declared here.
+
+ FAIL  src/spellchecker/tests/lru-cache.test.ts
+  ● Test suite failed to run
+
+    src/spellchecker/tests/lru-cache.test.ts:11:11 - error TS2339: Property 'set' does not exist on type 'LRUCache<string, number>'.
+
+    11     cache.set('key1', 1);
+                 ~~~
+    src/spellchecker/tests/lru-cache.test.ts:20:11 - error TS2339: Property 'set' does not exist on type 'LRUCache<string, number>'.
+
+    20     cache.set('key1', 1);
+                 ~~~
+    src/spellchecker/tests/lru-cache.test.ts:21:11 - error TS2339: Property 'set' does not exist on type 'LRUCache<string, number>'.
+
+    21     cache.set('key2', 2);
+                 ~~~
+    src/spellchecker/tests/lru-cache.test.ts:22:11 - error TS2339: Property 'set' does not exist on type 'LRUCache<string, number>'.
+
+    22     cache.set('key3', 3);
+                 ~~~
+    src/spellchecker/tests/lru-cache.test.ts:23:11 - error TS2339: Property 'set' does not exist on type 'LRUCache<string, number>'.
+
+    23     cache.set('key4', 4); // Should evict key1
+                 ~~~
+    src/spellchecker/tests/lru-cache.test.ts:32:11 - error TS2339: Property 'set' does not exist on type 'LRUCache<string, number>'.
+
+    32     cache.set('key1', 1);
+                 ~~~
+    src/spellchecker/tests/lru-cache.test.ts:33:11 - error TS2339: Property 'set' does not exist on type 'LRUCache<string, number>'.
+
+    33     cache.set('key2', 2);
+                 ~~~
+    src/spellchecker/tests/lru-cache.test.ts:34:11 - error TS2339: Property 'set' does not exist on type 'LRUCache<string, number>'.
+
+    34     cache.set('key3', 3);
+                 ~~~
+    src/spellchecker/tests/lru-cache.test.ts:37:11 - error TS2339: Property 'set' does not exist on type 'LRUCache<string, number>'.
+
+    37     cache.set('key4', 4); // Should evict key2
+                 ~~~
+    src/spellchecker/tests/lru-cache.test.ts:46:11 - error TS2339: Property 'set' does not exist on type 'LRUCache<string, number>'.
+
+    46     cache.set('key1', 1);
+                 ~~~
+    src/spellchecker/tests/lru-cache.test.ts:47:11 - error TS2339: Property 'set' does not exist on type 'LRUCache<string, number>'.
+
+    47     cache.set('key2', 2);
+                 ~~~
+    src/spellchecker/tests/lru-cache.test.ts:57:15 - error TS2339: Property 'set' does not exist on type 'LRUCache<string, number>'.
+
+    57     zeroCache.set('key1', 1);
+                     ~~~
+
+ FAIL  src/spellchecker/tests/spell-checker-service.test.ts
+  ● Test suite failed to run
+
+    src/spellchecker/spell-checker-service.ts:120:41 - error TS2345: Argument of type 'DictionaryData' is not assignable to parameter of type 'Set<string>'.
+      Type 'DictionaryData' is missing the following properties from type 'Set<string>': add, clear, delete, forEach, and 7 more.
+
+    120         this.dictionaries.set(language, dictionaryData);
+                                                ~~~~~~~~~~~~~~
+    src/spellchecker/spell-checker-service.ts:129:43 - error TS2345: Argument of type 'DictionaryData' is not assignable to parameter of type 'Set<string>'.
+      Type 'DictionaryData' is missing the following properties from type 'Set<string>': add, clear, delete, forEach, and 7 more.
+
+    129           this.dictionaries.set(language, fallbackDict);
+                                                  ~~~~~~~~~~~~
+    src/spellchecker/spell-checker-service.ts:214:20 - error TS2339: Property 'words' does not exist on type 'Set<string>'.
+
+    214     if (dictionary.words.has(lowercaseWord)) {
+                           ~~~~~
+    src/spellchecker/spell-checker-service.ts:219:49 - error TS2345: Argument of type 'Set<string>' is not assignable to parameter of type 'DictionaryData'.
+      Property 'words' is missing in type 'Set<string>' but required in type 'DictionaryData'.
+
+    219     return DictionaryUtils.getSuggestions(word, dictionary);
+                                                        ~~~~~~~~~~
+
+      src/spellchecker/types.ts:49:3
+        49   words: Set<string>;
+             ~~~~~
+        'words' is declared here.
+    src/spellchecker/spell-checker-service.ts:246:29 - error TS2339: Property 'words' does not exist on type 'Set<string>'.
+
+    246       wordCount: dictionary.words.size,
+                                    ~~~~~
+    src/spellchecker/spell-checker-service.ts:247:30 - error TS2339: Property 'metadata' does not exist on type 'Set<string>'.
+
+    247       isFallback: dictionary.metadata?.version?.startsWith('fallback') || false
+                                     ~~~~~~~~
+    src/spellchecker/spell-checker-service.ts:288:71 - error TS18046: 'error' is of type 'unknown'.
+
+    288             `Failed to initialize after ${maxRetries + 1} attempts: ${error.message}`,
+                                                                              ~~~~~
+    src/spellchecker/spell-checker-service.ts:298:15 - error TS2339: Property 'config' does not exist on type 'SpellCheckerService'.
+
+    298     if (!this.config.languages || this.config.languages.length === 0) {
+                      ~~~~~~
+    src/spellchecker/spell-checker-service.ts:298:40 - error TS2339: Property 'config' does not exist on type 'SpellCheckerService'.
+
+    298     if (!this.config.languages || this.config.languages.length === 0) {
+                                               ~~~~~~
+    src/spellchecker/spell-checker-service.ts:303:31 - error TS2339: Property 'config' does not exist on type 'SpellCheckerService'.
+
+    303       for (const lang of this.config.languages) {
+                                      ~~~~~~
+    src/spellchecker/spell-checker-service.ts:304:50 - error TS2554: Expected 2-4 arguments, but got 1.
+
+    304         const dictionary = await DictionaryUtils.loadDictionaryFile(lang);
+                                                         ~~~~~~~~~~~~~~~~~~
+
+      src/spellchecker/dictionary-utils.ts:24:5
+        24     language: string,
+               ~~~~~~~~~~~~~~~~
+        An argument for 'language' was not provided.
+    src/spellchecker/spell-checker-service.ts:305:37 - error TS2345: Argument of type 'DictionaryData' is not assignable to parameter of type 'Set<string>'.
+      Type 'DictionaryData' is missing the following properties from type 'Set<string>': add, clear, delete, forEach, and 7 more.
+
+    305         this.dictionaries.set(lang, dictionary);
+                                            ~~~~~~~~~~
+    src/spellchecker/spell-checker-service.ts:308:55 - error TS18046: 'error' is of type 'unknown'.
+
+    308       throw new Error(`Failed to load dictionaries: ${error.message}`);
+                                                              ~~~~~
+
+ FAIL  src/spellchecker/tests/spell-checker.test.ts
+  ● Test suite failed to run
+
+    src/spellchecker/spell-checker-service.ts:120:41 - error TS2345: Argument of type 'DictionaryData' is not assignable to parameter of type 'Set<string>'.
+      Type 'DictionaryData' is missing the following properties from type 'Set<string>': add, clear, delete, forEach, and 7 more.
+
+    120         this.dictionaries.set(language, dictionaryData);
+                                                ~~~~~~~~~~~~~~
+    src/spellchecker/spell-checker-service.ts:129:43 - error TS2345: Argument of type 'DictionaryData' is not assignable to parameter of type 'Set<string>'.
+      Type 'DictionaryData' is missing the following properties from type 'Set<string>': add, clear, delete, forEach, and 7 more.
+
+    129           this.dictionaries.set(language, fallbackDict);
+                                                  ~~~~~~~~~~~~
+    src/spellchecker/spell-checker-service.ts:214:20 - error TS2339: Property 'words' does not exist on type 'Set<string>'.
+
+    214     if (dictionary.words.has(lowercaseWord)) {
+                           ~~~~~
+    src/spellchecker/spell-checker-service.ts:219:49 - error TS2345: Argument of type 'Set<string>' is not assignable to parameter of type 'DictionaryData'.
+      Property 'words' is missing in type 'Set<string>' but required in type 'DictionaryData'.
+
+    219     return DictionaryUtils.getSuggestions(word, dictionary);
+                                                        ~~~~~~~~~~
+
+      src/spellchecker/types.ts:49:3
+        49   words: Set<string>;
+             ~~~~~
+        'words' is declared here.
+    src/spellchecker/spell-checker-service.ts:246:29 - error TS2339: Property 'words' does not exist on type 'Set<string>'.
+
+    246       wordCount: dictionary.words.size,
+                                    ~~~~~
+    src/spellchecker/spell-checker-service.ts:247:30 - error TS2339: Property 'metadata' does not exist on type 'Set<string>'.
+
+    247       isFallback: dictionary.metadata?.version?.startsWith('fallback') || false
+                                     ~~~~~~~~
+    src/spellchecker/spell-checker-service.ts:288:71 - error TS18046: 'error' is of type 'unknown'.
+
+    288             `Failed to initialize after ${maxRetries + 1} attempts: ${error.message}`,
+                                                                              ~~~~~
+    src/spellchecker/spell-checker-service.ts:298:15 - error TS2339: Property 'config' does not exist on type 'SpellCheckerService'.
+
+    298     if (!this.config.languages || this.config.languages.length === 0) {
+                      ~~~~~~
+    src/spellchecker/spell-checker-service.ts:298:40 - error TS2339: Property 'config' does not exist on type 'SpellCheckerService'.
+
+    298     if (!this.config.languages || this.config.languages.length === 0) {
+                                               ~~~~~~
+    src/spellchecker/spell-checker-service.ts:303:31 - error TS2339: Property 'config' does not exist on type 'SpellCheckerService'.
+
+    303       for (const lang of this.config.languages) {
+                                      ~~~~~~
+    src/spellchecker/spell-checker-service.ts:304:50 - error TS2554: Expected 2-4 arguments, but got 1.
+
+    304         const dictionary = await DictionaryUtils.loadDictionaryFile(lang);
+                                                         ~~~~~~~~~~~~~~~~~~
+
+      src/spellchecker/dictionary-utils.ts:24:5
+        24     language: string,
+               ~~~~~~~~~~~~~~~~
+        An argument for 'language' was not provided.
+    src/spellchecker/spell-checker-service.ts:305:37 - error TS2345: Argument of type 'DictionaryData' is not assignable to parameter of type 'Set<string>'.
+      Type 'DictionaryData' is missing the following properties from type 'Set<string>': add, clear, delete, forEach, and 7 more.
+
+    305         this.dictionaries.set(lang, dictionary);
+                                            ~~~~~~~~~~
+    src/spellchecker/spell-checker-service.ts:308:55 - error TS18046: 'error' is of type 'unknown'.
+
+    308       throw new Error(`Failed to load dictionaries: ${error.message}`);
+                                                              ~~~~~
+
+  console.log
+    Generating documentation with options: undefined
+
+      at DocumentationManager.log [as generateDocs] (src/documentation/DocumentationManager.ts:227:13)
+
+  console.log
+    Generating documentation with options: undefined
+
+      at DocumentationManager.log [as generateDocs] (src/documentation/DocumentationManager.ts:227:13)
+
+ FAIL  frontend/src/tests/setup.test.ts
+  Global setInterval Mock
+    ✕ setInterval mock should call jest.fn() with provided callback and ms (8 ms)
+
+  ● Global setInterval Mock › setInterval mock should call jest.fn() with provided callback and ms
+
+    expect(received).toHaveBeenCalledWith(...expected)
+
+    Matcher error: received value must be a mock or spy function
+
+    Received has type:  function
+    Received has value: [Function bound fn]
+
+       9 |   global.setInterval(mockCallback, mockMs);
+      10 |
+    > 11 |   expect(jest.fn).toHaveBeenCalledWith(expect.any(Function), mockMs);
+         |                   ^
+      12 |   expect(jest.fn().mock.calls[0][0]).toBe(mockCallback);
+      13 |   expect(jest.fn().mock.calls[0][1]).toBe(mockMs);
+      14 | });
+
+      at Object.<anonymous> (frontend/src/tests/setup.test.ts:11:19)
+
+ FAIL  src/documentation/tests/DocumentationManager.test.ts (8.339 s)
+  DocumentationManager
+    Version control tests
+      ✓ should create a new document with version 1 (7 ms)
+      ✓ should increment version when adding to existing document (2 ms)
+      ✓ should retrieve a specific version (1 ms)
+      ✓ should return undefined for non-existent documents
+      ✓ should return undefined for non-existent versions (4 ms)
+      ✓ should normalize document paths (1 ms)
+    Validation tests
+      ✓ should validate document content (1 ms)
+      ✕ should fail validation for empty content
+      ✓ should fail validation for non-existent documents (1 ms)
+      ✕ should validate all documents (2 ms)
+      ✓ should use custom validators (1 ms)
+    Generation tests
+      ✓ should generate documents (51 ms)
+      ✓ should save generated documents to disk (4 ms)
+    Search functionality tests
+      ✓ should find documents matching a query (2 ms)
+      ✓ should filter search results by tags (1 ms)
+      ✓ should include content excerpts when requested (2 ms)
+      ✓ should limit search results (2 ms)
+      ✓ should return empty array for empty query (5 ms)
+    Document statistics tests
+      ✓ should return correct document counts (1 ms)
+      ✓ should return all document IDs (4 ms)
+
+  ● DocumentationManager › Validation tests › should fail validation for empty content
+
+    Document content is required
+
+      91 |     
+      92 |     if (!content) {
+    > 93 |       throw new Error('Document content is required');
+         |             ^
+      94 |     }
+      95 |     
+      96 |     // Normalize the path to use as document ID
+
+      at DocumentationManager.addDocument (src/documentation/DocumentationManager.ts:93:13)
+      at Object.<anonymous> (src/documentation/tests/DocumentationManager.test.ts:126:18)
+
+  ● DocumentationManager › Validation tests › should validate all documents
+
+    Document content is required
+
+      91 |     
+      92 |     if (!content) {
+    > 93 |       throw new Error('Document content is required');
+         |             ^
+      94 |     }
+      95 |     
+      96 |     // Normalize the path to use as document ID
+
+      at DocumentationManager.addDocument (src/documentation/DocumentationManager.ts:93:13)
+      at Object.<anonymous> (src/documentation/tests/DocumentationManager.test.ts:151:18)
+
+  console.log
+    Loading time for 100 words: 2.49ms
+
+      at Object.<anonymous> (src/typo/tests/performance.test.ts:65:15)
+
+ PASS  src/typo/tests/dictionary-loader.test.ts (8.28 s)
+  Dictionary Loader
+    parseDicFile
+      ✓ should parse dictionary file content (5 ms)
+      ✓ should handle escaped slashes in words (1 ms)
+      ✓ should handle comments and empty lines (1 ms)
+      ✓ should throw error for empty content (31 ms)
+    parseAffFile
+      ✓ should parse affix file content (1 ms)
+      ✓ should parse compound rules (1 ms)
+      ✓ should parse special flags (1 ms)
+      ✓ should throw error for empty content (1 ms)
+    loadDictionary
+      ✓ should load a complete dictionary (1 ms)
+    createFallbackDictionary
+      ✓ should create a fallback dictionary (1 ms)
+
+  console.log
+    Typo.js: Loaded dictionary for en-TEST with 13 words
+
+      at new log (src/typo/typo.ts:48:17)
+
+  console.log
+    Loading time for 1,000 words: 7.08ms
+
+      at Object.<anonymous> (src/typo/tests/performance.test.ts:79:15)
+
+  console.log
+    Typo.js: Loaded dictionary for en-TEST with 13 words
+
+      at new log (src/typo/typo.ts:48:17)
+
+  console.warn
+    Typo.js: Empty dictionary or affix data, using fallback dictionary
+
+      186 |     if (!affData || !dicData) {
+      187 |       if (this.options.debug) {
+    > 188 |         console.warn('Typo.js: Empty dictionary or affix data, using fallback dictionary');
+          |                 ^
+      189 |       }
+      190 |       return createFallbackDictionary(this.options.defaultDictionary || 'en_US');
+      191 |     }
+
+      at Typo.warn [as loadDictionary] (src/typo/typo.ts:188:17)
+      at new loadDictionary (src/typo/typo.ts:39:30)
+      at Object.<anonymous> (src/typo/tests/typo.test.ts:59:25)
+
+  console.log
+    Typo.js: Loaded dictionary for en-TEST with 17 words
+
+      at new log (src/typo/typo.ts:48:17)
+
+  console.log
+    Typo.js: Loaded dictionary for en-TEST with 13 words
+
+      at new log (src/typo/typo.ts:48:17)
+
+  console.log
+    Typo.js: Loaded dictionary for en-TEST with 13 words
+
+      at new log (src/typo/typo.ts:48:17)
+
+  console.log
+    Typo.js: Loaded dictionary for en-TEST with 13 words
+
+      at new log (src/typo/typo.ts:48:17)
+
+  console.log
+    Typo.js: Loaded dictionary for en-TEST with 13 words
+
+      at new log (src/typo/typo.ts:48:17)
+
+  console.log
+    Typo.js: Loaded dictionary for en-TEST with 13 words
+
+      at new log (src/typo/typo.ts:48:17)
+
+  console.log
+    Typo.js: Loaded dictionary for en-TEST with 13 words
+
+      at new log (src/typo/typo.ts:48:17)
+
+  console.log
+    Typo.js: Loaded dictionary for en-TEST with 13 words
+
+      at new log (src/typo/typo.ts:48:17)
+
+  console.log
+    Typo.js: Loaded dictionary for en-TEST with 13 words
+
+      at new log (src/typo/typo.ts:48:17)
+
+  console.log
+    Typo.js: Loaded dictionary for en-TEST with 13 words
+
+      at new log (src/typo/typo.ts:48:17)
+
+  console.log
+    Typo.js: Loaded dictionary for en-TEST with 13 words
+
+      at new log (src/typo/typo.ts:48:17)
+
+ PASS  src/typo/tests/typo.test.ts (8.389 s)
+  Typo.js
+    Dictionary loading
+      ✓ should load dictionary successfully (47 ms)
+      ✓ should handle empty dictionary with fallback (8 ms)
+      ✓ should throw error for invalid word (15 ms)
+    Word checking
+      ✓ should check basic words correctly (3 ms)
+      ✓ should handle case sensitivity correctly (3 ms)
+      ✓ should check words with suffixes (3 ms)
+      ✓ should check words with prefixes (3 ms)
+      ✓ should check compound words (2 ms)
+    Suggestion generation
+      ✓ should suggest corrections for misspelled words (4 ms)
+      ✓ should suggest words with edit distance 1 (2 ms)
+      ✓ should not suggest for correct words (1 ms)
+      ✓ should suggest variations with affixes (2 ms)
+
+  console.log
+    Loading time for 10,000 words: 5.46ms
+
+      at Object.<anonymous> (src/typo/tests/performance.test.ts:93:15)
+
+ FAIL  src/tests/services/deepseek/DeepseekService.test.ts (8.707 s)
+  DeepseekService
+    constructor
+      ✓ should create an instance with the provided config (6 ms)
+      ✓ should throw an error if no baseUrl is provided (18 ms)
+      ✓ should throw an error if no API key is provided (1 ms)
+    generateResponse
+      ✕ should successfully generate a response (2 ms)
+      ✓ should throw an error if prompt is empty (1 ms)
+      ✕ should use context when useContext is true (1 ms)
+    validateApiKey
+      ✕ should return true for a valid API key (2 ms)
+      ✓ should return false for an invalid API key
+      ✓ should return false for other errors (1 ms)
+    retry behavior
+      ✕ should retry on rate limit errors (1 ms)
+      ✕ should retry on server errors (1 ms)
+      ✕ should not retry on authentication errors (1 ms)
+      ✕ should stop retrying after max attempts (1 ms)
+    request deduplication
+      ✕ should return different promises for different requests (1 ms)
+      ✕ should make a new request after the cached one expires (1 ms)
+    cleanCache
+      ✕ should remove expired entries from the cache (1 ms)
+
+  ● DeepseekService › generateResponse › should successfully generate a response
+
+    DeepseekAPIError: Cannot read properties of undefined (reading 'data')
+
+      79 |   }
+      80 |   
+    > 81 |   const apiError: APIError = new Error(
+         |                              ^
+      82 |     error.message || 'Unknown error occurred'
+      83 |   ) as APIError;
+      84 |   
+
+      at normalizeError (src/services/deepseek/utils.ts:81:30)
+      at DeepseekService.handleApiError (src/services/deepseek/DeepseekService.ts:219:36)
+      at DeepseekService.handleApiError (src/services/deepseek/DeepseekService.ts:175:19)
+      at DeepseekService.executeWithRetry (src/services/deepseek/DeepseekService.ts:191:16)
+
+  ● DeepseekService › generateResponse › should use context when useContext is true
+
+    DeepseekAPIError: Cannot read properties of undefined (reading 'data')
+
+      79 |   }
+      80 |   
+    > 81 |   const apiError: APIError = new Error(
+         |                              ^
+      82 |     error.message || 'Unknown error occurred'
+      83 |   ) as APIError;
+      84 |   
+
+      at normalizeError (src/services/deepseek/utils.ts:81:30)
+      at DeepseekService.handleApiError (src/services/deepseek/DeepseekService.ts:219:36)
+      at DeepseekService.handleApiError (src/services/deepseek/DeepseekService.ts:175:19)
+      at DeepseekService.executeWithRetry (src/services/deepseek/DeepseekService.ts:191:16)
+
+  ● DeepseekService › validateApiKey › should return true for a valid API key
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      191 |       const result = await service.validateApiKey();
+      192 |       
+    > 193 |       expect(result).toBe(true);
+          |                      ^
+      194 |       expect(mockAxiosPost).toHaveBeenCalledWith(
+      195 |         '/v1/chat/completions',
+      196 |         expect.objectContaining({
+
+      at Object.<anonymous> (src/tests/services/deepseek/DeepseekService.test.ts:193:22)
+
+  ● DeepseekService › retry behavior › should retry on rate limit errors
+
+    DeepseekAPIError: Cannot read properties of undefined (reading 'data')
+
+      79 |   }
+      80 |   
+    > 81 |   const apiError: APIError = new Error(
+         |                              ^
+      82 |     error.message || 'Unknown error occurred'
+      83 |   ) as APIError;
+      84 |   
+
+      at normalizeError (src/services/deepseek/utils.ts:81:30)
+      at DeepseekService.handleApiError (src/services/deepseek/DeepseekService.ts:219:36)
+      at DeepseekService.handleApiError (src/services/deepseek/DeepseekService.ts:175:19)
+      at DeepseekService.executeWithRetry (src/services/deepseek/DeepseekService.ts:191:16)
+
+  ● DeepseekService › retry behavior › should retry on server errors
+
+    DeepseekAPIError: Cannot read properties of undefined (reading 'data')
+
+      79 |   }
+      80 |   
+    > 81 |   const apiError: APIError = new Error(
+         |                              ^
+      82 |     error.message || 'Unknown error occurred'
+      83 |   ) as APIError;
+      84 |   
+
+      at normalizeError (src/services/deepseek/utils.ts:81:30)
+      at DeepseekService.handleApiError (src/services/deepseek/DeepseekService.ts:219:36)
+      at DeepseekService.handleApiError (src/services/deepseek/DeepseekService.ts:175:19)
+      at DeepseekService.executeWithRetry (src/services/deepseek/DeepseekService.ts:191:16)
+
+  ● DeepseekService › retry behavior › should not retry on authentication errors
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      266 |         .rejects.toThrow();
+      267 |       
+    > 268 |       expect(mockAxiosPost).toHaveBeenCalledTimes(1);
+          |                             ^
+      269 |     });
+      270 |     
+      271 |     it('should stop retrying after max attempts', async () => {
+
+      at Object.<anonymous> (src/tests/services/deepseek/DeepseekService.test.ts:268:29)
+
+  ● DeepseekService › retry behavior › should stop retrying after max attempts
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 3
+    Received number of calls: 0
+
+      284 |       
+      285 |       // Initial attempt + 2 retries (from mockConfig)
+    > 286 |       expect(mockAxiosPost).toHaveBeenCalledTimes(3);
+          |                             ^
+      287 |     });
+      288 |   });
+      289 |   
+
+      at Object.<anonymous> (src/tests/services/deepseek/DeepseekService.test.ts:286:29)
+
+  ● DeepseekService › request deduplication › should return different promises for different requests
+
+    DeepseekAPIError: Cannot read properties of undefined (reading 'data')
+
+      79 |   }
+      80 |   
+    > 81 |   const apiError: APIError = new Error(
+         |                              ^
+      82 |     error.message || 'Unknown error occurred'
+      83 |   ) as APIError;
+      84 |   
+
+      at normalizeError (src/services/deepseek/utils.ts:81:30)
+      at DeepseekService.handleApiError (src/services/deepseek/DeepseekService.ts:219:36)
+      at DeepseekService.handleApiError (src/services/deepseek/DeepseekService.ts:175:19)
+      at DeepseekService.executeWithRetry (src/services/deepseek/DeepseekService.ts:191:16)
+
+  ● DeepseekService › request deduplication › should make a new request after the cached one expires
+
+    DeepseekAPIError: Cannot read properties of undefined (reading 'data')
+
+      79 |   }
+      80 |   
+    > 81 |   const apiError: APIError = new Error(
+         |                              ^
+      82 |     error.message || 'Unknown error occurred'
+      83 |   ) as APIError;
+      84 |   
+
+      at normalizeError (src/services/deepseek/utils.ts:81:30)
+      at DeepseekService.handleApiError (src/services/deepseek/DeepseekService.ts:219:36)
+      at DeepseekService.handleApiError (src/services/deepseek/DeepseekService.ts:175:19)
+      at DeepseekService.executeWithRetry (src/services/deepseek/DeepseekService.ts:191:16)
+
+  ● DeepseekService › cleanCache › should remove expired entries from the cache
+
+    DeepseekAPIError: Cannot read properties of undefined (reading 'data')
+
+      79 |   }
+      80 |   
+    > 81 |   const apiError: APIError = new Error(
+         |                              ^
+      82 |     error.message || 'Unknown error occurred'
+      83 |   ) as APIError;
+      84 |   
+
+      at normalizeError (src/services/deepseek/utils.ts:81:30)
+      at DeepseekService.handleApiError (src/services/deepseek/DeepseekService.ts:219:36)
+      at DeepseekService.handleApiError (src/services/deepseek/DeepseekService.ts:175:19)
+      at DeepseekService.executeWithRetry (src/services/deepseek/DeepseekService.ts:191:16)
+
+ FAIL  frontend/src/tests/analytics/DataAccuracyTests.test.ts
+  ● Test suite failed to run
+
+    The error below may be caused by using the wrong test environment, see https://jestjs.io/docs/configuration#testenvironment-string.
+    Consider using the "jsdom" test environment.
+    
+    ReferenceError: window is not defined
+
+      33 |     // Set up periodic cleanup of old records
+      34 |     this.cleanupInterval = typeof setInterval !== 'undefined' ? 
+    > 35 |       window.setInterval(() => this.cleanup(), this.options.windowMs) : 0;
+         |              ^
+      36 |   }
+      37 |   
+      38 |   /**
+
+      at new setInterval (frontend/src/security/RateLimiter.ts:35:14)
+      at new SecurityManager (frontend/src/security/SecurityManager.ts:48:22)
+      at Function.getInstance (frontend/src/security/SecurityManager.ts:66:34)
+      at Object.getInstance (frontend/src/security/index.ts:52:48)
+      at Object.require (frontend/src/services/AnalyticsService.ts:8:1)
+      at Object.<anonymous> (frontend/src/tests/analytics/DataAccuracyTests.test.ts:8:1)
+
+  console.log
+    Checked 1200 words in 1632.64ms
+
+      at Object.<anonymous> (src/typo/tests/performance.test.ts:129:15)
+
+  console.log
+    Average time per word: 1.361ms
+
+      at Object.<anonymous> (src/typo/tests/performance.test.ts:130:15)
+
+  console.log
+    Generated suggestions for 120 words in 1854.64ms
+
+      at Object.<anonymous> (src/typo/tests/performance.test.ts:166:15)
+
+  console.log
+    Average time per word: 15.455ms
+
+      at Object.<anonymous> (src/typo/tests/performance.test.ts:167:15)
+
+  console.log
+    Memory usage for 20,000 words: -1.88 MB
+
+      at Object.<anonymous> (src/typo/tests/performance.test.ts:190:15)
+
+ PASS  src/typo/tests/performance.test.ts (12.118 s)
+  Typo.js Performance
+    Dictionary Loading Performance
+      ✓ should load small dictionary (100 words) quickly (40 ms)
+      ✓ should load medium dictionary (1,000 words) efficiently (20 ms)
+      ✓ should load large dictionary (10,000 words) efficiently (98 ms)
+    Word Checking Performance
+      ✓ should check words quickly (1635 ms)
+    Suggestion Performance
+      ✓ should generate suggestions quickly (1857 ms)
+    Memory Usage
+      ✓ should use memory efficiently for large dictionaries (134 ms)
+
+A worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   76.42 |    63.29 |   83.33 |   79.18 |                   
+ documentation     |   90.29 |    81.69 |      96 |   90.15 |                   
+  ...ionManager.ts |   90.29 |    81.69 |      96 |   90.15 | ...16,364,474,510 
+ services/deepseek |   63.08 |    50.45 |   68.18 |   63.26 |                   
+  ...seekConfig.ts |     100 |       60 |     100 |     100 | 59-62             
+  ...eekService.ts |   68.49 |    73.33 |   76.92 |   68.05 | ...44-249,267-271 
+  utils.ts         |   48.38 |    29.62 |      50 |   49.18 | ...22,130,143-152 
+ typo              |   76.64 |     63.6 |    83.6 |   80.95 |                   
+  affix-rule.ts    |   84.88 |    71.42 |     100 |   94.36 | 114-115,184-187   
+  compound-rule.ts |   66.66 |    51.02 |      90 |   70.88 | ...66,175,188-211 
+  ...ary-loader.ts |   95.83 |    90.41 |     100 |   95.69 | 203-205,210       
+  index.ts         |     100 |      100 |      50 |     100 |                   
+  suggestion.ts    |   70.27 |     40.9 |   78.57 |   77.41 | ...58,165,243-269 
+  types.ts         |     100 |      100 |     100 |     100 |                   
+  typo.ts          |   80.28 |    74.19 |      80 |   81.15 | ...96-201,227-242 
+  utils.ts         |   60.19 |     37.5 |   77.77 |   62.19 | ...06-124,141-156 
+-------------------|---------|----------|---------|---------|-------------------
+Test Suites: 10 failed, 3 passed, 13 total
+Tests:       13 failed, 52 passed, 65 total
+Snapshots:   0 total
+Time:        13.667 s
+Ran all test suites.
+(base) thoder@Dev-Linux:~/Desktop/Cursor/email-assistant$ 

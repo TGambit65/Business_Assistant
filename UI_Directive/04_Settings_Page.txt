@@ -1,0 +1,17 @@
+# Settings Page Screenshot
+
+## Description
+- Left sidebar with multiple settings categories (General, Appearance, Layout & Customization, Notifications, Security, Integrations, API Settings)
+- Right panel showing selected setting category content
+- Account information display with email and account details
+- Edit Profile and Save Changes buttons
+- User dropdown in navigation area
+
+## UI Issues
+- Settings sidebar lacks visual hierarchy and clear organization
+- Limited visual differentiation between selected and unselected settings categories
+- Setting sections lack descriptive information about their purpose
+- Action buttons (Edit Profile, Save Changes) have minimal styling
+- Layout feels cluttered with limited spacing between elements
+- No clear theme settings or customization options for appearance shown
+- Missing theme upload or selection functionality (required feature)

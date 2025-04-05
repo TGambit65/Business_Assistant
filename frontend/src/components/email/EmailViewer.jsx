@@ -3,7 +3,7 @@ import {
   ArrowLeft, 
   Star, 
   Reply, 
-  Forward, 
+  // Forward,  // Removed unused import
   Trash2, 
   Archive, 
   Printer, 
@@ -11,29 +11,30 @@ import {
   Paperclip, 
   CornerUpRight,
   Sparkles,
-  PenTool,
-  Save,
-  Send,
-  FileText,
+  // PenTool, // Removed unused import
+  // Save, // Removed unused import
+  // Send, // Removed unused import
+  // FileText, // Removed unused import
   UserPlus,
   Calendar,
   Clock,
+  FileQuestion,
   CheckSquare,
   Share2,
   Timer,
-  FileQuestion,
-  MessageSquare,
+  // FileQuestion, // Removed unused import
+  // MessageSquare, // Removed unused import
   BarChart,
-  ExternalLink,
+  // ExternalLink, // Removed unused import
   ShoppingCart,
-  ThumbsUp,
+  // ThumbsUp, // Removed unused import
   ClipboardList,
   Layers,
-  ChevronDown,
+  // ChevronDown, // Removed unused import
   CheckCircle,
   Zap,
-  X,
-  MoreHorizontal,
+  // X, // Removed unused import
+  // MoreHorizontal, // Removed unused import
   Loader2
 } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -53,7 +54,7 @@ const EmailViewer = ({
   onGenerateDraft
 }) => {
   const navigate = useNavigate();
-  const { success, info, error } = useToast();
+  const { success, info, /*error*/ } = useToast(); // Removed unused error
   const [emailSummary, setEmailSummary] = useState(email?.summary || null);
   const [generatingSummary, setGeneratingSummary] = useState(false);
   const [featureInfoModalOpen, setFeatureInfoModalOpen] = useState(false);
@@ -292,17 +293,17 @@ const EmailViewer = ({
     
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <div className="bg-background dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
           <div className="p-6">
             <div className="flex items-center mb-4">
               {content.icon}
-              <h2 className="text-xl font-bold ml-3 text-gray-900 dark:text-white">{content.title}</h2>
+              <h2 className="text-xl font-bold ml-3 text-foreground dark:text-white">{content.title}</h2>
             </div>
             
             <p className="text-gray-700 dark:text-gray-300 mb-4">{content.description}</p>
             
             <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Key Benefits</h3>
+              <h3 className="text-lg font-semibold text-foreground dark:text-white mb-2">Key Benefits</h3>
               <ul className="space-y-2">
                 {content.benefits.map((benefit, index) => (
                   <li key={index} className="flex items-start">
@@ -339,7 +340,7 @@ const EmailViewer = ({
         <CardContent className="p-6">
           <div className="flex flex-col items-center justify-center py-12">
             <AlertCircle className="h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Email not found</h3>
+            <h3 className="text-lg font-medium text-foreground dark:text-gray-100 mb-2">Email not found</h3>
             <p className="text-gray-500 dark:text-gray-400 mb-4">The email you're looking for doesn't exist or has been deleted.</p>
             <Button onClick={() => navigate('/email/inbox')}>
               Return to Inbox
@@ -485,9 +486,9 @@ const EmailViewer = ({
               </Button>
               
               {openDropdown === 'salesCRM' && (
-                <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg z-20 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg z-20 bg-background dark:bg-gray-800 border border-border dark:border-gray-700">
                   <div className="py-1">
-                    <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                    <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 border-b border-border dark:border-gray-700">
                       Sales & CRM Actions
                     </div>
                     <button 
@@ -569,9 +570,9 @@ const EmailViewer = ({
               </Button>
               
               {openDropdown === 'productivity' && (
-                <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg z-20 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg z-20 bg-background dark:bg-gray-800 border border-border dark:border-gray-700">
                   <div className="py-1">
-                    <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                    <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 border-b border-border dark:border-gray-700">
                       Productivity Actions
                     </div>
                     <button 

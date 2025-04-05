@@ -1,78 +1,118 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom'; // Use NavLink
 import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuGroup,
-} from '../ui/dropdown-menu';
-import { ChevronDown } from 'lucide-react';
+  Home, // For Dashboard
+  Mail, // For Templates
+  Palette, // For Theme Manager
+  Settings, // For Settings
+  Briefcase, // For Business Center
+  // Removed unused icons: LayoutGrid, ChevronDown, MessageSquare, Folder, Send, Trash2, LogOut, User, Wrench, Bell, Calendar, HelpCircle
+} from 'lucide-react';
 
-export function Navigation() {
-  const location = useLocation();
-  
+// Updated Navigation Links based on plan
+const navLinks = [
+  {
+    name: 'Dashboard',
+    path: '/dashboard',
+    icon: <Home size={22} />,
+    end: true, // Match exact path
+  },
+  {
+    name: 'Business Center',
+    path: '/business-center',
+    icon: <Briefcase size={22} />,
+    end: false,
+  },
+  {
+    name: 'Templates', // Added based on previous Sidebar component
+    path: '/templates', // Assuming this path exists
+    icon: <Mail size={22} />,
+    end: false,
+  },
+  {
+    name: 'Theme Manager', // Added based on previous Sidebar component
+    path: '/theme-manager', // Assuming this path exists
+    icon: <Palette size={22} />,
+    end: false,
+  },
+  {
+    name: 'Settings',
+    path: '/settings',
+    icon: <Settings size={22} />,
+    end: false, // Or true if settings has no sub-routes
+  },
+];
+
+/**
+ * Main navigation component rendered in the sidebar.
+ * Adapts to compact mode and handles mobile link clicks.
+ * @param {Object} props - Component props
+ * @param {boolean} props.compact - Whether to use compact mode (icons only)
+ * @param {Function} [props.onLinkClick] - Callback function when a link is clicked (for mobile)
+ */
+const Navigation = ({ compact = false, onLinkClick }) => {
+
+  const linkClasses = (isActive) =>
+    `flex items-center px-3 py-2 rounded-md text-sm font-medium relative transition-colors ${
+      compact ? 'justify-center h-12 w-12' : '' // Centered icon for compact
+    } ${
+      isActive
+        ? 'bg-primary/10 text-primary font-semibold' // Active state
+        : 'text-foreground/70 hover:bg-secondary hover:text-foreground' // Default and hover states
+    }`;
+
+  const mobileLinkClasses = (isActive) =>
+    `flex items-center px-3 py-2 rounded-md text-base font-medium relative transition-colors ${ // Larger text for mobile
+      isActive
+        ? 'bg-primary/10 text-primary font-semibold'
+        : 'text-foreground/70 hover:bg-secondary hover:text-foreground'
+    }`;
+
+
   return (
-    <nav className="flex items-center space-x-6">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button className={`flex items-center space-x-1 px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 ${
-            location.pathname.startsWith('/dashboard') ? 'bg-gray-100 dark:bg-gray-800' : ''
-          }`}>
-            <span>Dashboard</span>
-            <ChevronDown className="h-4 w-4" />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
-          <DropdownMenuGroup>
-            <DropdownMenuItem asChild>
-              <Link to="/dashboard">Overview</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/dashboard/analytics">Analytics</Link>
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <nav className="h-full p-3"> {/* Added padding */}
+      {/* Desktop navigation */}
+      <div className="hidden md:block">
+        <ul className="space-y-1">
+          {navLinks.map((link) => (
+            <li key={link.path}>
+              <NavLink
+                to={link.path}
+                className={({ isActive }) => linkClasses(isActive)}
+                title={compact ? link.name : undefined} // Tooltip for compact mode
+                end={link.end}
+              >
+                <span className={compact ? '' : 'mr-3 text-primary'}>{link.icon}</span> {/* Adjusted margin */}
+                {!compact && <span>{link.name}</span>}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+        {/* Removed Desktop Profile Section */}
+      </div>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button className={`flex items-center space-x-1 px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 ${
-            location.pathname.startsWith('/email') ? 'bg-gray-100 dark:bg-gray-800' : ''
-          }`}>
-            <span>Email</span>
-            <ChevronDown className="h-4 w-4" />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
-          <DropdownMenuGroup>
-            <DropdownMenuItem asChild>
-              <Link to="/email/compose">Compose</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/email/draft-generator">Draft Generator</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/email/templates">Templates</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/email/rules">Email Rules</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/email/signature">Signature</Link>
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <Link
-        to="/settings"
-        className={`px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 ${
-          location.pathname === '/settings' ? 'bg-gray-100 dark:bg-gray-800' : ''
-        }`}
-      >
-        Settings
-      </Link>
+      {/* Mobile navigation */}
+      <div className="md:hidden">
+        <ul className="space-y-1">
+          {navLinks.map((link) => (
+            <li key={link.path}>
+              <NavLink
+                to={link.path}
+                className={({ isActive }) => mobileLinkClasses(isActive)}
+                end={link.end}
+                onClick={onLinkClick} // Close mobile sidebar on click
+              >
+                <span className="mr-3 text-primary">{link.icon}</span> {/* Always show icon */}
+                <span>{link.name}</span> {/* Always show name */}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+         {/* Removed Mobile Profile Section */}
+      </div>
     </nav>
   );
-} 
+};
+
+export { Navigation };
+export default Navigation;

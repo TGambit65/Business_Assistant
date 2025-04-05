@@ -10,18 +10,15 @@ import {
   X, 
   Edit2, 
   Move,
-  ChevronDown,
-  ChevronUp,
   Sparkles,
   Lightbulb,
-  Tag,
   Star
 } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 export default function EmailRulesPage() {
-  const { success, error, warning, info } = useToast();
+  const { success, error, /* warning, info */ } = useToast();
   const [showAddRuleForm, setShowAddRuleForm] = useState(false);
   const [editingRuleId, setEditingRuleId] = useState(null);
   const [showAddLabelForm, setShowAddLabelForm] = useState(false);
@@ -237,29 +234,29 @@ export default function EmailRulesPage() {
     ));
   };
   
-  const handleMoveLabel = (id, direction) => {
-    const labelIndex = labels.findIndex(label => label.id === id);
-    if (
-      (direction === 'up' && labelIndex === 0) || 
-      (direction === 'down' && labelIndex === labels.length - 1)
-    ) {
-      return;
-    }
-    
-    const newLabels = [...labels];
-    const targetIndex = direction === 'up' ? labelIndex - 1 : labelIndex + 1;
-    
-    // Swap the items
-    [newLabels[labelIndex], newLabels[targetIndex]] = [newLabels[targetIndex], newLabels[labelIndex]];
-    
-    // Update order property
-    const updatedLabels = newLabels.map((label, index) => ({
-      ...label,
-      order: index + 1
-    }));
-    
-    setLabels(updatedLabels);
-  };
+  // // const handleMoveLabel = (id, direction) => {
+    // const labelIndex = labels.findIndex(label => label.id === id);
+    // if (
+    //   (direction === 'up' && labelIndex === 0) || 
+    //   (direction === 'down' && labelIndex === labels.length - 1)
+    // ) {
+    //   return;
+    // }
+    // 
+    // const newLabels = [...labels];
+    // const targetIndex = direction === 'up' ? labelIndex - 1 : labelIndex + 1;
+    // 
+    // // Swap the items
+    // [newLabels[labelIndex], newLabels[targetIndex]] = [newLabels[targetIndex], newLabels[labelIndex]];
+    // 
+    // // Update order property
+    // const updatedLabels = newLabels.map((label, index) => ({
+    //   ...label,
+    //   order: index + 1
+    // }));
+    // 
+    // setLabels(updatedLabels);
+  // };
   
   const handleToggleImportant = (id) => {
     setLabels(labels.map(label => 
@@ -371,7 +368,7 @@ export default function EmailRulesPage() {
   return (
     <div className="container p-6 mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Email Rules & Labels</h1>
+        <h1 className="text-2xl font-bold text-foreground dark:text-white">Email Rules & Labels</h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Manage labels and rules to organize your inbox with AI assistance.
         </p>
@@ -395,7 +392,7 @@ export default function EmailRulesPage() {
           <div className="flex justify-between mb-6 items-center">
             <div className="flex items-center">
               <TagIcon className="mr-2 h-5 w-5 text-primary" />
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Labels</h2>
+              <h2 className="text-xl font-bold text-foreground dark:text-white">Labels</h2>
             </div>
             <Button 
               onClick={() => {
@@ -568,7 +565,7 @@ export default function EmailRulesPage() {
           )}
           
           {/* Labels List */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+          <div className="bg-background dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
             <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable droppableId="labels">
                 {(provided) => (
@@ -590,7 +587,7 @@ export default function EmailRulesPage() {
                               <div
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
-                                className="p-4 hover:bg-gray-50 dark:hover:bg-gray-750 flex items-center"
+                                className="p-4 hover:bg-muted dark:hover:bg-gray-750 flex items-center"
                               >
                                 <div
                                   {...provided.dragHandleProps}
@@ -608,7 +605,7 @@ export default function EmailRulesPage() {
                                 
                                 <div className="flex-grow min-w-0 mr-4">
                                   <div className="flex items-center">
-                                    <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                    <h3 className="text-sm font-medium text-foreground dark:text-white truncate">
                                       {label.name}
                                     </h3>
                                     {label.isImportant && (
@@ -855,7 +852,7 @@ export default function EmailRulesPage() {
           )}
           
           {/* Rules List */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+          <div className="bg-background dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
               {rules.length === 0 ? (
                 <div className="p-6 text-center">
@@ -863,7 +860,7 @@ export default function EmailRulesPage() {
                 </div>
               ) : (
                 rules.map(rule => (
-                  <div key={rule.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-750 flex items-center">
+                  <div key={rule.id} className="p-4 hover:bg-muted dark:hover:bg-gray-750 flex items-center">
                     <div className="flex-shrink-0 mr-3">
                       <button
                         onClick={() => handleToggleRule(rule.id)}
@@ -878,7 +875,7 @@ export default function EmailRulesPage() {
                     </div>
                     
                     <div className="flex-grow min-w-0 mr-4">
-                      <h3 className="text-sm font-medium text-gray-900 dark:text-white">{rule.name}</h3>
+                      <h3 className="text-sm font-medium text-foreground dark:text-white">{rule.name}</h3>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {conditionOptions.find(option => option.value === rule.condition)?.label || rule.condition}
                         {rule.condition !== 'ALL_MESSAGES' && rule.condition !== 'HAS_ATTACHMENT' && rule.value

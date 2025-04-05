@@ -1,437 +1,224 @@
-"use client" // Remove if not using Next.js app router
+"use client"
 
-import React, { useState } from "react"
-import { Save, X } from "lucide-react"
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd"
+import React, { useState } from 'react';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Switch } from './ui/switch';
+import { useTheme } from '../../contexts/ThemeContext';
+import {
+  Move,
+  Star,
+  Edit,
+  Trash2,
+  Plus,
+  Save,
+  Loader2,
+} from 'lucide-react';
 
-/* ---------- Button placeholder ---------- */
-function Button({ onClick, children, disabled, className }) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={`
-        px-3 py-2 rounded-md border transition-colors focus:outline-none 
-        focus:ring-2 focus:ring-blue-400 dark:focus:ring-orange-400
-        hover:opacity-90 touch-manipulation
-        ${className}
-      `}
-    >
-      {children}
-    </button>
-  )
-}
+const SettingsPage = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [editingBoxId, setEditingBoxId] = useState(null);
+  const [tempKeywords, setTempKeywords] = useState('');
+  const { theme, setTheme } = useTheme();
 
-/* ---------- Input with higher contrast ---------- */
-function Input(props) {
-  return (
-    <input
-      {...props}
-      className={`
-        w-full rounded-md px-3 py-2
-        border-2 border-gray-400
-        bg-gray-50 text-black placeholder-gray-500
-        shadow-md
-        dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 dark:placeholder-gray-400
-        focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-orange-400
-        focus:shadow-lg
-        ${props.className || ""}
-      `}
-    />
-  )
-}
+  // Dummy data/handlers for Email Boxes tab
+  const boxes = [];
+  const handleDragEnd = () => {};
+  const startEditing = () => {};
+  const saveEdits = () => {};
+  const toggleImportant = () => {};
+  const handleDeleteBox = () => {};
+  const handleAddBox = () => { return { id: Date.now() }; };
 
-/* ---------- Textarea with higher contrast ---------- */
-function Textarea(props) {
-  return (
-    <textarea
-      {...props}
-      className={`
-        w-full rounded-md px-3 py-2
-        border-2 border-gray-400
-        bg-gray-50 text-black placeholder-gray-500
-        shadow-md
-        dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 dark:placeholder-gray-400
-        focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-orange-400
-        focus:shadow-lg
-        ${props.className || ""}
-      `}
-    />
-  )
-}
-
-/* ---------- Switch placeholder ---------- */
-function Switch({ defaultChecked, id }) {
-  const [checked, setChecked] = useState(!!defaultChecked)
-  return (
-    <label
-      htmlFor={id}
-      className="inline-flex items-center cursor-pointer focus-within:outline-none 
-                 focus-within:ring-2 focus-within:ring-blue-400 dark:focus-within:ring-orange-400"
-    >
-      <input
-        type="checkbox"
-        id={id}
-        checked={checked}
-        onChange={() => setChecked(!checked)}
-        className="hidden"
-      />
-      <span
-        className={`relative inline-block w-10 h-5 rounded-full transition-colors 
-          ${checked ? "bg-blue-500 dark:bg-orange-500" : "bg-gray-300 dark:bg-gray-600"}`}
-      >
-        <span
-          className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform 
-            ${checked ? "translate-x-5" : "translate-x-0"}`}
-        />
-      </span>
-    </label>
-  )
-}
-
-/* ---------- Simple Tabs Implementation ---------- */
-function Tabs({ defaultValue, children }) {
-  const [active, setActive] = useState(defaultValue || "")
-  return React.Children.map(children, (child) => {
-    if (!React.isValidElement(child)) return child
-    if (child.type === TabsList) {
-      return React.cloneElement(child, { active, setActive })
+  const handleSaveChanges = async () => {
+    setIsLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    } catch (error) {
+      console.error('Failed to save changes:', error);
+    } finally {
+      setIsLoading(false);
     }
-    if (child.type === TabsContent) {
-      return child.props.value === active ? child : null
-    }
-    return child
-  })
-}
-function TabsList({ active, setActive, children, className }) {
-  return (
-    <div className={`flex overflow-x-auto pb-2 gap-2 ${className}`}>
-      {React.Children.map(children, (child) => {
-        if (!React.isValidElement(child)) return child
-        if (child.type === TabsTrigger) {
-          return React.cloneElement(child, { active, setActive })
-        }
-        return child
-      })}
-    </div>
-  )
-}
-function TabsTrigger({ value, active, setActive, children }) {
-  const isActive = value === active
-  return (
-    <button
-      className={`
-        px-3 py-2 rounded-md font-medium focus:outline-none whitespace-nowrap
-        focus:ring-2 focus:ring-blue-400 dark:focus:ring-orange-400
-        touch-manipulation
-        ${
-          isActive
-            ? "bg-blue-500 text-white dark:bg-orange-500"
-            : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-100"
-        }
-      `}
-      onClick={() => setActive(value)}
-    >
-      {children}
-    </button>
-  )
-}
-function TabsContent({ children }) {
-  return <div className="mt-4">{children}</div>
-}
-
-/* ---------- MAIN SETTINGS PAGE ---------- */
-export default function SettingsPage({
-  isOpen,
-  onClose,
-  boxes,
-  setBoxes,
-  toggleImportant,
-  handleDeleteBox,
-  handleRenameBox,
-  handleAddBox,
-}) {
-  const [isLoading, setIsLoading] = useState(false)
-
-  // For editing boxes in "Email Boxes" tab
-  const [editingBoxId, setEditingBoxId] = useState(null)
-  const [tempName, setTempName] = useState("")
-  const [tempInstructions, setTempInstructions] = useState("")
-  const [tempKeywords, setTempKeywords] = useState("")
-
-  if (!isOpen) return null
-
-  const handleSaveChanges = () => {
-    setIsLoading(true)
-    setTimeout(() => {
-      setIsLoading(false)
-      onClose()
-    }, 1000)
-  }
-
-  // DRAG & DROP
-  const handleDragEnd = (result) => {
-    if (!result.destination) return
-    if (result.source.index === result.destination.index) return
-    const newBoxes = Array.from(boxes)
-    const [moved] = newBoxes.splice(result.source.index, 1)
-    newBoxes.splice(result.destination.index, 0, moved)
-    setBoxes(newBoxes)
-  }
-
-  // Editing a box
-  const startEditing = (box) => {
-    setEditingBoxId(box.id)
-    setTempName(box.name)
-    setTempInstructions(box.instructions || "")
-    setTempKeywords(box.keywords || "")
-  }
-
-  // Save changes to a box
-  const saveEdits = (boxId) => {
-    handleRenameBox(boxId, tempName, tempInstructions, tempKeywords)
-    setEditingBoxId(null)
-  }
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start md:items-center justify-center bg-black bg-opacity-50 p-2 md:p-4 overflow-y-auto">
-      <div
-        className="
-          bg-white dark:bg-[#2A2A2A]
-          text-gray-800 dark:text-gray-100
-          rounded-lg p-3 md:p-6 w-full max-w-4xl relative shadow-xl
-          mt-10 md:mt-0
-        "
-      >
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="
-            absolute top-2 right-2 p-2
-            text-gray-600 dark:text-gray-200
-            hover:text-black dark:hover:text-white
-            focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-orange-400
-            touch-manipulation
-          "
-          aria-label="Close"
-        >
-          <X className="h-5 w-5" />
-        </button>
-
-        {/* Header */}
-        <div className="mb-4">
-          <h1 className="text-2xl md:text-3xl font-bold pr-6">Settings</h1>
-        </div>
-
-        <Tabs defaultValue="general">
-          <TabsList className="flex justify-start w-full">
-            <TabsTrigger value="general">General</TabsTrigger>
-            <TabsTrigger value="email-boxes">Email Boxes</TabsTrigger>
-            <TabsTrigger value="keyboard-shortcuts">Shortcuts</TabsTrigger>
-            <TabsTrigger value="privacy">Privacy</TabsTrigger>
-          </TabsList>
-
-          {/* General Tab */}
-          <TabsContent value="general">
-            <div className="mt-4 space-y-4">
-              <h2 className="text-xl font-semibold">General Settings</h2>
-              <div>
-                <label className="block text-gray-700 dark:text-gray-100 mb-1">Name:</label>
-                <Input defaultValue="John Doe" />
-              </div>
-              <div>
-                <label className="block text-gray-700 dark:text-gray-100 mb-1">Email:</label>
-                <Input defaultValue="john@example.com" type="email" />
-              </div>
-              <div>
-                <label className="block text-gray-700 dark:text-gray-100 mb-1">
-                  Enable notifications:
-                </label>
-                <Switch defaultChecked />
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* Email Boxes Tab */}
-          <TabsContent value="email-boxes">
-            <p className="text-sm mt-1 mb-2 text-gray-700 dark:text-gray-100">
-              Reorder, edit, delete, or star/unstar your email boxes below.
-            </p>
-            <div
-              style={{ maxHeight: "60vh" }}
-              className="overflow-y-auto border-2 border-gray-300 dark:border-gray-600 p-2 md:p-3 rounded-md"
-            >
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId="email-boxes-list">
-                  {(provided) => (
-                    <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
-                      {boxes.map((box, index) => (
-                        <Draggable key={box.id} draggableId={box.id} index={index}>
-                          {(providedInner) => (
-                            <div
-                              ref={providedInner.innerRef}
-                              {...providedInner.draggableProps}
-                              {...providedInner.dragHandleProps}
-                              className="
-                                p-2 md:p-3 border-2 border-gray-300 dark:border-gray-600 
-                                rounded-md bg-gray-50 dark:bg-gray-900 
-                                shadow-sm
-                              "
-                            >
-                              {editingBoxId === box.id ? (
-                                <>
-                                  <label className="block text-sm mb-1 text-gray-700 dark:text-gray-100">
-                                    Name:
-                                  </label>
-                                  <Input
-                                    className="mb-1"
-                                    value={tempName}
-                                    onChange={(e) => setTempName(e.target.value)}
-                                  />
-                                  <label className="block text-sm mb-1 text-gray-700 dark:text-gray-100">
-                                    AI Instructions:
-                                  </label>
-                                  <Textarea
-                                    className="mb-1"
-                                    rows={2}
-                                    value={tempInstructions}
-                                    onChange={(e) => setTempInstructions(e.target.value)}
-                                  />
-                                  <label className="block text-sm mb-1 text-gray-700 dark:text-gray-100">
-                                    Keywords:
-                                  </label>
-                                  <Input
-                                    className="mb-1"
-                                    placeholder="Keywords (comma-separated)"
-                                    value={tempKeywords}
-                                    onChange={(e) => setTempKeywords(e.target.value)}
-                                  />
-                                  <div className="flex justify-end gap-2 mt-2">
-                                    <Button
-                                      onClick={() => saveEdits(box.id)}
-                                      className="text-xs bg-blue-500 dark:bg-orange-500 text-white px-3 py-2"
-                                    >
-                                      Save
-                                    </Button>
-                                    <Button
-                                      onClick={() => setEditingBoxId(null)}
-                                      className="text-xs bg-gray-500 text-white px-3 py-2"
-                                    >
-                                      Cancel
-                                    </Button>
-                                  </div>
-                                </>
-                              ) : (
-                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
-                                  <span className="text-sm font-medium dark:text-gray-100">
-                                    {box.name}
-                                  </span>
-                                  <div className="flex flex-wrap gap-2">
-                                    <Button
-                                      onClick={() => startEditing(box)}
-                                      className="text-xs bg-blue-500 dark:bg-orange-500 text-white px-3 py-2"
-                                    >
-                                      Edit
-                                    </Button>
-                                    <Button
-                                      onClick={() => handleDeleteBox(box.id)}
-                                      className="text-xs bg-red-500 text-white px-3 py-2"
-                                    >
-                                      Delete
-                                    </Button>
-                                    <Button
-                                      onClick={() => toggleImportant(box.id)}
-                                      className="text-xs bg-blue-500 dark:bg-orange-500 text-white px-3 py-2"
-                                    >
-                                      {box.important ? "Unstar" : "Star"}
-                                    </Button>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            </div>
-            <Button
-              onClick={() => {
-                const newBox = handleAddBox()
-                setEditingBoxId(newBox.id)
-                setTempName(newBox.name)
-                setTempInstructions("")
-                setTempKeywords("")
-              }}
-              className="mt-2 bg-blue-500 dark:bg-orange-500 text-white hover:bg-blue-600 dark:hover:bg-orange-600 py-3"
-            >
-              + Add Box
-            </Button>
-          </TabsContent>
-
-          {/* Keyboard Shortcuts Tab */}
-          <TabsContent value="keyboard-shortcuts">
-            <div className="mt-4 space-y-2 text-gray-700 dark:text-gray-100">
-              <h2 className="text-lg font-semibold">Keyboard Shortcuts</h2>
-              <p className="text-sm">
-                Example: Configure your shortcuts here. (Adapt as needed.)
-              </p>
-              <div>
-                <label className="block mb-1">Create New:</label>
-                <Input placeholder="Ctrl+N" defaultValue="Ctrl+N" />
-              </div>
-              <div>
-                <label className="block mb-1">Save:</label>
-                <Input placeholder="Ctrl+S" defaultValue="Ctrl+S" />
-              </div>
-              <div>
-                <label className="block mb-1">Search:</label>
-                <Input placeholder="Ctrl+F" defaultValue="Ctrl+F" />
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* Privacy Tab */}
-          <TabsContent value="privacy">
-            <div className="mt-4 space-y-2 text-gray-700 dark:text-gray-100">
-              <h2 className="text-lg font-semibold">Privacy Settings</h2>
-              <p className="text-sm">
-                Example: Configure your privacy options here. (Adapt as needed.)
-              </p>
-              <div className="flex items-center space-x-2">
-                <Switch defaultChecked />
-                <span>Allow data collection</span>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
-
-        {/* "Save Changes" button at bottom */}
-        <div className="flex justify-end mt-4">
-          <Button
-            onClick={handleSaveChanges}
-            disabled={isLoading}
-            className="
-              bg-blue-500 dark:bg-orange-500 text-white 
-              hover:bg-blue-600 dark:hover:bg-orange-600
-              focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-orange-400
-              px-4 py-3
-            "
-          >
-            {isLoading ? (
-              "Saving..."
-            ) : (
-              <>
-                <Save className="inline-block mr-2 h-4 w-4" />
-                Save Changes
-              </>
-            )}
-          </Button>
-        </div>
+    <div className="space-y-6">
+      <div className="flex flex-col mb-6 sm:mb-8">
+        <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Manage your application settings.</p>
       </div>
+
+      <Tabs defaultValue="appearance" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="general">General</TabsTrigger>
+          <TabsTrigger value="appearance">Appearance</TabsTrigger>
+          <TabsTrigger value="email-boxes">Email Boxes</TabsTrigger>
+          <TabsTrigger value="keyboard-shortcuts">Shortcuts</TabsTrigger>
+          <TabsTrigger value="privacy">Privacy</TabsTrigger>
+        </TabsList>
+
+        {/* General Tab */}
+        <TabsContent value="general">
+          <Card>
+            <CardHeader>
+              <CardTitle>General Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">Manage your basic account information.</p>
+              <div>
+                <Label htmlFor="general-name">Name:</Label>
+                <Input id="general-name" defaultValue="John Doe" className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="general-email">Email:</Label>
+                <Input id="general-email" defaultValue="john@example.com" type="email" className="mt-1" />
+              </div>
+              <div className="flex items-center space-x-2 pt-2">
+                <Switch id="general-notifications" defaultChecked />
+                <Label htmlFor="general-notifications" className="font-normal">Enable notifications</Label>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Appearance Tab */}
+        <TabsContent value="appearance">
+          <Card>
+            <CardHeader>
+              <CardTitle>Appearance Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <h3 className="text-base font-medium mb-3">Select Theme</h3>
+                <div className="flex flex-wrap gap-4">
+                  {/* Light Theme Option */}
+                  <div
+                    className={`cursor-pointer border-2 ${theme === 'light' ? 'border-primary' : 'border-transparent'} rounded-md p-1 transition-all`}
+                    title="Select Light Theme"
+                    onClick={() => setTheme('light')}
+                  >
+                    <div className="w-24 h-16 bg-background border border-border rounded flex flex-col items-center justify-center">
+                      <span className="text-xs font-medium text-foreground">Light</span>
+                      <div className="flex space-x-1 mt-1">
+                        <div className="w-3 h-3 rounded-full bg-[#3B82F6]"></div>
+                        <div className="w-3 h-3 rounded-full bg-[#E5E7EB]"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Dark Theme Option */}
+                  <div
+                    className={`cursor-pointer border-2 ${theme === 'dark' ? 'border-primary' : 'border-transparent'} hover:border-primary/50 rounded-md p-1 transition-all`}
+                    title="Select Dark Theme"
+                    onClick={() => setTheme('dark')}
+                  >
+                    <div className="w-24 h-16 bg-[#09090b] border border-neutral-800 rounded flex flex-col items-center justify-center">
+                      <span className="text-xs font-medium text-neutral-50">Dark</span>
+                      <div className="flex space-x-1 mt-1">
+                        <div className="w-3 h-3 rounded-full bg-[#fafafa]"></div>
+                        <div className="w-3 h-3 rounded-full bg-[#27272a]"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Upload Custom Theme Section */}
+              <div>
+                <h3 className="text-base font-medium mb-3">Upload Custom Theme</h3>
+                <Label htmlFor="theme-upload" className="text-sm text-muted-foreground mb-1">
+                  Upload a theme file (e.g., .json):
+                </Label>
+                <Input type="file" id="theme-upload" accept=".json" className="text-sm"/>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Theme files should define CSS variables according to documentation.
+                </p>
+              </div>
+
+              {/* Create Theme Section */}
+              <div>
+                <h3 className="text-base font-medium mb-3">Create Theme</h3>
+                <div className="p-4 border border-dashed border-border rounded-md bg-secondary/50">
+                  <p className="text-sm text-muted-foreground">
+                    <strong className="font-medium text-foreground">Coming Soon:</strong>
+                    {' '}A powerful theme editor allowing you to customize colors, fonts, and styles directly within the application. Stay tuned for updates!
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Email Boxes Tab */}
+        <TabsContent value="email-boxes">
+          <Card>
+            <CardHeader>
+              <CardTitle>Email Boxes</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Reorder, edit, delete, or star/unstar your custom email sorting boxes below.
+              </p>
+              <div className="border rounded-lg p-4 space-y-2 bg-background">
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  Email box management UI goes here. (Drag and drop list)
+                </p>
+              </div>
+              <Button variant="outline" size="sm" className="w-full">
+                <Plus size={16} className="mr-2"/> Add Box
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Keyboard Shortcuts Tab */}
+        <TabsContent value="keyboard-shortcuts">
+          <Card>
+            <CardHeader>
+              <CardTitle>Keyboard Shortcuts</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">Configure keyboard shortcuts for common actions.</p>
+              <div>
+                <Label htmlFor="shortcut-new">Create New:</Label>
+                <Input id="shortcut-new" placeholder="e.g., Ctrl+N" defaultValue="Ctrl+N" className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="shortcut-save">Save:</Label>
+                <Input id="shortcut-save" placeholder="e.g., Ctrl+S" defaultValue="Ctrl+S" className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="shortcut-search">Search:</Label>
+                <Input id="shortcut-search" placeholder="e.g., Ctrl+F" defaultValue="Ctrl+F" className="mt-1" />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Privacy Tab */}
+        <TabsContent value="privacy">
+          <Card>
+            <CardHeader>
+              <CardTitle>Privacy Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">Manage data collection and privacy options.</p>
+              <div className="flex items-center space-x-2 pt-2">
+                <Switch id="privacy-data" defaultChecked />
+                <Label htmlFor="privacy-data" className="font-normal">
+                  Allow anonymous usage data collection
+                </Label>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
-  )
-}
+  );
+};
+
+export default SettingsPage;

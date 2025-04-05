@@ -8,19 +8,19 @@ import { useSignatures } from '../../hooks/useSignatures';
 import RichTextEditor from '../../components/RichTextEditor';
 
 export default function SignaturePage() {
-  const { success, error, warning, info } = useToast();
+  const { success, error, /* warning, info */ } = useToast(); // Removed unused warning, info
   const { user } = useAuth();
   const { 
     signatures, 
-    defaultSignature, 
-    addSignature, 
+    // defaultSignature,  // Removed unused variable
+    // addSignature, 
     updateSignature, 
     deleteSignature, 
     setDefaultSignature 
   } = useSignatures();
   
   const [showAddSignatureForm, setShowAddSignatureForm] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  // const [isEditing, setIsEditing] = useState(false); // Removed unused state
   const [editingId, setEditingId] = useState(null);
   const [isGeneratingSignature, setIsGeneratingSignature] = useState(false);
   const [newSignature, setNewSignature] = useState({
@@ -54,33 +54,33 @@ export default function SignaturePage() {
     github: ''
   });
   
-  const handleAddSignature = () => {
-    if (!newSignature.name) {
-      error({
-        title: 'Error',
-        description: 'Please provide a signature name'
-      });
-      return;
-    }
+  // const handleAddSignature = () => {
+    // if (!newSignature.name) {
+      // error({
+        // title: 'Error',
+        // description: 'Please provide a signature name'
+      // });
+      // return;
+    // }
     
-    if (!newSignature.content) {
-      error({
-        title: 'Error',
-        description: 'Please provide signature content'
-      });
-      return;
-    }
+    // if (!newSignature.content) {
+      // error({
+        // title: 'Error',
+        // description: 'Please provide signature content'
+      // });
+      // return;
+    // }
     
-    const success = addSignature(newSignature);
+    // const success = addSignature(newSignature);
     
-    if (success) {
-      setNewSignature({
-        name: '',
-        content: '',
-        default: false
-      });
-    }
-  };
+    // if (success) {
+      // setNewSignature({
+        // name: '',
+        // content: '',
+        // default: false
+      // });
+    // }
+  // };
   
   const handleUpdateSignature = () => {
     if (!editingId) return;
@@ -104,7 +104,7 @@ export default function SignaturePage() {
     const success = updateSignature(editingId, newSignature);
     
     if (success) {
-      setIsEditing(false);
+      // setIsEditing(false); // Commented out as isEditing state is unused
       setEditingId(null);
       setNewSignature({
         name: '',
@@ -115,7 +115,7 @@ export default function SignaturePage() {
   };
   
   const handleEditSignature = (signature) => {
-    setIsEditing(true);
+    // setIsEditing(true); // Commented out as isEditing state is unused
     setEditingId(signature.id);
     setNewSignature({
       name: signature.name,
@@ -265,7 +265,7 @@ export default function SignaturePage() {
   return (
     <div className="p-4 sm:p-6">
       <div className="flex flex-col mb-6 sm:mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Email Signatures</h1>
+        <h1 className="text-2xl font-bold text-foreground dark:text-white">Email Signatures</h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Create and manage your email signatures for professional communications.
         </p>
@@ -558,7 +558,7 @@ export default function SignaturePage() {
               <CardContent>
                 <div>
                   <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Preview:</p>
-                  <div className="p-3 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-sm">
+                  <div className="p-3 border border-border dark:border-gray-700 rounded-md bg-background dark:bg-gray-800 text-sm">
                     <div dangerouslySetInnerHTML={{ __html: signature.content }} />
                   </div>
                 </div>
@@ -587,7 +587,7 @@ export default function SignaturePage() {
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
               <FileText size={24} className="text-gray-600 dark:text-gray-400" />
             </div>
-            <h3 className="mt-4 text-base font-medium text-gray-900 dark:text-white">No signatures yet</h3>
+            <h3 className="mt-4 text-base font-medium text-foreground dark:text-white">No signatures yet</h3>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Create your first email signature to make your communications more professional.
             </p>

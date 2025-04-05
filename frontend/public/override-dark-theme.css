@@ -1,0 +1,87 @@
+/* Force light theme for all pages */
+
+/* Override dark mode styles */
+html.dark {
+  color-scheme: light !important;
+  --background: #ffffff !important;
+  --foreground: #000000 !important;
+  --card: #ffffff !important;
+  --card-foreground: #000000 !important;
+  --popover: #ffffff !important;
+  --popover-foreground: #000000 !important;
+  --primary: #1e40af !important;
+  --primary-foreground: #ffffff !important;
+  --secondary: #f1f5f9 !important;
+  --secondary-foreground: #1e293b !important;
+  --muted: #f1f5f9 !important;
+  --muted-foreground: #64748b !important;
+  --accent: #f1f5f9 !important;
+  --accent-foreground: #1e293b !important;
+  --destructive: #ef4444 !important;
+  --destructive-foreground: #ffffff !important;
+  --border: #e2e8f0 !important;
+  --input: #e2e8f0 !important;
+  --ring: #1e40af !important;
+}
+
+/* Force light background on body */
+body, html {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Force white background on all major elements */
+body, #root, .app-container, .app-layout, main, .dashboard-page, .min-h-screen {
+  background-color: white !important;
+  color: #1F2937 !important;
+}
+
+/* Force white background on cards */
+.bg-card, .card, .bg-background {
+  background-color: white !important;
+  color: #1F2937 !important;
+}
+
+/* Override any dark mode specific styles */
+.dark .bg-background,
+.dark .bg-card,
+.dark main,
+.dark .dashboard-page,
+.dark .min-h-screen {
+  background-color: white !important;
+  color: #1F2937 !important;
+}
+
+/* Force white background on specific components */
+.dashboard-page, .min-h-screen, .bg-background {
+  background-color: white !important;
+}
+
+/* Override any inline dark backgrounds */
+[style*="background-color"] {
+  background-color: white !important;
+}
+
+/* Override text colors for better contrast on white */
+.text-foreground {
+  color: #1F2937 !important;
+}
+
+/* Force light borders */
+.border, .border-border {
+  border-color: #E5E7EB !important;
+}
+
+/* Override specific dashboard components */
+.dashboard-page .card,
+.dashboard-page .bg-card,
+.dashboard-page .bg-background,
+.dashboard-page [class*="bg-"] {
+  background-color: white !important;
+}
+
+/* Override any remaining dark theme elements */
+.dark * {
+  background-color: white !important;
+  color: #1F2937 !important;
+}

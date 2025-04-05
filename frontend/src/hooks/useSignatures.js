@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+// import React from 'react'; // useState and useEffect are not used directly
 import { useToast } from '../contexts/ToastContext';
 import { useLocalStorage } from './useLocalStorage';
 

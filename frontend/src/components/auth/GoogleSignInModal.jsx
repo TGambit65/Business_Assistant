@@ -3,11 +3,12 @@ import { Button } from '../ui/button';
 
 const GoogleSignInModal = ({ onContinue, onClose }) => {
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 relative">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 overflow-y-auto google-signin-overlay">
+      <div className="bg-background dark:bg-background rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto p-6 relative">
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          aria-label="Close"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -17,94 +18,44 @@ const GoogleSignInModal = ({ onContinue, onClose }) => {
 
         <div className="space-y-6">
           <div className="text-center">
-            <h1 className="text-2xl md:text-3xl font-bold text-primary mb-4">Unlock the Full Power of Business Assistant with Google Workspace</h1>
-          </div>
-          
-          <div>
-            <h2 className="text-xl font-semibold mb-2">Welcome to Enhanced Productivity</h2>
-            <p className="text-gray-600 dark:text-gray-300">
-              By connecting Business Assistant to your Google Workspace account, you'll experience a 
-              seamlessly integrated communication hub designed specifically for professional teams. 
-              This authorized connection enables advanced features that transform how you manage email.
+            <h1 className="text-2xl font-bold text-foreground dark:text-white mb-2">Connect with Google</h1>
+            <p className="text-gray-700 dark:text-gray-200">
+              Connect your Google account to access enhanced email features
             </p>
           </div>
           
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Key Advantages for Google Workspace Users</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
-                <h3 className="text-lg font-medium text-primary mb-2">Smart Email Management</h3>
-                <ul className="list-disc pl-5 space-y-1 text-sm">
-                  <li>Multi-model AI sorting automatically organizes your inbox using cost-optimized intelligence</li>
-                  <li>Synchronized Gmail labels with bi-directional updates</li>
-                  <li>Direct access to multiple Gmail accounts in one unified interface</li>
-                  <li>Context-aware search across your entire workspace</li>
-                </ul>
-              </div>
-              
-              <div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
-                <h3 className="text-lg font-medium text-primary mb-2">Seamless Collaboration</h3>
-                <ul className="list-disc pl-5 space-y-1 text-sm">
-                  <li>Team inbox management for departmental emails (support@, info@)</li>
-                  <li>Assign emails to team members with tracking and notifications</li>
-                  <li>Collaborative email drafting with real-time editing</li>
-                  <li>Approval workflows for outgoing communications</li>
-                </ul>
-              </div>
-              
-              <div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
-                <h3 className="text-lg font-medium text-primary mb-2">Calendar & Scheduling Intelligence</h3>
-                <ul className="list-disc pl-5 space-y-1 text-sm">
-                  <li>One-click meeting creation from email content</li>
-                  <li>AI scheduling assistant finds optimal meeting times</li>
-                  <li>Automatic Google Meet link generation</li>
-                  <li>Smart follow-up scheduling after calendar events</li>
-                </ul>
-              </div>
-              
-              <div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
-                <h3 className="text-lg font-medium text-primary mb-2">Document Integration</h3>
-                <ul className="list-disc pl-5 space-y-1 text-sm">
-                  <li>Attach Google Drive files with advanced permissions</li>
-                  <li>Email-to-document workflow for important communications</li>
-                  <li>Contextual document suggestions based on email content</li>
-                  <li>Company template library synced from Google Drive</li>
-                </ul>
-              </div>
-              
-              <div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
-                <h3 className="text-lg font-medium text-primary mb-2">Enterprise Security</h3>
-                <ul className="list-disc pl-5 space-y-1 text-sm">
-                  <li>All data protected with enterprise-grade encryption</li>
-                  <li>Compliance with Google Workspace security standards</li>
-                  <li>Data residency controls aligned with your organization</li>
-                  <li>Optional DLP (Data Loss Prevention) scanning</li>
-                </ul>
-              </div>
-              
-              <div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
-                <h3 className="text-lg font-medium text-primary mb-2">Analytics Dashboard</h3>
-                <ul className="list-disc pl-5 space-y-1 text-sm">
-                  <li>Team and individual email productivity metrics</li>
-                  <li>Response time analytics for performance tracking</li>
-                  <li>Communication pattern insights for process improvement</li>
-                  <li>Customizable reports for different stakeholders</li>
-                </ul>
-              </div>
-            </div>
+          <div className="bg-blue-50 dark:bg-blue-900/50 p-4 rounded-lg">
+            <h2 className="text-lg font-semibold text-foreground dark:text-white mb-2">Account Access</h2>
+            <p className="text-gray-700 dark:text-gray-200">
+              Business Assistant will request access to:
+            </p>
+            <ul className="list-disc pl-5 mt-2 space-y-1 text-gray-700 dark:text-gray-200">
+              <li>Your Gmail account</li>
+              <li>Basic profile information</li>
+              <li>Calendar access (optional)</li>
+            </ul>
           </div>
           
-          <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
-            <h2 className="text-xl font-semibold mb-2">Your Data, Your Control</h2>
-            <p className="text-gray-600 dark:text-gray-300">
-              Business Assistant requests only the permissions needed to deliver these features. 
-              You maintain complete control over your data, with the ability to revoke access at any time.
+          <div className="bg-muted dark:bg-gray-700 p-4 rounded-lg">
+            <h3 className="text-md font-medium text-foreground dark:text-white mb-2">Your data is secure</h3>
+            <p className="text-gray-700 dark:text-gray-200">
+              We use industry-standard security measures to protect your information.
+              You can revoke access at any time.
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
-            <Button onClick={onContinue} className="bg-primary hover:bg-primary/90 text-white">
+          <div className="flex justify-center gap-4 pt-2">
+            <Button 
+              onClick={onClose} 
+              variant="outline"
+              className="border-gray-300 text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={onContinue} 
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                 <path
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -132,4 +83,4 @@ const GoogleSignInModal = ({ onContinue, onClose }) => {
   );
 };
 
-export default GoogleSignInModal; 
+export default GoogleSignInModal;

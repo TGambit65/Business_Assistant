@@ -1,0 +1,3 @@
+OK
+# This file serves as a lightweight health-check endpoint
+# Last updated: 2024-06-01 

@@ -147,4 +147,5 @@ class DeepseekService {
   }
 }
 
-export default new DeepseekService(); 
+const deepseekServiceInstance = new DeepseekService();
+export default deepseekServiceInstance; 

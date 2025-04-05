@@ -1,1101 +1,867 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import React, { useState, useEffect, useMemo } from 'react'; // Removed unused useCallback
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle, /* CardFooter */ } from '../../components/ui/card'; // Removed unused CardFooter
+
 import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { Textarea } from '../../components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import { Switch } from '../../components/ui/switch';
+// import { RadioGroup, RadioGroupItem } from '../../components/ui/radio-group'; // Removed unused RadioGroup components
+import { Separator } from '../../components/ui/separator';
 import { 
+  ArrowLeft, 
   Sparkles, 
   Send, 
-  Clock, 
+  RefreshCw, 
   Copy, 
-  Loader2,
-  X
+  Maximize2, 
+  Minimize2,
+  FileText,
+  Briefcase, // Keep Briefcase as it might be used in tips
+  Lightbulb,
+  // CheckCircle2, // Removed unused CheckCircle2
+  Wand,
+  MessageSquare,
+  ThumbsUp,
+  Book
+
 } from 'lucide-react';
-import { useToast } from '../../contexts/ToastContext';
-import { useAuth } from '../../contexts/AuthContext';
-import DeepseekService from '../../services/DeepseekService';
+// import { useToast } from '../../contexts/ToastContext';
+// import { useAuth } from '../../contexts/AuthContext';
+// import DeepseekService from '../../services/DeepseekService'; // Removed unused DeepseekService
 
 export default function DraftGeneratorPage() {
   const navigate = useNavigate();
-  const { success, error, warning, info } = useToast();
-  const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  // const { /* error, */ /* info */ } = useToast(); // Removed unused error, info, success, warning - Entire line commented out
+  // const { user } = useAuth(); // Removed unused user
+  
+  // State
+  const [activeTab, setActiveTab] = useState('purpose');
   const [loading, setLoading] = useState(false);
-  const [generatedDraft, setGeneratedDraft] = useState(null);
-  const [isReplyOrForward, setIsReplyOrForward] = useState(false);
-  const [sourceEmail, setSourceEmail] = useState(null);
+  const [generatedDraft, setGeneratedDraft] = useState('');
+  const [isPreviewExpanded, setIsPreviewExpanded] = useState(false);
+  // const [isReplyOrForward, setIsReplyOrForward] = useState( // Removed unused state
+  //   searchParams.get('mode') === 'reply' || searchParams.get('mode') === 'forward'
+  // );
+  // const [sourceEmail, setSourceEmail] = useState(null); // Removed unused state
   
   // Form state
   const [formData, setFormData] = useState({
-    recipientType: 'customer',
-    purpose: 'information',
-    tone: 'professional',
-    subject: '',
-    keyPoints: '',
-    recipientName: '',
-    recipientEmail: '',
-    senderName: user?.displayName || '',
-    senderPosition: user?.position || ''
+    // Email context
+    recipientType: searchParams.get('recipientType') || 'colleague',
+    purpose: searchParams.get('purpose') || 'update',
+    tone: searchParams.get('tone') || 'professional',
+    
+    // Quick draft fields
+    subject: searchParams.get('subject') || '',
+    keyPoints: searchParams.get('keyPoints') || '',
+    
+    // Advanced fields
+    industry: 'technology',
+    documentType: 'proposal',
+    audience: 'internal',
+    includeData: false,
+    includeCTA: true,
+    formality: 'neutral',
+    
+    // Sender info
+    senderName: localStorage.getItem('userName') || 'Your Name',
+    senderRole: localStorage.getItem('userRole') || 'Your Role',
+    
+    // Original email (for reply/forward)
+    originalSubject: searchParams.get('originalSubject') || '',
+    originalSender: searchParams.get('originalSender') || '',
+    originalContent: searchParams.get('originalContent') || '',
   });
-
-  // Add these new state variables and industry templates
-  const [documentType, setDocumentType] = useState('email');
-  const [industry, setIndustry] = useState('general');
-  const [showIndustrySelector, setShowIndustrySelector] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generationError, setGenerationError] = useState(null);
-  const [draftContent, setDraftContent] = useState('');
-  const [showPreview, setShowPreview] = useState(false);
-
-  // Define industries and their specific document types
+  
+  // Industry-specific document types
   const industries = [
-    { id: 'general', name: 'General Business' },
-    { id: 'construction', name: 'Construction' },
-    { id: 'roofing', name: 'Roofing Contractor' },
-    { id: 'flooring', name: 'Flooring Sales' },
-    { id: 'appliances', name: 'Appliance Sales' },
-    { id: 'automotive', name: 'Automotive Sales' },
-    { id: 'realEstate', name: 'Real Estate' },
-    { id: 'insurance', name: 'Insurance' },
-    { id: 'software', name: 'Software/SaaS' },
-    { id: 'healthcare', name: 'Healthcare' },
-    { id: 'retail', name: 'Retail' }
+    { value: 'technology', label: 'Technology' },
+    { value: 'healthcare', label: 'Healthcare' },
+    { value: 'finance', label: 'Finance' },
+    { value: 'education', label: 'Education' },
+    { value: 'retail', label: 'Retail' },
+    { value: 'manufacturing', label: 'Manufacturing' },
+    { value: 'legal', label: 'Legal' },
+    { value: 'marketing', label: 'Marketing' },
   ];
-
-  // Document types by industry
-  const documentTypes = {
-    general: [
-      { id: 'email', name: 'Email' },
-      { id: 'proposal', name: 'Business Proposal' },
-      { id: 'followUp', name: 'Follow-up Letter' },
-      { id: 'meetingNotes', name: 'Meeting Notes' },
-      { id: 'newsletter', name: 'Newsletter' }
-    ],
-    construction: [
-      { id: 'email', name: 'Email' },
-      { id: 'proposal', name: 'Project Proposal' },
-      { id: 'estimate', name: 'Cost Estimate' },
-      { id: 'contract', name: 'Construction Contract' },
-      { id: 'changeOrder', name: 'Change Order' },
-      { id: 'invoice', name: 'Invoice' }
-    ],
-    roofing: [
-      { id: 'email', name: 'Email' },
-      { id: 'estimate', name: 'Roofing Estimate' },
-      { id: 'inspection', name: 'Roof Inspection Report' },
-      { id: 'warranty', name: 'Warranty Document' },
-      { id: 'maintenancePlan', name: 'Maintenance Plan' }
-    ],
-    flooring: [
-      { id: 'email', name: 'Email' },
-      { id: 'quote', name: 'Flooring Quote' },
-      { id: 'installGuide', name: 'Installation Guide' },
-      { id: 'careInstructions', name: 'Care Instructions' },
-      { id: 'productSpecs', name: 'Product Specifications' }
-    ],
-    appliances: [
-      { id: 'email', name: 'Email' },
-      { id: 'quote', name: 'Appliance Quote' },
-      { id: 'warrantyInfo', name: 'Warranty Information' },
-      { id: 'specSheet', name: 'Appliance Spec Sheet' },
-      { id: 'comparison', name: 'Product Comparison' }
-    ],
-    automotive: [
-      { id: 'email', name: 'Email' },
-      { id: 'vehicleOffer', name: 'Vehicle Offer' },
-      { id: 'financing', name: 'Financing Options' },
-      { id: 'testDriveInvite', name: 'Test Drive Invitation' },
-      { id: 'serviceReminder', name: 'Service Reminder' }
-    ],
-    realEstate: [
-      { id: 'email', name: 'Email' },
-      { id: 'listing', name: 'Property Listing' },
-      { id: 'marketAnalysis', name: 'Market Analysis' },
-      { id: 'offerLetter', name: 'Offer Letter' },
-      { id: 'clientUpdates', name: 'Client Updates' }
-    ],
-    insurance: [
-      { id: 'email', name: 'Email' },
-      { id: 'policyOverview', name: 'Policy Overview' },
-      { id: 'quote', name: 'Insurance Quote' },
-      { id: 'claimInfo', name: 'Claim Information' },
-      { id: 'benefitsSummary', name: 'Benefits Summary' }
-    ],
-    software: [
-      { id: 'email', name: 'Email' },
-      { id: 'proposal', name: 'Software Solution Proposal' },
-      { id: 'onboarding', name: 'Onboarding Guide' },
-      { id: 'releaseNotes', name: 'Release Notes' },
-      { id: 'supportResponse', name: 'Support Response' }
+  
+  const documentTypes = useMemo(() => ({
+    technology: [
+      { value: 'proposal', label: 'Project Proposal' },
+      { value: 'statusUpdate', label: 'Status Update' },
+      { value: 'technicalReport', label: 'Technical Report' },
+      { value: 'productAnnouncement', label: 'Product Announcement' },
     ],
     healthcare: [
-      { id: 'email', name: 'Email' },
-      { id: 'patientInfo', name: 'Patient Information' },
-      { id: 'treatmentPlan', name: 'Treatment Plan' },
-      { id: 'followUpCare', name: 'Follow-up Care' },
-      { id: 'referral', name: 'Referral Letter' }
+      { value: 'patientCommunication', label: 'Patient Communication' },
+      { value: 'referral', label: 'Referral' },
+      { value: 'treatmentSummary', label: 'Treatment Summary' },
+      { value: 'healthAdvisory', label: 'Health Advisory' },
+    ],
+    finance: [
+      { value: 'financialReport', label: 'Financial Report' },
+      { value: 'investmentProposal', label: 'Investment Proposal' },
+      { value: 'taxDocument', label: 'Tax Documentation' },
+      { value: 'budgetRequest', label: 'Budget Request' },
+    ],
+    education: [
+      { value: 'lessonPlan', label: 'Lesson Plan' },
+      { value: 'studentFeedback', label: 'Student Feedback' },
+      { value: 'courseAnnouncement', label: 'Course Announcement' },
+      { value: 'researchProposal', label: 'Research Proposal' },
     ],
     retail: [
-      { id: 'email', name: 'Email' },
-      { id: 'productInfo', name: 'Product Information' },
-      { id: 'orderConfirmation', name: 'Order Confirmation' },
-      { id: 'promotionalOffer', name: 'Promotional Offer' },
-      { id: 'returnPolicy', name: 'Return Policy' }
-    ]
-  };
-
-  // Helper function to determine recipient type from email - defined with useCallback before it's used in useEffect
-  const determineRecipientType = useCallback((email) => {
-    if (!email) return 'customer';
-    
-    // Get domain from user email
-    const getDomainFromUserEmail = () => {
-      const email = user?.email || '';
-      const parts = email.split('@');
-      return parts.length > 1 ? parts[1] : '';
-    };
-    
-    // Simple logic - in real app this would be more sophisticated
-    if (email.includes('vendor') || email.includes('partner')) return 'vendor';
-    if (email.includes('manager') || email.includes('supervisor')) return 'manager';
-    if (email.includes('colleague') || email.endsWith(getDomainFromUserEmail())) return 'colleague';
-    if (email.includes('applicant') || email.includes('candidate')) return 'applicant';
-    
-    return 'customer'; // Default
-  }, [user]);
+      { value: 'productLaunch', label: 'Product Launch' },
+      { value: 'promotionAnnouncement', label: 'Promotion Announcement' },
+      { value: 'customerFeedback', label: 'Customer Feedback' },
+      { value: 'inventoryUpdate', label: 'Inventory Update' },
+    ],
+    manufacturing: [
+      { value: 'qualityReport', label: 'Quality Report' },
+      { value: 'supplyChainUpdate', label: 'Supply Chain Update' },
+      { value: 'processImprovement', label: 'Process Improvement' },
+      { value: 'equipmentRequest', label: 'Equipment Request' },
+    ],
+    legal: [
+      { value: 'caseUpdate', label: 'Case Update' },
+      { value: 'legalAdvice', label: 'Legal Advice' },
+      { value: 'contractReview', label: 'Contract Review' },
+      { value: 'compliance', label: 'Compliance Notice' },
+    ],
+    marketing: [
+      { value: 'campaignBrief', label: 'Campaign Brief' },
+      { value: 'marketResearch', label: 'Market Research' },
+      { value: 'contentStrategy', label: 'Content Strategy' },
+      { value: 'brandGuidelines', label: 'Brand Guidelines' },
+    ],
+  }), []);
   
-  // Load source email data if available (for reply/forward)
+  // Update document types when industry changes
   useEffect(() => {
-    const sourceEmailData = localStorage.getItem('sourceEmail');
-    if (sourceEmailData) {
-      try {
-        const parsedEmail = JSON.parse(sourceEmailData);
-        setSourceEmail(parsedEmail);
-        setIsReplyOrForward(true);
-        
-        // Populate form based on source email
-        const isReply = parsedEmail.type === 'reply';
-        
-        setFormData(prev => ({
-          ...prev,
-          recipientType: determineRecipientType(parsedEmail.from.email),
-          purpose: isReply ? 'follow-up' : 'information',
-          subject: isReply ? `Re: ${parsedEmail.subject}` : `Fwd: ${parsedEmail.subject}`,
-          recipientName: isReply ? parsedEmail.from.name : '',
-          recipientEmail: isReply ? parsedEmail.from.email : '',
-          keyPoints: `Regarding your email about "${parsedEmail.subject}"\n\n`
-        }));
-        
-        // Remove the data after using it
-        localStorage.removeItem('sourceEmail');
-      } catch (error) {
-        console.error('Error parsing source email:', error);
-      }
-    }
-    
-    // Check if we have draft data from compose
-    const draftEmailData = localStorage.getItem('draftEmailData');
-    if (draftEmailData && !sourceEmailData) {
-      try {
-        const parsedDraft = JSON.parse(draftEmailData);
-        
-        setFormData(prev => ({
-          ...prev,
-          subject: parsedDraft.subject || prev.subject,
-          recipientEmail: parsedDraft.to || prev.recipientEmail,
-          keyPoints: parsedDraft.body 
-            ? `Draft content: ${stripHtml(parsedDraft.body)}\n\n` 
-            : prev.keyPoints
-        }));
-        
-        localStorage.removeItem('draftEmailData');
-      } catch (error) {
-        console.error('Error parsing draft email data:', error);
-      }
-    }
-  }, [determineRecipientType]);
+    // Reset document type when industry changes to avoid invalid selection
+    setFormData(prev => ({
+      ...prev,
+      documentType: documentTypes[prev.industry][0].value
+    }));
+// eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.industry]); // Removed documentTypes dependency
   
-  // Strip HTML for plaintext use
-  const stripHtml = (html) => {
-    if (!html) return '';
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    return doc.body.textContent || '';
-  };
-
-  // Available options for the form
-  const recipientOptions = [
-    { value: 'customer', label: 'Customer' },
-    { value: 'vendor', label: 'Vendor/Partner' },
-    { value: 'employee', label: 'Employee' },
-    { value: 'manager', label: 'Manager/Supervisor' },
-    { value: 'colleague', label: 'Colleague' },
-    { value: 'applicant', label: 'Job Applicant' },
-    { value: 'other', label: 'Other' }
-  ];
-
-  const purposeOptions = [
-    { value: 'information', label: 'Share Information' },
-    { value: 'request', label: 'Make a Request' },
-    { value: 'follow-up', label: 'Follow-up' },
-    { value: 'thank-you', label: 'Thank You' },
-    { value: 'apology', label: 'Apology' },
-    { value: 'introduction', label: 'Introduction' },
-    { value: 'feedback', label: 'Feedback/Review' },
-    { value: 'praise', label: 'Recognition/Praise' },
-    { value: 'instruction', label: 'Instructions/Directions' },
-    { value: 'invitation', label: 'Invitation' },
-    { value: 'other', label: 'Other' }
-  ];
-
-  const toneOptions = [
-    { value: 'professional', label: 'Professional' },
-    { value: 'formal', label: 'Formal' },
-    { value: 'casual', label: 'Casual/Friendly' },
-    { value: 'enthusiastic', label: 'Enthusiastic' },
-    { value: 'empathetic', label: 'Empathetic' },
-    { value: 'assertive', label: 'Assertive' },
-    { value: 'urgent', label: 'Urgent' },
-    { value: 'appreciative', label: 'Appreciative' }
-  ];
-
-  // Handle input changes
-  const handleInputChange = (e) => {
+  // Handle form input changes
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
-  // Handle industry selection
-  const handleIndustryChange = (e) => {
-    const newIndustry = e.target.value;
-    setIndustry(newIndustry);
-    // Reset document type to email when industry changes
-    setDocumentType('email');
+  // Handle select changes
+  const handleSelectChange = (name, value) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
   
-  // Handle document type selection
-  const handleDocumentTypeChange = (e) => {
-    setDocumentType(e.target.value);
+  // Handle switch changes
+  const handleSwitchChange = (name, checked) => {
+    setFormData(prev => ({ ...prev, [name]: checked }));
   };
-
-  // Generate the draft based on form inputs
-  const handleGenerateDraft = (e) => {
-    e.preventDefault();
+  
+  // Generate draft email with AI
+  const handleGenerateDraft = async () => {
+    setLoading(true);
+    setGeneratedDraft('');
     
-    if (!formData.subject && !sourceEmail) {
-      warning("Please provide a subject for better results");
-      return;
+    try {
+      // In a real app, this would call your AI service API
+      // For demo purposes, we'll just simulate a delay and response
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Generate draft based on form data
+      const draft = generateDraftFromTemplate();
+      setGeneratedDraft(draft);
+    } catch (error) {
+      console.error('Error generating draft:', error);
+      // Show error toast
+    } finally {
+      setLoading(false);
     }
-    
-    generateDraft();
   };
   
-  // Generate the draft based on form inputs
-  const generateDraft = () => {
-    setIsGenerating(true);
-    setGenerationError(null);
+  // Quick draft generation
+  const handleQuickDraft = async () => {
+    setLoading(true);
     
-    // Prepare parameters for API call
-    const params = {
-      recipientType: formData.recipientType,
-      recipientName: formData.recipientName,
-      recipientEmail: formData.recipientEmail,
-      subject: formData.subject,
-      emailPurpose: formData.purpose,
-      emailTone: formData.tone,
-      keyPoints: formData.keyPoints,
-      yourName: formData.senderName,
-      yourPosition: formData.senderPosition,
-      industry,
-      documentType
-    };
-    
-    // In a real implementation, this would call the AI service API
-    setTimeout(() => {
-      try {
-        // Generate appropriate opening based on document type
-        let draftContent = '';
-        
-        if (documentType === 'email') {
-          // Email draft format
-          draftContent = generateEmailDraftLocal(params);
-        } else {
-          // Generate content based on document type and industry
-          draftContent = `# ${documentTypes[industry].find(type => type.id === documentType)?.name || documentType}
-Date: ${new Date().toLocaleDateString()}
-Industry: ${industries.find(ind => ind.id === industry)?.name || industry}
-Document Type: ${documentTypes[industry].find(type => type.id === documentType)?.name || documentType}
-
-${generateDocumentContent(documentType, industry, params)}
-`;
-        }
-        
-        // Store the generated draft content
-        setDraftContent(draftContent);
-        setIsGenerating(false);
-        setShowPreview(true);
-        
-        // Success notification
-        success("Draft generated successfully!");
-      } catch (error) {
-        console.error("Error generating draft:", error);
-        setGenerationError("An error occurred while generating the draft. Please try again.");
-        setIsGenerating(false);
-      }
-    }, 2000);
-  };
-  
-  // Helper function to generate content based on document type and industry
-  const generateDocumentContent = (docType, industryType, formData) => {
-    const { recipientName, subject, keyPoints, yourName, yourPosition } = formData;
-    
-    // Generate content based on document type and industry
-    switch (industryType) {
-      case 'construction':
-        if (docType === 'proposal') {
-          return `
-## Project Overview
-${subject || "Construction project for [Project Name]"}
-
-## Scope of Work
-${keyPoints || "- Detailed scope of work to be inserted here\n- Include all relevant construction activities\n- Timeline and milestones"}
-
-## Cost Estimate
-[Include detailed cost breakdown]
-
-## Timeline
-[Include project timeline and milestones]
-
-## Terms and Conditions
-[Standard terms and conditions]
-
-Prepared by: ${yourName || "[Your Name]"}, ${yourPosition || "Project Manager"}
-`;
-        } else if (docType === 'estimate') {
-          return `
-## Project Details
-Project: ${subject || "[Project Name]"}
-Client: ${recipientName || "[Client Name]"}
-Date: ${new Date().toLocaleDateString()}
-
-## Cost Breakdown
-[Detailed cost breakdown by category]
-${keyPoints ? "Notes: " + keyPoints : ""}
-
-## Timeline
-Estimated Start Date: [Date]
-Estimated Completion: [Date]
-
-Prepared by: ${yourName || "[Your Name]"}, ${yourPosition || "Estimator"}
-`;
-        }
-        break;
-        
-      case 'roofing':
-        if (docType === 'estimate') {
-          return `
-## Property Details
-Property: ${subject || "[Property Address]"}
-Client: ${recipientName || "[Client Name]"}
-Date of Inspection: ${new Date().toLocaleDateString()}
-
-## Recommended Roofing Solution
-${keyPoints || "- Roof type and materials\n- Square footage\n- Special considerations"}
-
-## Cost Breakdown
-Materials: $[Amount]
-Labor: $[Amount]
-Additional Services: $[Amount]
-Total Estimate: $[Total Amount]
-
-## Warranty Information
-[Warranty details]
-
-Prepared by: ${yourName || "[Your Name]"}, ${yourPosition || "Roofing Specialist"}
-`;
-        } else if (docType === 'inspection') {
-          return `
-## Property Information
-Property: ${subject || "[Property Address]"}
-Client: ${recipientName || "[Client Name]"}
-Inspection Date: ${new Date().toLocaleDateString()}
-
-## Inspection Findings
-${keyPoints || "- Current roof condition\n- Identified issues\n- Recommended repairs"}
-
-## Recommendations
-[Detailed recommendations]
-
-## Photo Documentation
-[Photo references]
-
-Prepared by: ${yourName || "[Your Name]"}, ${yourPosition || "Roof Inspector"}
-`;
-        }
-        break;
-        
-      case 'flooring':
-        if (docType === 'quote') {
-          return `
-## Property Details
-Property: ${subject || "[Property Address]"}
-Client: ${recipientName || "[Client Name]"}
-
-## Flooring Solution
-${keyPoints || "- Flooring type and materials\n- Square footage\n- Special considerations"}
-
-## Cost Breakdown
-Materials: $[Amount]
-Installation: $[Amount]
-Additional Services: $[Amount]
-Total Estimate: $[Total Amount]
-
-## Warranty & Timeline
-Installation Timeline: [X] days
-Warranty Period: [X] years
-
-Prepared by: ${yourName || "[Your Name]"}, ${yourPosition || "Flooring Specialist"}
-`;
-        }
-        break;
-        
-      case 'automotive':
-        if (docType === 'vehicleOffer') {
-          return `
-## Vehicle Information
-Make/Model: ${subject || "[Vehicle Make/Model]"}
-Year: [Year]
-VIN: [VIN]
-
-## Offer Details
-Offered Price: $[Amount]
-Trade-in Value: $[Amount]
-Financing Options:
-- [Option 1]
-- [Option 2]
-
-## Additional Information
-${keyPoints || "- Special features\n- Warranty details\n- Additional services included"}
-
-This offer is valid until: [Date]
-
-Prepared by: ${yourName || "[Your Name]"}, ${yourPosition || "Sales Representative"}
-`;
-        }
-        break;
-        
-      // More industry-specific templates can be added here
-        
-      default:
-        return `## Summary
-${subject || "[Document Subject]"}
-
-## Details
-${keyPoints || "[Key points to be included]"}
-
-## Additional Information
-[Include any additional information]
-
-Prepared by: ${yourName || "[Your Name]"}, ${yourPosition || "[Your Position]"}
-`;
+    try {
+      // In a real app, this would call your backend API
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // Generate a simpler draft for quick use
+      const quickDraft = generateQuickDraft();
+      setGeneratedDraft(quickDraft);
+      
+      // Skip to the preview tab
+      setActiveTab('preview');
+    } catch (error) {
+      console.error('Error generating quick draft:', error);
+      // Show error toast
+    } finally {
+      setLoading(false);
     }
-    
-    // Default content if no specific template is found
-    return `## Summary
-${subject || "[Document Subject]"}
-
-## Details
-${keyPoints || "[Key points to be included]"}
-
-## Additional Information
-[Include any additional information]
-
-Prepared by: ${yourName || "[Your Name]"}, ${yourPosition || "[Your Position]"}
-`;
   };
-
-  // Renamed the original method to indicate it's a local fallback
-  const generateEmailDraftLocal = (data) => {
-    const { 
-      recipientType, 
-      purpose, 
-      tone, 
-      subject, 
-      keyPoints, 
-      recipientName, 
-      senderName, 
-      senderPosition 
-    } = data;
-
-    // Common phrases for different tones
-    const toneMap = {
+  
+  // Helper function to generate a quick draft from basic inputs
+  const generateQuickDraft = () => {
+    const { recipientType, purpose, tone, subject, keyPoints } = formData;
+    
+    // Define templates for different scenarios
+    const greetings = {
       professional: {
-        greeting: 'Dear',
-        closing: 'Best regards,',
-        style: 'clear and concise'
+        colleague: 'Dear colleague,',
+        client: 'Dear valued client,',
+        manager: 'Dear manager,',
+        team: 'Dear team,',
+        vendor: 'Dear vendor partner,',
+        other: 'Hello,'
+      },
+      friendly: {
+        colleague: 'Hi there,',
+        client: 'Hello!',
+        manager: 'Hi,',
+        team: 'Hey team,',
+        vendor: 'Hi folks,',
+        other: 'Hey,'
       },
       formal: {
-        greeting: 'Dear',
-        closing: 'Sincerely,',
-        style: 'formal and structured'
-      },
-      casual: {
-        greeting: 'Hi',
-        closing: 'Thanks,',
-        style: 'friendly and conversational'
-      },
-      enthusiastic: {
-        greeting: 'Hello',
-        closing: 'Looking forward to your response!',
-        style: 'energetic and positive'
-      },
-      empathetic: {
-        greeting: 'Hello',
-        closing: 'With appreciation,',
-        style: 'understanding and supportive'
-      },
-      assertive: {
-        greeting: 'Hello',
-        closing: 'Regards,',
-        style: 'direct and clear'
-      },
-      urgent: {
-        greeting: 'Hello',
-        closing: 'Thank you for your prompt attention to this matter.',
-        style: 'time-sensitive and action-oriented'
-      },
-      appreciative: {
-        greeting: 'Dear',
-        closing: 'With sincere thanks,',
-        style: 'grateful and appreciative'
+        colleague: 'Dear colleague,',
+        client: 'Dear Sir/Madam,',
+        manager: 'Dear Manager,',
+        team: 'Dear Team Members,',
+        vendor: 'Dear Service Provider,',
+        other: 'To Whom It May Concern,'
       }
     };
-
-    // Get tone phrases
-    const selectedTone = toneMap[tone];
-
-    // Create greeting
-    const greeting = recipientName ? `${selectedTone.greeting} ${recipientName},` : `${selectedTone.greeting} Recipient,`;
-
-    // Create subject line if not provided
-    let emailSubject = subject;
-    if (!emailSubject) {
-      switch (purpose) {
-        case 'information':
-          emailSubject = `Important Information: ${keyPoints.split('\n')[0] || 'Update'}`;
-          break;
-        case 'request':
-          emailSubject = `Request: ${keyPoints.split('\n')[0] || 'Assistance Needed'}`;
-          break;
-        case 'follow-up':
-          emailSubject = `Follow-up: ${keyPoints.split('\n')[0] || 'Our Recent Discussion'}`;
-          break;
-        case 'thank-you':
-          emailSubject = `Thank You for ${keyPoints.split('\n')[0] || 'Your Support'}`;
-          break;
-        case 'apology':
-          emailSubject = `Apology: ${keyPoints.split('\n')[0] || 'Recent Incident'}`;
-          break;
-        case 'introduction':
-          emailSubject = `Introduction: ${senderName || 'New Contact'}`;
-          break;
-        case 'feedback':
-          emailSubject = `Feedback on ${keyPoints.split('\n')[0] || 'Recent Interaction'}`;
-          break;
-        case 'praise':
-          emailSubject = `Recognition: ${keyPoints.split('\n')[0] || 'Excellent Work'}`;
-          break;
-        case 'instruction':
-          emailSubject = `Instructions for ${keyPoints.split('\n')[0] || 'Next Steps'}`;
-          break;
-        case 'invitation':
-          emailSubject = `Invitation: ${keyPoints.split('\n')[0] || 'Upcoming Event'}`;
-          break;
-        default:
-          emailSubject = keyPoints.split('\n')[0] || 'Important Message';
+    
+    const purposeIntros = {
+      professional: {
+        update: 'I am writing to provide you with an update regarding ',
+        request: 'I would like to request ',
+        followup: 'I am following up on ',
+        meeting: 'I would like to schedule a meeting to discuss ',
+        introduction: 'I would like to introduce ',
+        feedback: 'I would like to provide feedback on ',
+        other: 'I am writing regarding '
+      },
+      friendly: {
+        update: 'Just wanted to give you a quick update about ',
+        request: 'I was hoping you could help with ',
+        followup: 'Just checking in about ',
+        meeting: 'Let\'s find some time to talk about ',
+        introduction: 'I wanted to introduce you to ',
+        feedback: 'I have some thoughts to share about ',
+        other: 'I wanted to reach out about '
+      },
+      formal: {
+        update: 'This correspondence serves to provide an update concerning ',
+        request: 'I am writing to formally request ',
+        followup: 'This email serves as a follow-up regarding ',
+        meeting: 'I would like to request a formal meeting to discuss ',
+        introduction: 'I would like to formally introduce ',
+        feedback: 'I am writing to provide formal feedback regarding ',
+        other: 'The purpose of this communication is to address '
       }
-    }
-
-    // Create email body based on purpose
-    let bodyContent = '';
-    const keyPointsList = keyPoints.split('\n').filter(point => point.trim());
-    
-    // Introduction paragraph
-    switch (purpose) {
-      case 'information':
-        bodyContent = `I hope this email finds you well. I wanted to share some important information with you regarding ${keyPointsList[0] || 'our recent discussions'}.`;
-        break;
-      case 'request':
-        bodyContent = `I hope you're doing well. I'm reaching out to request your assistance with ${keyPointsList[0] || 'an important matter'}.`;
-        break;
-      case 'follow-up':
-        bodyContent = `I'm writing to follow up on ${keyPointsList[0] || 'our recent conversation'}.`;
-        break;
-      case 'thank-you':
-        bodyContent = `I wanted to express my sincere gratitude for ${keyPointsList[0] || 'your support and contribution'}.`;
-        break;
-      case 'apology':
-        bodyContent = `I would like to sincerely apologize for ${keyPointsList[0] || 'the recent incident'}.`;
-        break;
-      case 'introduction':
-        bodyContent = `I hope this message finds you well. My name is ${senderName || 'Name'}, and I am ${senderPosition || 'Position'} at our company.`;
-        break;
-      case 'feedback':
-        bodyContent = `I wanted to provide some feedback regarding ${keyPointsList[0] || 'our recent interaction'}.`;
-        break;
-      case 'praise':
-        bodyContent = `I wanted to take a moment to recognize your excellent work on ${keyPointsList[0] || 'recent contributions'}.`;
-        break;
-      case 'instruction':
-        bodyContent = `I'm writing to provide instructions for ${keyPointsList[0] || 'the upcoming task'}.`;
-        break;
-      case 'invitation':
-        bodyContent = `I'm pleased to invite you to ${keyPointsList[0] || 'our upcoming event'}.`;
-        break;
-      default:
-        bodyContent = `I hope this email finds you well. I'm writing regarding ${keyPointsList[0] || 'an important matter'}.`;
-    }
-
-    // Main content
-    if (keyPointsList.length > 1) {
-      bodyContent += '\n\n';
-      
-      if (['information', 'instruction'].includes(purpose)) {
-        bodyContent += 'Here are the details:\n\n';
-      } else if (purpose === 'request') {
-        bodyContent += 'Specifically, I need your help with the following:\n\n';
-      } else if (['feedback', 'praise'].includes(purpose)) {
-        bodyContent += 'I would like to highlight the following points:\n\n';
-      } else {
-        bodyContent += 'Here are the key points:\n\n';
-      }
-      
-      // Add key points as bullet points
-      keyPointsList.slice(1).forEach(point => {
-        bodyContent += `• ${point}\n`;
-      });
-    }
-
-    // Closing paragraph
-    switch (purpose) {
-      case 'information':
-        bodyContent += '\n\nPlease let me know if you have any questions or need additional information.';
-        break;
-      case 'request':
-        bodyContent += '\n\nI appreciate your consideration of this request. Please let me know if you need any clarification.';
-        break;
-      case 'follow-up':
-        bodyContent += '\n\nI look forward to your response and am happy to provide any additional information if needed.';
-        break;
-      case 'thank-you':
-        bodyContent += '\n\nYour support means a great deal, and I truly appreciate your contribution.';
-        break;
-      case 'apology':
-        bodyContent += '\n\nI understand the impact of this situation and am committed to making things right. Please let me know if there\'s anything else I can do.';
-        break;
-      case 'introduction':
-        bodyContent += '\n\nI would welcome the opportunity to connect and discuss how we might collaborate in the future.';
-        break;
-      case 'feedback':
-        bodyContent += '\n\nI hope this feedback is helpful. I\'m available to discuss further if you\'d like.';
-        break;
-      case 'praise':
-        bodyContent += '\n\nYour contributions are greatly valued, and I wanted to ensure you know how much your efforts are appreciated.';
-        break;
-      case 'instruction':
-        bodyContent += '\n\nPlease let me know if you have any questions about these instructions or need any clarification.';
-        break;
-      case 'invitation':
-        bodyContent += '\n\nI hope you\'ll be able to join us. Please let me know if you can attend or if you have any questions.';
-        break;
-      default:
-        bodyContent += '\n\nThank you for your time and attention to this matter.';
-    }
-
-    // Add original email content for replies/forwards
-    if (isReplyOrForward && sourceEmail) {
-      bodyContent += '\n\n';
-      
-      if (sourceEmail.type === 'reply') {
-        bodyContent += `\n\nOn ${sourceEmail.date || 'earlier'}, ${sourceEmail.from.name} <${sourceEmail.from.email}> wrote:\n`;
-        bodyContent += `> ${stripHtml(sourceEmail.body).replace(/\n/g, '\n> ')}`;
-      } else {
-        bodyContent += '\n\n---------- Forwarded message ----------\n';
-        bodyContent += `From: ${sourceEmail.from.name} <${sourceEmail.from.email}>\n`;
-        bodyContent += `Date: ${sourceEmail.date || 'Unknown'}\n`;
-        bodyContent += `Subject: ${sourceEmail.subject}\n`;
-        bodyContent += `To: ${(sourceEmail.to || []).map(to => `${to.name} <${to.email}>`).join(', ')}\n\n`;
-        bodyContent += stripHtml(sourceEmail.body);
-      }
-    }
-
-    // Add signature (with different format based on recipient type)
-    let signature = `\n\n${selectedTone.closing}\n${senderName || 'Your Name'}`;
-    
-    if (senderPosition) {
-      signature += `\n${senderPosition}`;
-    }
-    
-    // Add company name for customers and vendors
-    if (['customer', 'vendor'].includes(recipientType)) {
-      signature += `\nCompany Name`;
-    }
-    
-    // Add contact info for external recipients
-    if (['customer', 'vendor', 'applicant'].includes(recipientType)) {
-      signature += `\n${user?.email || 'your.email@company.com'}\n${user?.phone || '(555) 123-4567'}`;
-    }
-
-    return {
-      subject: emailSubject,
-      body: `${greeting}\n\n${bodyContent}${signature}`
     };
+    
+    // Generate email components
+    const greeting = greetings[tone][recipientType] || greetings[tone].other;
+    const intro = purposeIntros[tone][purpose] || purposeIntros[tone].other;
+    
+    // Format key points
+    let pointsSection = '';
+    let points = []; // Initialize points variable
+    if (keyPoints) {
+      points = keyPoints.split('\n').filter(point => point.trim());
+      
+      if (points.length > 1) {
+        pointsSection = '\n\nKey points:\n';
+        points.forEach((point, index) => {
+          pointsSection += `${index + 1}. ${point.trim()}\n`;
+        });
+      } else if (points.length === 1) {
+        pointsSection = ` ${points[0].trim()}.`;
+      }
+    }
+    
+    // Closings based on tone
+    const closings = {
+      professional: 'Thank you for your attention to this matter.\n\nBest regards,',
+      friendly: 'Thanks!\n\nCheers,',
+      formal: 'Thank you for your consideration.\n\nSincerely,'
+    };
+    
+    // Assemble the email
+    let emailBody = `${greeting}\n\n${intro}${subject}.${pointsSection}`;
+    
+    // Add appropriate closing
+    if (points && points.length > 1) {
+      emailBody += `\n\n${closings[tone]}`;
+    } else {
+      emailBody += `\n\n${closings[tone]}`;
+    }
+    
+    // Add sender name
+    emailBody += `\n${formData.senderName}`;
+    if (formData.senderRole) {
+      emailBody += `\n${formData.senderRole}`;
+    }
+    
+    return emailBody;
   };
-
-  // Use the generated draft in the compose page
+  
+  // Helper function to generate more complex draft from templates
+  const generateDraftFromTemplate = () => {
+    // This would be more complex in a real application
+    // with templates for different document types and industries
+    
+    const { 
+      industry, documentType, audience, formality, 
+      includeData, includeCTA, purpose, keyPoints, 
+      senderName, senderRole
+    } = formData;
+    
+    // Example of a template-based generation (simplified for demo)
+    let draft = '';
+    
+    // Add greeting based on audience and formality
+    if (audience === 'internal') {
+      draft += formality === 'formal' ? 'Dear Team,\n\n' : 'Hi Team,\n\n';
+    } else {
+      draft += formality === 'formal' ? 'Dear Sir/Madam,\n\n' : 'Hello,\n\n';
+    }
+    
+    // Add industry-specific introduction
+    const introductions = {
+      technology: 'As we continue to innovate and develop our technical solutions, ',
+      healthcare: 'In our ongoing commitment to patient care and health services, ',
+      finance: 'With respect to our financial objectives and market position, ',
+      education: 'In support of our educational mission and student development, ',
+      retail: 'As we focus on enhancing customer experience and product offerings, ',
+      manufacturing: 'To optimize our production processes and supply chain efficiency, ',
+      legal: 'Regarding the legal considerations and compliance requirements, ',
+      marketing: 'To strengthen our brand presence and marketing initiatives, '
+    };
+    
+    draft += introductions[industry] || '';
+    
+    // Add purpose-specific content
+    const purposeContent = {
+      update: 'I wanted to provide you with an update on our recent progress. ',
+      request: 'I am writing to request your support and input on a critical matter. ',
+      meeting: 'I would like to schedule a meeting to discuss important developments. ',
+      proposal: 'I am pleased to present the following proposal for your consideration. ',
+      feedback: 'I would like to share some feedback based on recent developments. '
+    };
+    
+    draft += purposeContent[purpose] || '';
+    
+    // Add document type specific section
+    const currentDocTypes = documentTypes[industry] || [];
+    const selectedDocType = currentDocTypes.find(dt => dt.value === documentType);
+    
+    if (selectedDocType) {
+      draft += `This ${selectedDocType.label.toLowerCase()} addresses the following aspects:\n\n`;
+    }
+    
+    // Add key points if available
+    if (keyPoints) {
+      const points = keyPoints.split('\n').filter(point => point.trim());
+      points.forEach((point, index) => {
+        draft += `${index + 1}. ${point.trim()}\n`;
+      });
+      draft += '\n';
+    } else {
+      draft += '1. [Key point one]\n2. [Key point two]\n3. [Key point three]\n\n';
+    }
+    
+    // Add data placeholder if requested
+    if (includeData) {
+      draft += 'Supporting data:\n';
+      draft += '- [Insert relevant metric or data point]\n';
+      draft += '- [Insert relevant metric or data point]\n\n';
+    }
+    
+    // Add call to action if requested
+    if (includeCTA) {
+      const ctas = {
+        formal: 'Please review the information provided and respond with your feedback by [date].',
+        neutral: 'Let me know your thoughts on this when you have a chance.',
+        casual: 'Looking forward to hearing what you think about this!'
+      };
+      
+      draft += ctas[formality] || ctas.neutral;
+      draft += '\n\n';
+    }
+    
+    // Add closing
+    const closings = {
+      formal: 'Thank you for your attention to this matter.\n\nSincerely,',
+      neutral: 'Thank you for your consideration.\n\nBest regards,',
+      casual: 'Thanks!\n\nCheers,'
+    };
+    
+    draft += closings[formality] || closings.neutral;
+    draft += `\n${senderName}`;
+    
+    if (senderRole) {
+      draft += `\n${senderRole}`;
+    }
+    
+    return draft;
+  };
+  
+  // Use the generated draft in new email
   const handleUseDraft = () => {
     if (!generatedDraft) return;
     
-    // Navigate to compose page with draft
-    navigate('/email/compose', { 
-      state: { 
-        draft: {
-          subject: generatedDraft.subject,
-          body: generatedDraft.body,
-        } 
-      } 
-    });
-    
-    setTimeout(() => {
-      success({
-        title: 'Success',
-        description: 'Your draft has been loaded in the compose page'
-      });
-    }, 0);
+    // Redirect to compose page with the generated draft
+    navigate(`/email/compose?draft=${encodeURIComponent(generatedDraft)}&subject=${encodeURIComponent(formData.subject)}`);
   };
-
-  // Save to drafts without immediately using
-  const handleSaveDraft = () => {
-    if (!generatedDraft) return;
-    
-    // This would save to the drafts folder in a real app
-    setTimeout(() => {
-      success({
-        title: 'Success',
-        description: 'Your draft has been saved successfully'
-      });
-    }, 0);
-  };
-
+  
   // Copy draft to clipboard
   const handleCopyDraft = () => {
     if (!generatedDraft) return;
     
-    try {
-      const textToCopy = `Subject: ${generatedDraft.subject}\n\n${stripHtml(generatedDraft.body)}`;
-      navigator.clipboard.writeText(textToCopy);
-      setTimeout(() => {
-        success({
-          title: 'Success',
-          description: 'Draft copied to clipboard'
-        });
-      }, 0);
-    } catch (err) {
-      setTimeout(() => {
-        error({
-          title: 'Error',
-          description: 'Failed to copy to clipboard'
-        });
-      }, 0);
-    }
+    navigator.clipboard.writeText(generatedDraft);
+    // Show success toast (in a real app)
   };
-
-  // Check for generated draft on component mount
-  useEffect(() => {
-    const generatedDraft = localStorage.getItem('emailDraft');
-    
-    if (generatedDraft) {
-      try {
-        const parsedDraft = JSON.parse(generatedDraft);
-        setFormData(prev => ({
-          ...prev,
-          subject: parsedDraft.subject,
-          body: parsedDraft.body
-        }));
-        
-        // Remove the draft from localStorage to prevent loading it again
-        localStorage.removeItem('emailDraft');
-        
-        success({
-          title: 'Success',
-          description: 'AI-generated draft has been loaded'
-        });
-      } catch (error) {
-        console.error('Error parsing generated draft:', error);
-      }
-    }
-  }, [success]);
-
+  
   return (
-    <div className="p-4 md:p-6">
-      <div className="max-w-5xl mx-auto">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Sparkles className="h-5 w-5 text-blue-500" />
-              <span>AI Draft Generator</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-6">
-              {showPreview ? (
-                // Preview generated draft
-                <div className="space-y-4">
-                  <div className="border p-4 rounded-lg min-h-[300px] whitespace-pre-wrap">
-                    {draftContent}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button 
-                      onClick={() => setShowPreview(false)}
-                      variant="outline"
-                      size="sm"
-                    >
-                      <X className="mr-1 h-4 w-4" />
-                      Back to Editor
-                    </Button>
-                    <Button 
-                      onClick={handleCopyDraft}
-                      variant="outline"
-                      size="sm"
-                    >
-                      <Copy className="mr-1 h-4 w-4" />
-                      Copy to Clipboard
-                    </Button>
-                    <Button 
-                      onClick={handleUseDraft}
-                      variant="default"
-                      size="sm"
-                    >
-                      <Send className="mr-1 h-4 w-4" />
-                      Use Draft
-                    </Button>
-                    <Button 
-                      onClick={handleSaveDraft}
-                      variant="outline"
-                      size="sm"
-                    >
-                      <Clock className="mr-1 h-4 w-4" />
-                      Save as Draft
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                // Input form
-                <form onSubmit={handleGenerateDraft}>
-                  {/* Industry and document type selector */}
-                  <div className="mb-6 space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Industry</label>
-                        <select 
-                          className="w-full p-2 border rounded-md"
-                          value={industry}
-                          onChange={handleIndustryChange}
-                        >
-                          {industries.map(ind => (
-                            <option key={ind.id} value={ind.id}>{ind.name}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Document Type</label>
-                        <select 
-                          className="w-full p-2 border rounded-md"
-                          value={documentType}
-                          onChange={handleDocumentTypeChange}
-                        >
-                          {documentTypes[industry].map(type => (
-                            <option key={type.id} value={type.id}>{type.name}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Existing form fields */}
-                  {isReplyOrForward && sourceEmail && (
-                    <div className="mb-6 p-3 bg-gray-50 rounded-md border">
-                      <div className="text-sm text-gray-500 mb-2">
-                        {sourceEmail.type === 'reply' ? 'Replying to:' : 'Forwarding:'} 
-                        <span className="font-semibold"> {sourceEmail.subject}</span>
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        From: {sourceEmail.from.name} ({sourceEmail.from.email})
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Recipient Type</label>
-                      <select 
-                        name="recipientType" 
-                        value={formData.recipientType}
-                        onChange={handleInputChange}
-                        className="w-full p-2 border rounded-md"
+    <div className="container py-6 max-w-4xl mx-auto">
+      <div className="flex items-center mb-6">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => navigate(-1)}
+          className="mr-4"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </Button>
+        <h1 className="text-2xl font-bold">Email Draft Generator</h1>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Left Column: Form */}
+        <div className="md:col-span-2">
+          <Card>
+            <CardHeader className="bg-gradient-to-r from-blue-500 to-violet-500 text-white">
+              <CardTitle className="flex items-center text-xl">
+                <FileText className="mr-2 h-5 w-5" />
+                Draft Generator
+              </CardTitle>
+            </CardHeader>
+            
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <div className="px-4 pt-4">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="purpose" className="text-sm">
+                    Basic Info
+                  </TabsTrigger>
+                  <TabsTrigger value="content" className="text-sm">
+                    Details
+                  </TabsTrigger>
+                  <TabsTrigger value="preview" className="text-sm">
+                    Preview
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+              
+              <CardContent className="p-4">
+                {/* Purpose Tab */}
+                <TabsContent value="purpose" className="space-y-4 mt-0">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="recipientType">Recipient Type</Label>
+                      <Select 
+                        value={formData.recipientType} 
+                        onValueChange={(value) => handleSelectChange('recipientType', value)}
                       >
-                        {recipientOptions.map(option => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger id="recipientType">
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="colleague">Colleague</SelectItem>
+                          <SelectItem value="client">Client</SelectItem>
+                          <SelectItem value="manager">Manager</SelectItem>
+                          <SelectItem value="team">Team</SelectItem>
+                          <SelectItem value="vendor">Vendor</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Recipient Name</label>
-                      <input 
-                        type="text" 
-                        name="recipientName"
-                        value={formData.recipientName}
-                        onChange={handleInputChange}
-                        placeholder="John Doe"
-                        className="w-full p-2 border rounded-md"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Recipient Email</label>
-                      <input 
-                        type="email" 
-                        name="recipientEmail"
-                        value={formData.recipientEmail}
-                        onChange={handleInputChange}
-                        placeholder="johndoe@example.com"
-                        className="w-full p-2 border rounded-md"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Subject</label>
-                      <input 
-                        type="text" 
-                        name="subject"
-                        value={formData.subject}
-                        onChange={handleInputChange}
-                        placeholder="Enter subject"
-                        className="w-full p-2 border rounded-md"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Purpose</label>
-                      <select 
-                        name="purpose" 
-                        value={formData.purpose}
-                        onChange={handleInputChange}
-                        className="w-full p-2 border rounded-md"
+                    <div className="space-y-2">
+                      <Label htmlFor="purpose">Email Purpose</Label>
+                      <Select 
+                        value={formData.purpose} 
+                        onValueChange={(value) => handleSelectChange('purpose', value)}
                       >
-                        {purposeOptions.map(option => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Tone</label>
-                      <select 
-                        name="tone" 
-                        value={formData.tone}
-                        onChange={handleInputChange}
-                        className="w-full p-2 border rounded-md"
-                      >
-                        {toneOptions.map(option => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger id="purpose">
+                          <SelectValue placeholder="Select purpose" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="update">Status Update</SelectItem>
+                          <SelectItem value="request">Request</SelectItem>
+                          <SelectItem value="followup">Follow-up</SelectItem>
+                          <SelectItem value="meeting">Meeting</SelectItem>
+                          <SelectItem value="introduction">Introduction</SelectItem>
+                          <SelectItem value="feedback">Feedback</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                   
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Key Points (include any specific details you want to mention)
-                    </label>
-                    <textarea 
+                  <div className="space-y-2">
+                    <Label htmlFor="tone">Tone</Label>
+                    <Select 
+                      value={formData.tone} 
+                      onValueChange={(value) => handleSelectChange('tone', value)}
+                    >
+                      <SelectTrigger id="tone">
+                        <SelectValue placeholder="Select tone" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="professional">Professional</SelectItem>
+                        <SelectItem value="friendly">Friendly</SelectItem>
+                        <SelectItem value="formal">Formal</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="subject">Subject</Label>
+                    <Input
+                      id="subject"
+                      name="subject"
+                      placeholder="Enter email subject"
+                      value={formData.subject}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="keyPoints">Key Points</Label>
+                    <Textarea
+                      id="keyPoints"
                       name="keyPoints"
+                      placeholder="Enter key points (one per line)"
+                      rows={4}
                       value={formData.keyPoints}
-                      onChange={handleInputChange}
-                      rows="5"
-                      placeholder="Enter key points, one per line"
-                      className="w-full p-2 border rounded-md"
-                    ></textarea>
+                      onChange={handleChange}
+                    />
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Your Name</label>
-                      <input 
-                        type="text" 
-                        name="senderName"
-                        value={formData.senderName}
-                        onChange={handleInputChange}
-                        placeholder="Your Name"
-                        className="w-full p-2 border rounded-md"
+                  <div className="flex justify-between items-center">
+                    <Button
+                      variant="outline"
+                      onClick={handleQuickDraft}
+                      disabled={loading || !formData.subject}
+                      className="flex items-center"
+                    >
+                      <Wand className="mr-2 h-4 w-4" />
+                      Quick Draft
+                    </Button>
+                    
+                    <Button onClick={() => setActiveTab('content')} className="flex items-center">
+                      Advanced Options
+                    </Button>
+                  </div>
+                </TabsContent>
+                
+                {/* Content Tab */}
+                <TabsContent value="content" className="space-y-4 mt-0">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-medium">Advanced Options</h3>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setActiveTab('purpose')}
+                      className="text-sm"
+                    >
+                      Back to Basics
+                    </Button>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="industry">Industry</Label>
+                      <Select 
+                        value={formData.industry} 
+                        onValueChange={(value) => handleSelectChange('industry', value)}
+                      >
+                        <SelectTrigger id="industry">
+                          <SelectValue placeholder="Select industry" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {industries.map(ind => (
+                            <SelectItem key={ind.value} value={ind.value}>
+                              {ind.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="documentType">Document Type</Label>
+                      <Select 
+                        value={formData.documentType} 
+                        onValueChange={(value) => handleSelectChange('documentType', value)}
+                      >
+                        <SelectTrigger id="documentType">
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {documentTypes[formData.industry]?.map(docType => (
+                            <SelectItem key={docType.value} value={docType.value}>
+                              {docType.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="audience">Target Audience</Label>
+                      <Select 
+                        value={formData.audience} 
+                        onValueChange={(value) => handleSelectChange('audience', value)}
+                      >
+                        <SelectTrigger id="audience">
+                          <SelectValue placeholder="Select audience" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="internal">Internal</SelectItem>
+                          <SelectItem value="external">External</SelectItem>
+                          <SelectItem value="mixed">Mixed</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="formality">Formality Level</Label>
+                      <Select 
+                        value={formData.formality} 
+                        onValueChange={(value) => handleSelectChange('formality', value)}
+                      >
+                        <SelectTrigger id="formality">
+                          <SelectValue placeholder="Select level" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="formal">Formal</SelectItem>
+                          <SelectItem value="neutral">Neutral</SelectItem>
+                          <SelectItem value="casual">Casual</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4 pt-2">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="includeData" className="text-base">Include Data</Label>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Add placeholders for data points and metrics
+                        </p>
+                      </div>
+                      <Switch
+                        id="includeData"
+                        checked={formData.includeData}
+                        onCheckedChange={(checked) => handleSwitchChange('includeData', checked)}
                       />
                     </div>
                     
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Your Position</label>
-                      <input 
-                        type="text" 
-                        name="senderPosition"
-                        value={formData.senderPosition}
-                        onChange={handleInputChange}
-                        placeholder="Your Position"
-                        className="w-full p-2 border rounded-md"
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="includeCTA" className="text-base">Include Call to Action</Label>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Add a clear next step or request
+                        </p>
+                      </div>
+                      <Switch
+                        id="includeCTA"
+                        checked={formData.includeCTA}
+                        onCheckedChange={(checked) => handleSwitchChange('includeCTA', checked)}
                       />
                     </div>
                   </div>
                   
-                  {generationError && (
-                    <div className="text-red-500 mb-4 text-sm">{generationError}</div>
-                  )}
+                  <div className="pt-3 space-y-2">
+                    <Label>Sender Information</Label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Input
+                        name="senderName"
+                        placeholder="Your Name"
+                        value={formData.senderName}
+                        onChange={handleChange}
+                      />
+                      <Input
+                        name="senderRole"
+                        placeholder="Your Role"
+                        value={formData.senderRole}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
                   
-                  <div className="flex flex-wrap gap-2 justify-end">
+                  <div className="pt-2 flex justify-end">
                     <Button 
-                      type="button"
-                      onClick={() => navigate(-1)}
-                      variant="outline"
+                      onClick={handleGenerateDraft}
+                      disabled={loading}
+                      className="bg-blue-600 hover:bg-blue-700"
                     >
-                      Cancel
-                    </Button>
-                    <Button 
-                      type="submit"
-                      disabled={isGenerating}
-                    >
-                      {isGenerating ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Generating...
-                        </>
+                      {loading ? (
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                       ) : (
-                        <>
-                          <Sparkles className="mr-2 h-4 w-4" />
-                          Generate Draft
-                        </>
+                        <Sparkles className="mr-2 h-4 w-4" />
                       )}
+                      {loading ? 'Generating...' : 'Generate Draft'}
                     </Button>
                   </div>
-                </form>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                </TabsContent>
+                
+                {/* Preview Tab */}
+                <TabsContent value="preview" className="mt-0">
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-medium">Draft Preview</h3>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsPreviewExpanded(!isPreviewExpanded)}
+                      >
+                        {isPreviewExpanded ? (
+                          <Minimize2 className="h-4 w-4" />
+                        ) : (
+                          <Maximize2 className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    
+                    <div 
+                      className={`border rounded-md p-4 bg-muted dark:bg-gray-800 overflow-auto whitespace-pre-wrap ${
+                        isPreviewExpanded ? 'h-[500px]' : 'h-[250px]'
+                      }`}
+                    >
+                      {generatedDraft || (
+                        <p className="text-gray-500 italic">
+                          Your generated email will appear here. Go to the Basic Info tab to enter your information.
+                        </p>
+                      )}
+                    </div>
+                    
+                    {generatedDraft && (
+                      <div className="flex justify-between pt-2">
+                        <Button 
+                          variant="outline" 
+                          onClick={handleCopyDraft}
+                          className="flex items-center"
+                        >
+                          <Copy className="mr-2 h-4 w-4" />
+                          Copy to Clipboard
+                        </Button>
+                        
+                        <Button 
+                          onClick={handleUseDraft}
+                          className="bg-green-600 hover:bg-green-700 flex items-center"
+                        >
+                          <Send className="mr-2 h-4 w-4" />
+                          Use This Draft
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+              </CardContent>
+            </Tabs>
+          </Card>
+        </div>
+        
+        {/* Right Column: Tips and Help */}
+        <div className="hidden md:block">
+          <Card>
+            <CardHeader className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+              <CardTitle className="flex items-center text-lg">
+                <Lightbulb className="mr-2 h-5 w-5" />
+                Email Writing Tips
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 space-y-4 text-sm">
+              <div className="space-y-2">
+                <h3 className="font-medium flex items-center">
+                  <Briefcase className="mr-2 h-4 w-4 text-blue-500" />
+                  Professional Emails
+                </h3>
+                <ul className="list-disc list-inside ml-1 text-gray-700 dark:text-gray-300">
+                  <li>Keep subject lines clear and descriptive</li>
+                  <li>Start with a proper greeting</li>
+                  <li>Be concise and stay on topic</li>
+                  <li>Use proper formatting for readability</li>
+                  <li>End with a professional signature</li>
+                </ul>
+              </div>
+              
+              <Separator />
+              
+              <div className="space-y-2">
+                <h3 className="font-medium flex items-center">
+                  <MessageSquare className="mr-2 h-4 w-4 text-purple-500" />
+                  Effective Communication
+                </h3>
+                <ul className="list-disc list-inside ml-1 text-gray-700 dark:text-gray-300">
+                  <li>State your purpose early in the email</li>
+                  <li>Use bullet points for multiple items</li>
+                  <li>Include a clear call to action</li>
+                  <li>Specify deadlines if applicable</li>
+                  <li>Proofread before sending</li>
+                </ul>
+              </div>
+              
+              <Separator />
+              
+              <div className="space-y-2">
+                <h3 className="font-medium flex items-center">
+                  <ThumbsUp className="mr-2 h-4 w-4 text-green-500" />
+                  Best Practices
+                </h3>
+                <ul className="list-disc list-inside ml-1 text-gray-700 dark:text-gray-300">
+                  <li>Respond promptly to important emails</li>
+                  <li>Use appropriate tone for your audience</li>
+                  <li>Be careful with humor and sarcasm</li>
+                  <li>Avoid all caps and excessive punctuation</li>
+                  <li>Include relevant context in replies</li>
+                </ul>
+              </div>
+              
+              <Separator />
+              
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                <h3 className="font-medium flex items-center text-blue-700 dark:text-blue-300">
+                  <Book className="mr-2 h-4 w-4" />
+                  Did you know?
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 mt-1">
+                  The average professional spends 28% of their workday on email. Well-written emails reduce back-and-forth communication and save time.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

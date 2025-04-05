@@ -1,0 +1,19 @@
+# Layout & Customization Page Screenshot
+
+## Description
+- Part of the Settings area with the same sidebar structure
+- Main content area shows drag-and-drop customization options
+- "Quick Actions Order" section with reorderable items (Schedule, Search Inbox, Compose Email, Draft Generator, Manage Labels, Templates, Analytics)
+- "Mailbox Order" section with reorderable items (Inbox, Sent, Drafts, Trash, Spam)
+- "Label Order" section for organizing labels
+- Each item has a drag handle icon for reordering
+
+## UI Issues
+- Drag and drop functionality lacks visual cues (no animation or indication of grab handles)
+- Limited visual distinction between different sections
+- No preview of how changes will appear in the main interface
+- No clear save or cancel buttons for changes
+- Lacks visual feedback when reordering elements
+- Missing theme customization options completely (required feature)
+- No ability to upload or select themes as required in specifications
+- Elements have minimal styling, appearing as basic list items

@@ -75,7 +75,7 @@ const RichTextEditor = ({
         className={`border-2 rounded-md overflow-hidden ${
           darkMode 
             ? 'border-gray-600 bg-gray-800 text-white' 
-            : 'border-gray-300 bg-white text-black'
+            : 'border-gray-300 bg-background text-foreground'
         }`}
         style={{ 
           minHeight: '200px',

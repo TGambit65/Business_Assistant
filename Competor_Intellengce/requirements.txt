@@ -1,0 +1,8 @@
+agno
+exa-py
+streamlit
+pandas
+firecrawl-py
+openai
+anthropic
+google-generativeai

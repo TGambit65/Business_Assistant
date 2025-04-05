@@ -1,0 +1,73 @@
+/* 
+ * Styles for resource-constrained mode
+ * These styles will be applied when the app detects resource constraints
+ * to reduce CPU/GPU usage and improve performance
+ */
+
+/* Apply to body when resource constraints are detected */
+body.resource-constrained * {
+  /* Disable all transitions to save resources */
+  transition: none !important;
+  animation: none !important;
+  
+  /* Reduce the frequency of animations and transitions */
+  animation-duration: 0ms !important;
+  transition-duration: 0ms !important;
+}
+
+/* Disable hover effects in resource-constrained mode */
+body.resource-constrained *:hover {
+  transform: none !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+/* Simplify shadows to reduce rendering load */
+body.resource-constrained .shadow,
+body.resource-constrained .shadow-md,
+body.resource-constrained .shadow-lg,
+body.resource-constrained .shadow-xl {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Reduce the complexity of background colors/gradients */
+body.resource-constrained [class*="bg-gradient"] {
+  background: #f8f9fa !important;
+}
+
+body.resource-constrained.dark [class*="bg-gradient"] {
+  background: #1a1a1a !important;
+}
+
+/* Optimize images and icons for performance */
+body.resource-constrained img,
+body.resource-constrained svg {
+  image-rendering: optimizeSpeed !important;
+}
+
+/* Disable fixed and sticky positioning which causes repaints */
+body.resource-constrained .fixed,
+body.resource-constrained .sticky {
+  position: relative !important;
+}
+
+/* Optimize scrolling */
+body.resource-constrained {
+  scroll-behavior: auto !important;
+}
+
+/* Reduce layout calculations */
+body.resource-constrained [class*="grid"],
+body.resource-constrained [class*="flex"] {
+  display: block !important;
+}
+
+/* Exception for critical UI elements */
+body.resource-constrained .critical-ui {
+  display: flex !important;
+}
+
+/* Allow essential transitions for user feedback, but make them super fast */
+body.resource-constrained .essential-transition {
+  transition: opacity 100ms ease-in-out !important;
+} 

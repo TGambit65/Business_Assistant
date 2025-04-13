@@ -1,5 +1,7 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import { PerplexityConfig, createDefaultConfig } from './PerplexityConfig';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { PerplexityRequest, PerplexityResponse, APIError } from '../../types/perplexity'; // Assuming types will be created
 import { normalizeError } from './utils'; // Assuming utils will be created or adapted
 

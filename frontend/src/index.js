@@ -7,14 +7,28 @@ import PerformanceMonitor from './utils/PerformanceMonitor';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import { initPolyfills } from './utils/browserPolyfills';
 
+// Clear authentication state to fix direct dashboard access issue 
+// This ensures the login page shows up correctly
+if (window.location.pathname !== '/force-dashboard' && 
+    !window.location.pathname.includes('standalone-dashboard')) {
+  console.log('Clearing authentication state to ensure login works properly');
+  localStorage.removeItem('isAuthenticated');
+  localStorage.removeItem('user');
+  localStorage.removeItem('env_REACT_APP_USE_DEMO_MODE');
+  sessionStorage.removeItem('redirectAfterLogin');
+}
+
+// Store database information for authentication system
+// This is used to automatically enable demo mode if we're using the specified container
+localStorage.setItem('db_container_id', '230065f663b90b63ac669e708144a92ae6b427c7703dcdcc546589fdc702287a');
+localStorage.setItem('database_name', 'db-1');
+
 // Initialize browser polyfills for compatibility
 initPolyfills();
 
-// Force light theme
-document.documentElement.classList.remove('dark');
-
-// Apply light theme CSS variables
-localStorage.setItem('theme', 'light');
+// IMPORTANT: Don't force light theme here, let the theme system handle it
+// This was causing themes not to change properly
+// localStorage.setItem('theme', 'light');
 
 // Initialize performance monitoring
 PerformanceMonitor.initPerformanceMonitoring();

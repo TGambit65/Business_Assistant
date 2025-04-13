@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 
 // Global flag to ensure this only runs once across re-renders and multiple instances
 let faviconLoaded = false;

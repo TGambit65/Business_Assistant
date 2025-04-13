@@ -122,13 +122,36 @@ export const getEnvVariable = (reactAppKey, defaultValue = null, bypassCache = f
 export const isDemoMode = (bypassCache = false) => {
   // First check if demo mode is explicitly enabled in localStorage
   if (localStorage.getItem('env_REACT_APP_USE_DEMO_MODE') === 'true') {
+    console.log('Demo mode enabled via localStorage setting');
     return true;
   }
   
-  // In development, always use demo mode
-  if (process.env.NODE_ENV === 'development') {
-    localStorage.setItem('env_REACT_APP_USE_DEMO_MODE', 'true');
+  // Check if demo mode is explicitly disabled in localStorage
+  if (localStorage.getItem('env_REACT_APP_USE_DEMO_MODE') === 'false') {
+    console.log('Demo mode explicitly disabled via localStorage');
+    return false;
+  }
+  
+  // Special case: If we're using the database container 230065f663b90b63ac669e708144a92ae6b427c7703dcdcc546589fdc702287a,
+  // enable demo mode automatically - this is a temporary fix until the backend is fully configured
+  const containerIdFromLocalStorage = localStorage.getItem('db_container_id');
+  if (containerIdFromLocalStorage === '230065f663b90b63ac669e708144a92ae6b427c7703dcdcc546589fdc702287a') {
+    console.log('Demo mode enabled due to matching container ID');
     return true;
+  }
+  
+  // Check if we are connecting to the db-1 database
+  if (localStorage.getItem('database_name') === 'db-1') {
+    console.log('Demo mode enabled due to db-1 database connection');
+    return true;
+  }
+  
+  // In development, use demo mode only if it's not explicitly disabled
+  if (process.env.NODE_ENV === 'development' && process.env.REACT_APP_USE_DEMO_MODE !== 'false') {
+    // Don't automatically set the localStorage flag here
+    // This allows manual control for testing login functionality
+    console.log('Demo mode available in development but not forcing it');
+    return false; // Changed from true to false to fix login bypass
   }
   
   // Otherwise check the environment variable

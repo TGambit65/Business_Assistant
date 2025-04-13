@@ -1,7 +1,12 @@
 import React from 'react';
 import { Button } from '../ui/button';
 
-const GoogleSignInModal = ({ onContinue, onClose }) => {
+const GoogleSignInModal = ({ isOpen, onContinue, onClose }) => {
+  // Don't render anything if the modal is not open
+  if (!isOpen) {
+    return null;
+  }
+
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 overflow-y-auto google-signin-overlay">
       <div className="bg-background dark:bg-background rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto p-6 relative">

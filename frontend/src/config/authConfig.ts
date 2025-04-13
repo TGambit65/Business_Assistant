@@ -84,7 +84,7 @@ export const DEFAULT_ENHANCED_SECURITY_CONFIG: EnhancedSecurityConfig = {
     storageStrategy: 'localStorage',
     autoEncryptFields: ['password', 'creditCard', 'ssn', 'apiKey'],
     ivStrategy: 'random'
-  } as any,
+  },
   storage: {
     tokenStorage: 'localStorage',
     secureCookieConfig: DEFAULT_SECURE_COOKIE_OPTIONS

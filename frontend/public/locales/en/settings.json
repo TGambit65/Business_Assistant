@@ -1,0 +1,138 @@
+{
+  "preferences": {
+    "title": "User Preferences",
+    "close": "Close",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "confirm_reset": "Are you sure you want to reset all preferences to default values?",
+    "tabs": {
+      "general": "General",
+      "appearance": "Appearance",
+      "accessibility": "Accessibility",
+      "notifications": "Notifications",
+      "security": "Security"
+    },
+    "language": {
+      "title": "Language",
+      "description": "Choose your preferred language for the application interface",
+      "select": "Interface Language",
+      "select_placeholder": "Select language",
+      "rtl_support": "Right-to-left support",
+      "options": {
+        "en": "English",
+        "es": "Spanish",
+        "fr": "French",
+        "de": "German",
+        "pt": "Portuguese",
+        "ru": "Russian",
+        "zh": "Chinese",
+        "ja": "Japanese",
+        "ar": "Arabic"
+      },
+      "changed": "Language changed successfully",
+      "change_error": "Failed to change language"
+    },
+    "data": {
+      "title": "Data Management",
+      "description": "Export, import, or reset your preferences",
+      "export": "Export Preferences",
+      "import": "Import Preferences",
+      "reset": "Reset to Defaults",
+      "last_updated": "Last updated",
+      "export_success": "Preferences exported successfully",
+      "export_error": "Failed to export preferences",
+      "import_success": "Preferences imported successfully",
+      "import_error": "Failed to import preferences",
+      "reset_success": "Preferences reset to defaults",
+      "reset_error": "Failed to reset preferences"
+    },
+    "theme": {
+      "title": "Theme",
+      "description": "Choose your preferred color theme",
+      "select": "Color Theme",
+      "select_placeholder": "Select theme",
+      "options": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      },
+      "changed": "Theme changed successfully",
+      "change_error": "Failed to change theme"
+    },
+    "display": {
+      "title": "Display Options",
+      "description": "Customize how content is displayed",
+      "density": "Content Density",
+      "density_placeholder": "Select density",
+      "density_options": {
+        "compact": "Compact",
+        "comfortable": "Comfortable",
+        "spacious": "Spacious"
+      },
+      "font_size": "Font Size",
+      "font_size_placeholder": "Select font size",
+      "font_size_options": {
+        "small": "Small",
+        "medium": "Medium",
+        "large": "Large",
+        "x_large": "Extra Large"
+      },
+      "animations": "Enable Animations",
+      "changed": "Display settings changed successfully",
+      "change_error": "Failed to change display settings"
+    },
+    "accessibility": {
+      "title": "Accessibility",
+      "description": "Customize accessibility settings",
+      "text_options": "Text Options",
+      "text_options_description": "Customize text display for better readability",
+      "reduced_motion": "Reduced Motion",
+      "high_contrast": "High Contrast",
+      "screen_reader_hints": "Screen Reader Hints",
+      "keyboard_navigation": "Enhanced Keyboard Navigation",
+      "font_size": "Font Size",
+      "font_size_placeholder": "Select font size",
+      "font_size_options": {
+        "small": "Small",
+        "medium": "Medium",
+        "large": "Large",
+        "x_large": "Extra Large"
+      },
+      "line_spacing": "Line Spacing",
+      "line_spacing_placeholder": "Select line spacing",
+      "line_spacing_options": {
+        "normal": "Normal",
+        "wide": "Wide",
+        "wider": "Wider"
+      },
+      "changed": "Accessibility settings changed successfully",
+      "change_error": "Failed to change accessibility settings"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Manage your notification preferences",
+      "email": "Email Notifications",
+      "push": "Push Notifications",
+      "in_app": "In-App Notifications",
+      "marketing": "Marketing Communications",
+      "security_alerts": "Security Alerts",
+      "changed": "Notification settings changed successfully",
+      "change_error": "Failed to change notification settings"
+    },
+    "security": {
+      "title": "Security",
+      "description": "Manage your security settings",
+      "mfa": "Two-Factor Authentication",
+      "biometric": "Biometric Authentication",
+      "login_notifications": "Login Notifications",
+      "session_timeout": "Session Timeout",
+      "minutes": "min",
+      "trusted_devices": "Trusted Devices",
+      "trusted_devices_description": "Devices that don't require additional verification",
+      "no_trusted_devices": "No trusted devices",
+      "add_current_device": "Add Current Device",
+      "changed": "Security settings changed successfully",
+      "change_error": "Failed to change security settings"
+    }
+  }
+}

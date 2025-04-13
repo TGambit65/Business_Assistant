@@ -10,11 +10,11 @@ const Dialog = React.forwardRef(({ className, children, open, onOpenChange, ...p
         onOpenChange?.(false);
       }
     };
-    
+
     if (open) {
       document.addEventListener('keydown', handleEscapeKey);
     }
-    
+
     return () => {
       document.removeEventListener('keydown', handleEscapeKey);
     };
@@ -122,11 +122,27 @@ const DialogClose = React.forwardRef(({ className, onClick, ...props }, ref) => 
 
 DialogClose.displayName = "DialogClose";
 
+const DialogFooter = React.forwardRef(({ className, children, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 mt-4 pt-4 border-t",
+      className
+    )}
+    {...props}
+  >
+    {children}
+  </div>
+));
+
+DialogFooter.displayName = "DialogFooter";
+
 export {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogClose
-}; 
+  DialogClose,
+  DialogFooter
+};

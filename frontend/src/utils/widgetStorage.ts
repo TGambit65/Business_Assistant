@@ -1,4 +1,5 @@
 import { BusinessWidget } from '../types/business';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Layout, Layouts } from 'react-grid-layout'; // Import Layout and Layouts types
 
 const WIDGETS_STORAGE_KEY = 'businessCenterWidgets';

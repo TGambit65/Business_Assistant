@@ -6,6 +6,10 @@ import {
   Palette, // For Theme Manager
   Settings, // For Settings
   Briefcase, // For Business Center
+  BarChart, // For Analytics
+  Fingerprint, // For Biometric Credentials
+  Sliders, // For User Preferences
+  Shield, // For Security Settings
   // Removed unused icons: LayoutGrid, ChevronDown, MessageSquare, Folder, Send, Trash2, LogOut, User, Wrench, Bell, Calendar, HelpCircle
 } from 'lucide-react';
 
@@ -24,14 +28,20 @@ const navLinks = [
     end: false,
   },
   {
-    name: 'Templates', // Added based on previous Sidebar component
-    path: '/templates', // Assuming this path exists
+    name: 'Templates',
+    path: '/templates',
     icon: <Mail size={22} />,
     end: false,
   },
   {
-    name: 'Theme Manager', // Added based on previous Sidebar component
-    path: '/theme-manager', // Assuming this path exists
+    name: 'Analytics',
+    path: '/auth-analytics',
+    icon: <BarChart size={22} />,
+    end: false,
+  },
+  {
+    name: 'Theme Manager',
+    path: '/theme-manager',
     icon: <Palette size={22} />,
     end: false,
   },
@@ -39,7 +49,25 @@ const navLinks = [
     name: 'Settings',
     path: '/settings',
     icon: <Settings size={22} />,
-    end: false, // Or true if settings has no sub-routes
+    end: false,
+  },
+  {
+    name: 'User Preferences',
+    path: '/user-preferences',
+    icon: <Sliders size={22} />,
+    end: false,
+  },
+  {
+    name: 'Biometric Credentials',
+    path: '/biometric-credentials',
+    icon: <Fingerprint size={22} />,
+    end: false,
+  },
+  {
+    name: 'Security Settings',
+    path: '/security-settings',
+    icon: <Shield size={22} />,
+    end: false,
   },
 ];
 

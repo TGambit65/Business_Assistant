@@ -341,7 +341,11 @@ export default function AppLayout() {
                     {Object.entries(themes).map(([name, themeObj]) => (
                       <button
                         key={name}
-                        onClick={() => setTheme(name)}
+                        onClick={() => {
+                          console.log(`[AppLayout] Setting theme to ${name}`, themeObj);
+                          // Apply the theme
+                          setTheme(name);
+                        }}
                         className="flex items-center justify-between w-full px-3 py-2 hover:bg-accent rounded"
                       >
                         <div className="flex items-center space-x-2">

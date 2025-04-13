@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
 import WidgetGrid from './dashboard/WidgetGrid';
 import WidgetControls from './dashboard/WidgetControls';
 import { BusinessProvider } from './store/BusinessContext';

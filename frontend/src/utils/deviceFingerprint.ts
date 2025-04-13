@@ -32,7 +32,8 @@ export async function generateDeviceFingerprint(): Promise<DeviceFingerprint> {
       new Date().getTimezoneOffset(),
       navigator.hardwareConcurrency || 'unknown',
       // TypeScript doesn't recognize deviceMemory, so we use any type
-      (navigator as any).deviceMemory || 'unknown',
+      // Also add a fallback for browsers that don't support deviceMemory
+      typeof (navigator as any).deviceMemory !== 'undefined' ? (navigator as any).deviceMemory : 'unknown',
     ].join('|');
 
     // Generate a hash of the fingerprint data
@@ -49,7 +50,7 @@ export async function generateDeviceFingerprint(): Promise<DeviceFingerprint> {
       language,
       hardware: {
         cpuCores: navigator.hardwareConcurrency,
-        memory: (navigator as any).deviceMemory as number,
+        memory: typeof (navigator as any).deviceMemory !== 'undefined' ? (navigator as any).deviceMemory as number : undefined,
       },
       createdAt: Date.now(),
       lastSeen: Date.now()

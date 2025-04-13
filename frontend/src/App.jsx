@@ -13,9 +13,12 @@ import OnboardingPage from './pages/auth/OnboardingPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import DirectDashboardAccess from './pages/dashboard/DirectDashboardAccess';
 import AnalyticsPage from './pages/dashboard/AnalyticsPage';
+import AuthAnalyticsDashboard from './pages/analytics/AuthAnalyticsDashboard';
 import SettingsPage from './pages/settings/SettingsPage';
 import ProfilePage from './pages/settings/ProfilePage';
 import SecuritySettingsPage from './pages/settings/SecuritySettingsPage';
+import UserPreferencesPage from './pages/settings/UserPreferencesPage';
+import BiometricCredentialsPage from './pages/settings/BiometricCredentialsPage';
 import AdministrationPage from './pages/admin/AdministrationPage';
 import ThemeManager from './pages/ThemeManager';
 import BusinessCenterPage from './pages/business/BusinessCenterPage';
@@ -55,16 +58,30 @@ function App() {
     console.log('Starting resource monitoring');
 
     // Suppress benign ResizeObserver loop error in development
-    if (process.env.NODE_ENV !== 'production') {
-      const resizeObserverErrMsg = 'ResizeObserver loop completed with undelivered notifications.';
-      const originalConsoleError = console.error;
-      console.error = (...args) => {
-        if (args[0] && typeof args[0] === 'string' && args[0].includes(resizeObserverErrMsg)) {
-          return;
-        }
-        originalConsoleError(...args);
-      };
-    }
+    const resizeObserverErrMsg = 'ResizeObserver loop completed with undelivered notifications.';
+    const originalConsoleError = console.error;
+    console.error = (...args) => {
+      if (args[0] && typeof args[0] === 'string' && args[0].includes(resizeObserverErrMsg)) {
+        // Completely suppress this specific error
+        return;
+      }
+      originalConsoleError(...args);
+    };
+
+    // Create a more stable ResizeObserver implementation
+    const originalResizeObserver = window.ResizeObserver;
+    window.ResizeObserver = class ResizeObserver extends originalResizeObserver {
+      constructor(callback) {
+        super((entries, observer) => {
+          // Add requestAnimationFrame to debounce callbacks and prevent loop errors
+          window.requestAnimationFrame(() => {
+            if (Array.isArray(entries) && entries.length > 0) {
+              callback(entries, observer);
+            }
+          });
+        });
+      }
+    };
 
     // The startResourceMonitoring function returns a cleanup function
     const stopMonitoring = startResourceMonitoring();
@@ -108,16 +125,19 @@ function App() {
 
                   {/* Normal routes with layout and authentication */}
                   <Route path="/" element={<AppLayout />}>
-                    <Route index element={<Navigate to="/dashboard" replace />} />
+                    <Route index element={<Navigate to="/login" replace />} />
                     <Route path="/dashboard" element={<ProtectedRoute requireMfa={false}><DashboardPage /></ProtectedRoute>} />
                     <Route path="/settings" element={<ProtectedRoute requireMfa={true}><SettingsPage /></ProtectedRoute>} />
                     <Route path="/profile" element={<ProtectedRoute requireMfa={true}><ProfilePage /></ProtectedRoute>} />
                     <Route path="/security-settings" element={<ProtectedRoute requireMfa={true}><SecuritySettingsPage /></ProtectedRoute>} />
+                    <Route path="/user-preferences" element={<ProtectedRoute requireMfa={false}><UserPreferencesPage /></ProtectedRoute>} />
+                    <Route path="/biometric-credentials" element={<ProtectedRoute requireMfa={true}><BiometricCredentialsPage /></ProtectedRoute>} />
                     <Route path="/admin" element={<ProtectedRoute requireMfa={true}><AdministrationPage /></ProtectedRoute>} />
                     <Route path="/theme-manager" element={<ThemeManager />} />
                     <Route path="/business-center" element={<ProtectedRoute requireMfa={false}><BusinessCenterPage /></ProtectedRoute>} />
                     <Route path="/search" element={<ProtectedRoute requireMfa={false}><SearchResultsPage /></ProtectedRoute>} />
                     <Route path="/analytics" element={<ProtectedRoute requireMfa={false}><AnalyticsPage /></ProtectedRoute>} />
+                    <Route path="/auth-analytics" element={<ProtectedRoute requireMfa={true}><AuthAnalyticsDashboard /></ProtectedRoute>} />
 
                     <Route path="/email/compose" element={<ProtectedRoute><ComposePage /></ProtectedRoute>} />
                     <Route path="/email/draft-generator" element={<ProtectedRoute><DraftGeneratorPage /></ProtectedRoute>} />

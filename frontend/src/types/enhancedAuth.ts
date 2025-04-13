@@ -4,6 +4,7 @@
  * Type definitions for the enhanced authentication system with enterprise-grade security features.
  */
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { AuthConfig, AuthErrorType, AuthProvider, JWTToken, SessionStorage } from './auth';
 import { User } from './user';
 

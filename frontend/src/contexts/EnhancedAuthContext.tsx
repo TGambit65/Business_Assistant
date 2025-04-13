@@ -5,10 +5,10 @@
  * Handles user authentication, session persistence, MFA, and security features.
  */
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 import { EnhancedAuthService } from '../services/EnhancedAuthService';
 import { AuthError, AuthErrorType, AuthResult } from '../types/auth';
-import { EnhancedAuthErrorType, MFAVerificationOptions } from '../types/enhancedAuth';
+import { EnhancedAuthErrorType } from '../types/enhancedAuth';
 import { User, UserPreferences, UserSettings } from '../types/user';
 import { getAuthConfig } from '../config/authConfig';
 import { isDemoMode } from '../utils/envUtils';
@@ -24,6 +24,7 @@ interface EnhancedAuthContextState {
   signInWithGoogle: () => Promise<AuthResult>;
   signInWithMicrosoft: () => Promise<AuthResult>;
   signInWithGithub: () => Promise<AuthResult>;
+  signInDemo: () => Promise<AuthResult>;
   signOut: () => Promise<void>;
   clearAuthError: () => void;
   updateUserPreferences: (preferences: Partial<UserPreferences>) => void;
@@ -42,6 +43,7 @@ const EnhancedAuthContext = createContext<EnhancedAuthContextState>({
   signInWithGoogle: async () => ({ success: false, error: { type: AuthErrorType.UNKNOWN, message: 'Not implemented' } }),
   signInWithMicrosoft: async () => ({ success: false, error: { type: AuthErrorType.UNKNOWN, message: 'Not implemented' } }),
   signInWithGithub: async () => ({ success: false, error: { type: AuthErrorType.UNKNOWN, message: 'Not implemented' } }),
+  signInDemo: async () => ({ success: false, error: { type: AuthErrorType.UNKNOWN, message: 'Not implemented' } }),
   signOut: async () => {},
   clearAuthError: () => {},
   updateUserPreferences: () => {},
@@ -61,8 +63,8 @@ export const EnhancedAuthProvider: React.FC<EnhancedAuthProviderProps> = ({ chil
   const [error, setError] = useState<AuthError | null>(null);
   const [requiresMfa, setRequiresMfa] = useState<boolean>(false);
   
-  // Create auth service instance
-  const authService = new EnhancedAuthService(getAuthConfig());
+  // Create auth service instance using useMemo to prevent recreation on every render
+  const authService = useMemo(() => new EnhancedAuthService(getAuthConfig()), []);
   
   // Initialize auth state
   useEffect(() => {
@@ -299,6 +301,40 @@ export const EnhancedAuthProvider: React.FC<EnhancedAuthProviderProps> = ({ chil
       setIsLoading(false);
     }
   };
+
+  /**
+   * Sign in with Demo mode
+   */
+  const signInDemo = async (): Promise<AuthResult> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const result = await authService.signInDemo();
+      
+      if (result.success) {
+        setUser(result.user!);
+        
+        // For demo mode, we don't check MFA since it's designed for testing
+        setRequiresMfa(false);
+      } else {
+        setError(result.error!);
+      }
+      
+      return result;
+    } catch (err) {
+      console.error('Demo sign-in error:', err);
+      const authError: AuthError = {
+        type: AuthErrorType.UNKNOWN,
+        message: (err as Error).message || 'An unknown error occurred during demo sign-in'
+      };
+      
+      setError(authError);
+      return { success: false, error: authError };
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   /**
    * Sign out
@@ -426,6 +462,7 @@ export const EnhancedAuthProvider: React.FC<EnhancedAuthProviderProps> = ({ chil
     signInWithGoogle,
     signInWithMicrosoft,
     signInWithGithub,
+    signInDemo,
     signOut,
     clearAuthError,
     updateUserPreferences,

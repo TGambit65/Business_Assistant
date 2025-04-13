@@ -1,6 +1,6 @@
 /**
  * Analytics Service
- * 
+ *
  * Provides functionality for secure analytics data collection, real-time metrics tracking,
  * data aggregation, and implementing data retention policies.
  */
@@ -15,6 +15,35 @@ export interface AnalyticsDataPoint {
   metric: string;
   value: number;
   tags?: Record<string, string>;
+}
+
+// Define authentication event types
+export enum AuthEvent {
+  LOGIN_ATTEMPT = 'login_attempt',
+  LOGIN_SUCCESS = 'login_success',
+  LOGIN_FAILURE = 'login_failure',
+  LOGOUT = 'logout',
+  PASSWORD_RESET = 'password_reset',
+  MFA_ATTEMPT = 'mfa_attempt',
+  MFA_SUCCESS = 'mfa_success',
+  MFA_FAILURE = 'mfa_failure',
+  BIOMETRIC_ATTEMPT = 'biometric_attempt',
+  BIOMETRIC_SUCCESS = 'biometric_success',
+  BIOMETRIC_FAILURE = 'biometric_failure',
+  SESSION_TIMEOUT = 'session_timeout',
+  TOKEN_REFRESH = 'token_refresh',
+}
+
+// Define security event types
+export enum SecurityEvent {
+  SUSPICIOUS_ACTIVITY = 'suspicious_activity',
+  BRUTE_FORCE_ATTEMPT = 'brute_force_attempt',
+  ACCOUNT_LOCKED = 'account_locked',
+  ACCOUNT_UNLOCKED = 'account_unlocked',
+  PASSWORD_CHANGED = 'password_changed',
+  DEVICE_VERIFICATION = 'device_verification',
+  NEW_DEVICE_DETECTED = 'new_device_detected',
+  LOCATION_CHANGE = 'location_change',
 }
 
 export interface AnalyticsAggregation {
@@ -78,15 +107,19 @@ class AnalyticsService {
   private intervalId: number | null = null;
   private onlineMode: boolean = navigator.onLine;
   private pendingOfflineData: AnalyticsDataPoint[] = [];
+  private userId: string | null = null;
+  private sessionId: string = this.generateSessionId();
+  private deviceInfo: any = this.collectDeviceInfo();
+  private knownLocations: string[] = [];
 
   private constructor() {
     // Initialize online/offline detection
     window.addEventListener('online', this.handleOnlineStatus);
     window.addEventListener('offline', this.handleOnlineStatus);
-    
+
     // Start the flush interval
     this.startFlushInterval();
-    
+
     // Apply data retention on startup
     this.applyRetentionPolicies();
   }
@@ -96,6 +129,58 @@ class AnalyticsService {
       AnalyticsService.instance = new AnalyticsService();
     }
     return AnalyticsService.instance;
+  }
+
+  /**
+   * Set the current user ID for analytics
+   */
+  public setUserId(userId: string): void {
+    this.userId = userId;
+  }
+
+  /**
+   * Clear the user ID (on logout)
+   */
+  public clearUserId(): void {
+    this.userId = null;
+  }
+
+  /**
+   * Track an authentication event
+   */
+  public trackAuthEvent(event: AuthEvent, properties: any = {}): void {
+    // Create tags from properties
+    const tags = {
+      ...properties,
+      userId: this.userId || 'anonymous',
+      sessionId: this.sessionId,
+    };
+
+    // Track as a metric
+    this.trackMetric(`auth.${event}`, 1, tags);
+
+    // Check for suspicious activity
+    if (event === AuthEvent.LOGIN_ATTEMPT || event === AuthEvent.LOGIN_FAILURE) {
+      const isSuspicious = this.isSuspiciousLoginAttempt(properties);
+      if (isSuspicious) {
+        this.trackMetric(`security.${SecurityEvent.SUSPICIOUS_ACTIVITY}`, 1, tags);
+      }
+    }
+  }
+
+  /**
+   * Track a security event
+   */
+  public trackSecurityEvent(event: SecurityEvent, properties: any = {}): void {
+    // Create tags from properties
+    const tags = {
+      ...properties,
+      userId: this.userId || 'anonymous',
+      sessionId: this.sessionId,
+    };
+
+    // Track as a metric
+    this.trackMetric(`security.${event}`, 1, tags);
   }
 
   /**
@@ -129,6 +214,24 @@ class AnalyticsService {
   }
 
   /**
+   * Track page view analytics
+   * @param pageName The name of the page being viewed
+   * @param properties Optional properties for the page view
+   */
+  public trackPageView(pageName: string, properties: Record<string, any> = {}): void {
+    // Create tags from properties
+    const tags = {
+      ...properties,
+      userId: this.userId || 'anonymous',
+      sessionId: this.sessionId,
+      page: pageName
+    };
+
+    // Track as a metric
+    this.trackMetric('page.view', 1, tags);
+  }
+
+  /**
    * Get aggregated data for the given metric and period
    * @param metric The metric name
    * @param period The period to aggregate over
@@ -144,21 +247,21 @@ class AnalyticsService {
     // Check cache first
     const cacheKey = `analytics_${metric}_${period}_${startTime}_${endTime}`;
     const cachedData = await this.getFromCache(cacheKey);
-    
+
     if (cachedData) {
       return cachedData as AnalyticsAggregation[];
     }
-    
+
     // In a real app, we would make an API call here
     // For now, return mock data or local aggregations
     let result: AnalyticsAggregation[] = this.aggregations[metric] || [];
-    
+
     // Filter by time range
     result = result.filter(agg => agg.timestamp >= startTime && agg.timestamp <= endTime);
-    
+
     // Cache the result
     await this.saveToCache(cacheKey, result);
-    
+
     return result;
   }
 
@@ -232,10 +335,10 @@ class AnalyticsService {
       // In a real app, we would send the data to an API
       // For now, just log it and update local aggregations
       console.log('Flushing analytics data:', dataToSend.length, 'data points');
-      
+
       // Perform local aggregation
       this.aggregateData(dataToSend);
-      
+
       // Apply retention policies
       this.applyRetentionPolicies();
     } catch (error) {
@@ -269,7 +372,7 @@ class AnalyticsService {
       const hourlyAggregations = uniqueHours.map(hour => {
         const hourPoints = points.filter(p => this.roundToHour(p.timestamp) === hour);
         const values = hourPoints.map(p => p.value);
-        
+
         return {
           metric,
           period: 'hour' as const,
@@ -286,10 +389,10 @@ class AnalyticsService {
       if (!this.aggregations[metric]) {
         this.aggregations[metric] = [];
       }
-      
+
       // Merge with existing aggregations, replacing any for the same hour
       const existingHours = new Set(this.aggregations[metric].map(agg => agg.timestamp));
-      
+
       // Add new aggregations
       hourlyAggregations.forEach(agg => {
         if (existingHours.has(agg.timestamp)) {
@@ -329,13 +432,13 @@ class AnalyticsService {
    */
   private applyRetentionPolicy(policy: RetentionPolicy): void {
     const now = Date.now();
-    
+
     // Apply to raw data
     const rawCutoff = now - (policy.rawDataRetentionDays * 24 * 60 * 60 * 1000);
     this.dataPoints = this.dataPoints.filter(
       dp => dp.metric !== policy.metricName || dp.timestamp >= rawCutoff
     );
-    
+
     // Apply to aggregated data
     if (this.aggregations[policy.metricName]) {
       const aggCutoff = now - (policy.aggregatedDataRetentionDays * 24 * 60 * 60 * 1000);
@@ -352,7 +455,7 @@ class AnalyticsService {
     if (this.intervalId !== null) {
       clearInterval(this.intervalId);
     }
-    
+
     this.intervalId = window.setInterval(() => this.flushData(), this.flushInterval);
   }
 
@@ -362,7 +465,7 @@ class AnalyticsService {
   private handleOnlineStatus = (): void => {
     const wasOffline = !this.onlineMode;
     this.onlineMode = navigator.onLine;
-    
+
     // If we've come back online and have pending offline data, sync it
     if (this.onlineMode && wasOffline && this.pendingOfflineData.length > 0) {
       this.syncOfflineData();
@@ -389,11 +492,11 @@ class AnalyticsService {
   private syncOfflineData(): void {
     // Add the pending data back to the main queue
     this.dataPoints.push(...this.pendingOfflineData);
-    
+
     // Clear the pending data
     this.pendingOfflineData = [];
     localStorage.removeItem('analytics_offline_data');
-    
+
     // Flush immediately
     this.flushData();
   }
@@ -413,11 +516,65 @@ class AnalyticsService {
     // For simplicity, we're using localStorage directly
     const cached = localStorage.getItem(key);
     if (!cached) return null;
-    
+
     try {
       return JSON.parse(cached);
     } catch (e) {
       return null;
+    }
+  }
+
+  /**
+   * Generate a unique session ID
+   */
+  private generateSessionId(): string {
+    return Date.now().toString(36) + Math.random().toString(36).substring(2);
+  }
+
+  /**
+   * Collect basic device information
+   */
+  private collectDeviceInfo(): any {
+    return {
+      userAgent: navigator.userAgent,
+      language: navigator.language,
+      platform: navigator.platform,
+      screenWidth: window.screen.width,
+      screenHeight: window.screen.height,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      colorDepth: window.screen.colorDepth,
+      deviceMemory: (navigator as any).deviceMemory || 'unknown',
+      hardwareConcurrency: navigator.hardwareConcurrency || 'unknown',
+    };
+  }
+
+  /**
+   * Check if a login attempt is suspicious
+   */
+  public isSuspiciousLoginAttempt(properties: any): boolean {
+    // Implement logic to detect suspicious login attempts
+    // This could include checking for:
+    // - Multiple failed attempts
+    // - Unusual locations
+    // - Unusual devices
+    // - Unusual times
+
+    // For now, return a simple implementation
+    const currentLocation = properties.location;
+
+    if (currentLocation && this.knownLocations.length > 0) {
+      return !this.knownLocations.includes(currentLocation);
+    }
+
+    return false;
+  }
+
+  /**
+   * Add a known location for the current user
+   */
+  public addKnownLocation(location: string): void {
+    if (!this.knownLocations.includes(location)) {
+      this.knownLocations.push(location);
     }
   }
 
@@ -427,15 +584,16 @@ class AnalyticsService {
   public destroy(): void {
     window.removeEventListener('online', this.handleOnlineStatus);
     window.removeEventListener('offline', this.handleOnlineStatus);
-    
+
     if (this.intervalId !== null) {
       clearInterval(this.intervalId);
       this.intervalId = null;
     }
-    
+
     this.flushData();
   }
 }
 
-// Export a singleton instance
-export const analyticsService = AnalyticsService.getInstance(); 
+// Create and export a proper singleton instance
+const analyticsServiceInstance = AnalyticsService.getInstance();
+export { analyticsServiceInstance as analyticsService };

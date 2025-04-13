@@ -2,8 +2,9 @@ version: '3.8'
 services:
   db:
     image: postgres:14
+    container_name: db-1
     environment:
-      POSTGRES_DB: app_db
+      POSTGRES_DB: db-1
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: development_password
     ports:

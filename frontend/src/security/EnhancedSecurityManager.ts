@@ -8,7 +8,7 @@
  * - Enhanced encryption
  */
 
-import { SecurityManager } from './SecurityManager';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { AuditLogger, EventType, LogLevel } from './AuditLogger';
 import { JWTToken } from '../types/auth';
 import {
@@ -18,7 +18,7 @@ import {
   SecureCookieOptions,
   TokenBlacklistEntry
 } from '../types/enhancedSecurity';
-import { AuthEventType, SecurityAuditLog, SecurityContext, RiskScore } from '../types/enhancedAuth';
+import { SecurityAuditLog, SecurityContext, RiskScore } from '../types/enhancedAuth';
 import { SecurityConfig, MonitoringConfig } from '../types/security';
 
 // Create a standalone class instead of extending SecurityManager
@@ -97,7 +97,7 @@ export class EnhancedSecurityManager {
         language,
         hardware: {
           cpuCores: navigator.hardwareConcurrency,
-          memory: (navigator as any).deviceMemory as number,
+          memory: typeof (navigator as any).deviceMemory !== 'undefined' ? (navigator as any).deviceMemory as number : undefined,
         },
         createdAt: Date.now(),
         lastSeen: Date.now()
@@ -502,7 +502,7 @@ export class EnhancedSecurityManager {
   private getSecurityConfig(): SecurityConfig {
     // This would call the base class method in a real implementation
     // For now, we'll just return a default config
-    
+
     // Create a monitoring config that matches the required interface
     const monitoringConfig: MonitoringConfig = {
       logLevel: 'info',
@@ -516,7 +516,7 @@ export class EnhancedSecurityManager {
       },
       realTimeAlerts: true
     };
-    
+
     return {
       encryption: {
         algorithm: 'AES-GCM',

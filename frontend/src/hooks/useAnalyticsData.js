@@ -13,6 +13,7 @@ export const useAnalyticsData = (timeRange, realTimeEnabled, webSocketService) =
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const metricsUpdateTimeout = useRef(null);
+  const refreshTimerRef = useRef(null);
 
   const calculateTimeRange = useCallback((range) => {
     const now = Date.now();
@@ -38,13 +39,18 @@ export const useAnalyticsData = (timeRange, realTimeEnabled, webSocketService) =
     return startTime;
   }, []);
 
+  // Forward declaration of loadMetricsData for reference in other functions
+  const loadMetricsDataRef = useRef(null);
+
   const scheduleNextUpdate = useCallback(() => {
     if (metricsUpdateTimeout.current) {
       clearTimeout(metricsUpdateTimeout.current);
     }
 
     metricsUpdateTimeout.current = setTimeout(() => {
-      loadMetricsData();
+      if (loadMetricsDataRef.current) {
+        loadMetricsDataRef.current();
+      }
     }, 60000); // Update every minute
   }, []);
 
@@ -78,29 +84,12 @@ export const useAnalyticsData = (timeRange, realTimeEnabled, webSocketService) =
     }
   }, [timeRange, realTimeEnabled, calculateTimeRange, scheduleNextUpdate]);
 
-  // Create a ref to hold the current loadMetricsData function
-  const loadMetricsDataRef = useRef(loadMetricsData);
-  
   // Update the ref whenever loadMetricsData changes
   useEffect(() => {
     loadMetricsDataRef.current = loadMetricsData;
   }, [loadMetricsData]);
-  
-  // Update scheduleNextUpdate to use the ref
-  useEffect(() => {
-    const scheduleNextUpdateFn = () => {
-      if (metricsUpdateTimeout.current) {
-        clearTimeout(metricsUpdateTimeout.current);
-      }
-  
-      metricsUpdateTimeout.current = setTimeout(() => {
-        loadMetricsDataRef.current();
-      }, 60000); // Update every minute
-    };
-    
-    scheduleNextUpdate.current = scheduleNextUpdateFn;
-  }, []);
 
+  // Handle analytics events received via WebSocket
   const handleAnalyticsEvent = useCallback((event) => {
     if (event.type === 'analytics' && event.data.metrics) {
       setMetrics(prevMetrics => ({
@@ -110,6 +99,7 @@ export const useAnalyticsData = (timeRange, realTimeEnabled, webSocketService) =
     }
   }, []);
 
+  // Set up WebSocket listeners and initial data loading
   useEffect(() => {
     // Initial data loading
     loadMetricsData();
@@ -129,10 +119,42 @@ export const useAnalyticsData = (timeRange, realTimeEnabled, webSocketService) =
     };
   }, [timeRange, realTimeEnabled, webSocketService, loadMetricsData, handleAnalyticsEvent, scheduleNextUpdate]);
 
+  // Callback to handle data refresh
+  const refreshData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      await loadMetricsData();
+      scheduleNextUpdate();
+    } catch (err) {
+      console.error('Error refreshing analytics data:', err);
+      setError('Failed to refresh analytics data');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [loadMetricsData, scheduleNextUpdate]);
+
+  // Set up automatic refresh interval
+  useEffect(() => {
+    // Initial data load
+    refreshData();
+    
+    // Store ref value in a variable to avoid issues in cleanup function
+    const currentRefTimer = refreshTimerRef.current;
+    
+    // Clean up the timer on unmount
+    return () => {
+      if (currentRefTimer) {
+        clearTimeout(currentRefTimer);
+      }
+    };
+  }, [refreshData]);
+
   return {
     metrics,
     isLoading,
     error,
-    loadMetricsData
+    refreshData
   };
 };

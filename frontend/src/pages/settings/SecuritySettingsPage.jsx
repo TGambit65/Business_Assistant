@@ -6,7 +6,9 @@ import { useToast } from '../../contexts/ToastContext';
 import { Shield, Lock, Smartphone, Key } from 'lucide-react';
 
 export default function SecuritySettingsPage() {
+  // eslint-disable-next-line no-unused-vars
   const { user } = useEnhancedAuth();
+  // eslint-disable-next-line no-unused-vars
   const { success } = useToast();
 
   return (

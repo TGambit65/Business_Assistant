@@ -27,6 +27,7 @@ import {
   TokenRotationConfig
 } from '../types/enhancedAuth';
 import { User } from '../types/user';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { getEnvVariable, isDemoMode } from '../utils/envUtils';
 
 // Import the AuthService singleton instance

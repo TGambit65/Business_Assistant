@@ -117,7 +117,8 @@ function App() {
                   <Routes>
                   {/* Direct access routes - bypass authentication */}
                   <Route path="/direct-dashboard" element={<DirectDashboardAccess />} />
-
+                  <Route path="/templates" element={<TemplatesPage />} />
+ 
                   {/* Standalone login and onboarding pages */}
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/login-bypass" element={<LoginBypass />} />

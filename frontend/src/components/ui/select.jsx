@@ -4,7 +4,7 @@ import { cn } from '../../lib/utils';
 /**
  * Select container component
  */
-export function Select({ children, value, onValueChange, ...props }) {
+export function Select({ children, value, onValueChange, ...rest }) {
   const [open, setOpen] = React.useState(false);
   const [selectedValue, setSelectedValue] = React.useState(value || '');
   
@@ -21,7 +21,7 @@ export function Select({ children, value, onValueChange, ...props }) {
   };
   
   return (
-    <div className="relative" {...props}>
+    <div className="relative" {...rest}>
       {React.Children.map(children, child => {
         if (child.type === SelectTrigger) {
           return React.cloneElement(child, {

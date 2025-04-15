@@ -3,7 +3,7 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'; // Ad
 import { Navigation } from './Navigation';
 
 // Icons
-import { Menu, X, Settings, User, LogOut, LayoutGrid, BarChart2, ChevronDown, Briefcase, Mail, Edit3, FileText, Filter, PenTool, Shield, Check, Inbox } from 'lucide-react';
+import { Menu, X, Settings, User, LogOut, LayoutGrid, BarChart2, ChevronDown, Briefcase, Mail, Edit3, FileText, Filter, PenTool, Shield, Inbox } from 'lucide-react';
 
 // UI Components
 import { Button } from '../ui/Button';
@@ -121,14 +121,13 @@ export default function AppLayout() {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const navigate = useNavigate();
   const { user, signOut } = useEnhancedAuth();
-  const { themeName, setTheme, getThemes } = useTheme();
-  const themes = getThemes();
+  const { setTheme } = useTheme();
 
   // Load saved theme on component mount
   useEffect(() => {
-    // Get stored theme or use system default
-    const savedTheme = localStorage.getItem('theme') || 'system';
-    setTheme(savedTheme);
+    // Always use Light theme as the core theme
+    setTheme('light');
+    localStorage.setItem('theme', 'light');
   }, [setTheme]);
 
   // Clear search term when navigating away from search page
@@ -206,7 +205,7 @@ export default function AppLayout() {
                         <ChevronDown className="ml-1 h-4 w-4" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-48">
+                    <DropdownMenuContent align="start" className="w-48 bg-white dark:bg-gray-900">
                       <DropdownMenuGroup>
                         <DropdownMenuItem asChild>
                           <Link to="/dashboard" className="flex items-center cursor-pointer">
@@ -238,7 +237,7 @@ export default function AppLayout() {
                         <ChevronDown className="ml-1 h-4 w-4" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-48">
+                    <DropdownMenuContent align="start" className="w-48 bg-white dark:bg-gray-900">
                       <DropdownMenuGroup>
                         <DropdownMenuItem asChild>
                           <Link to="/email/compose" className="flex items-center cursor-pointer">
@@ -299,8 +298,12 @@ export default function AppLayout() {
 
               {/* Settings Icon Button - Same size and color as notification bell */}
               <Link to="/settings">
-                <Button variant="ghost" size="icon" className="h-10 w-10 flex items-center justify-center"
-                      style={{ color: 'rgba(0, 0, 0, 0.7)' }}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 flex items-center justify-center translate-y-[5px] border-none outline-none shadow-none focus:outline-none focus:shadow-none"
+                  style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+                >
                   <span className="sr-only">Settings</span>
                   <Settings size={24} />
                 </Button>
@@ -315,7 +318,7 @@ export default function AppLayout() {
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end">
+                <DropdownMenuContent className="w-56 bg-white dark:bg-gray-900" align="end">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">{userDisplayName}</p>
@@ -336,37 +339,7 @@ export default function AppLayout() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuLabel>Theme</DropdownMenuLabel>
-                  <div className="max-h-72 overflow-y-auto">
-                    {Object.entries(themes).map(([name, themeObj]) => (
-                      <button
-                        key={name}
-                        onClick={() => {
-                          console.log(`[AppLayout] Setting theme to ${name}`, themeObj);
-                          // Apply the theme
-                          setTheme(name);
-                        }}
-                        className="flex items-center justify-between w-full px-3 py-2 hover:bg-accent rounded"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <span
-                            className="w-4 h-4 rounded border"
-                            style={{
-                              backgroundColor: themeObj.variables['--background'],
-                              borderColor: themeObj.variables['--primary']
-                            }}
-                          />
-                          <span>{themeObj.name || name}</span>
-                        </div>
-                        {themeName === name && <Check className="h-4 w-4" />}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mt-2 px-3">
-                    <Link to="/theme-manager">
-                      <Button variant="outline" className="w-full">Manage Themes</Button>
-                    </Link>
-                  </div>
+                  {/* Theme menu temporarily hidden per user request */}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="text-red-500 cursor-pointer">
                     <LogOut className="mr-2 h-5 w-5 text-red-500" />

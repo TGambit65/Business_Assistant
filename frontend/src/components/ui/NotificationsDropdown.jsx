@@ -112,7 +112,7 @@ const NotificationsDropdown = () => {
           <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className={`${showAllNotifications ? 'w-96 max-h-[80vh]' : 'w-80'} overflow-hidden`} align="end">
+      <DropdownMenuContent className={`${showAllNotifications ? 'w-96 max-h-[80vh]' : 'w-80'} overflow-hidden bg-white dark:bg-gray-900`} align="end">
         <DropdownMenuLabel className="font-normal">
           <div className="flex justify-between items-center">
             <h3 className="font-semibold">Notifications</h3>

@@ -71,6 +71,11 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   
+  // Skip caching for chrome-extension URLs
+  if (url.protocol === 'chrome-extension:') {
+    return;
+  }
+  
   // Handle API requests differently (don't return stale data)
   if (url.pathname.startsWith('/api/')) {
     handleApiRequest(event);
@@ -99,7 +104,7 @@ self.addEventListener('fetch', (event) => {
       .catch(() => {
         console.log('[Service Worker] Fetch failed, returning offline fallback');
         // If the request is for an image, return a placeholder
-        if (event.request.headers.get('accept').includes('image')) {
+        if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('image')) {
           return caches.match('/assets/offline-image.svg')
             .then(response => {
               if (response) {
@@ -167,6 +172,11 @@ function handleApiRequest(event) {
 
 // Fetch and cache helper function
 function fetchAndCache(request, cacheName) {
+  // Skip caching for HEAD requests or other unsupported methods
+  if (request.method !== 'GET') {
+    return fetch(request);
+  }
+  
   return fetch(request)
     .then((response) => {
       // Only cache valid responses
@@ -190,6 +200,11 @@ function fetchAndCache(request, cacheName) {
 
 // Update cache in background without blocking
 function updateCacheInBackground(request) {
+  // Skip caching for HEAD requests or other unsupported methods
+  if (request.method !== 'GET') {
+    return;
+  }
+  
   fetch(request)
     .then((response) => {
       // Only cache valid responses
@@ -296,4 +311,4 @@ self.addEventListener('sync', (event) => {
       Promise.resolve()
     );
   }
-}); 
+});

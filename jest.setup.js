@@ -1,5 +1,97 @@
 // jest.setup.js
 const { IDBFactory } = require('fake-indexeddb');
+const { TextEncoder, TextDecoder } = require('util');
+
+// Add TextEncoder and TextDecoder to global scope for tests
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Mock Response and other fetch API classes for nock
+global.Response = class Response {
+  constructor(body, init = {}) {
+    this.body = body;
+    this.status = init.status || 200;
+    this.statusText = init.statusText || '';
+    this.headers = new Map(Object.entries(init.headers || {}));
+    this.type = 'default';
+    this.url = '';
+    this.ok = this.status >= 200 && this.status < 300;
+  }
+
+  json() {
+    return Promise.resolve(JSON.parse(this.body));
+  }
+
+  text() {
+    return Promise.resolve(String(this.body));
+  }
+
+  arrayBuffer() {
+    return Promise.resolve(new ArrayBuffer(0));
+  }
+
+  clone() {
+    return new Response(this.body, {
+      status: this.status,
+      statusText: this.statusText,
+      headers: this.headers
+    });
+  }
+};
+
+global.Headers = class Headers {
+  constructor(init = {}) {
+    this._headers = new Map();
+    if (init) {
+      Object.entries(init).forEach(([key, value]) => this.set(key, value));
+    }
+  }
+
+  append(name, value) {
+    this._headers.set(name.toLowerCase(), value);
+  }
+
+  delete(name) {
+    this._headers.delete(name.toLowerCase());
+  }
+
+  get(name) {
+    return this._headers.get(name.toLowerCase()) || null;
+  }
+
+  has(name) {
+    return this._headers.has(name.toLowerCase());
+  }
+
+  set(name, value) {
+    this._headers.set(name.toLowerCase(), value);
+  }
+
+  forEach(callback) {
+    this._headers.forEach((value, key) => callback(value, key, this));
+  }
+};
+
+global.Request = class Request {
+  constructor(input, init = {}) {
+    this.method = init.method || 'GET';
+    this.url = typeof input === 'string' ? input : input.url;
+    this.headers = new Headers(init.headers);
+    this.body = init.body || null;
+    this.credentials = init.credentials || 'same-origin';
+    this.mode = init.mode || 'cors';
+  }
+
+  clone() {
+    return new Request(this.url, {
+      method: this.method,
+      headers: this.headers,
+      body: this.body,
+      credentials: this.credentials,
+      mode: this.mode
+    });
+  }
+};
 
 // --- Mock indexedDB ---
 // Use fake-indexeddb for a more complete mock

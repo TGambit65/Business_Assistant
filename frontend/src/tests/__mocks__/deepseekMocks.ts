@@ -3,6 +3,8 @@
  */
 
 import { AIResponse, AIAnalysis } from '../../types/deepseek';
+import { Email } from '../../types/email';
+
 export const mockDeepseekResponse = {
   id: 'mock-response-id',
   object: 'completion',
@@ -26,25 +28,57 @@ export const mockDeepseekResponse = {
 };
 
 export const deepseekServiceMock = {
-  // Return type is Promise<string>
-  generateResponse: jest.fn().mockResolvedValue('This is a mock response from the Deepseek AI service.'),
+  // Generate response with full email context
+  generateResponse: jest.fn().mockImplementation((email: Email): Promise<string> => {
+    return Promise.resolve('This is a mock response from the Deepseek AI service.');
+  }),
   
-  generateEmailDraft: jest.fn().mockResolvedValue({
-    content: 'Mock email draft content',
-    metadata: { tone: 'neutral', length: 25, confidence: 0.9 }
-  } satisfies AIResponse),
+  // Generate email draft with complete metadata
+  generateEmailDraft: jest.fn().mockImplementation((): Promise<AIResponse> => {
+    return Promise.resolve({
+      content: 'Mock email draft content',
+      metadata: { 
+        tone: 'neutral', 
+        length: 25, 
+        suggestions: ['Add more details', 'Include a formal closing'],
+        confidence: 0.9 
+      }
+    });
+  }),
 
-  analyzeEmailTone: jest.fn().mockResolvedValue({
-    tone: 'neutral',
-    sentiment: 'neutral',
-    formality: 50,
-    clarity: 80
-  } satisfies AIAnalysis),
+  // Analyze email tone with all required fields
+  analyzeEmailTone: jest.fn().mockImplementation((): Promise<AIAnalysis> => {
+    return Promise.resolve({
+      tone: 'neutral',
+      sentiment: 'neutral',
+      formality: 50,
+      clarity: 80,
+      actionItems: ['Review document', 'Follow up by Friday'],
+      suggestions: ['Add more specific details', 'Include a deadline']
+    });
+  }),
 
-  suggestResponses: jest.fn().mockResolvedValue(['Mock suggestion 1', 'Mock suggestion 2']),
-  improveWriting: jest.fn().mockResolvedValue('Improved mock text.'),
+  // Suggest responses array
+  suggestResponses: jest.fn().mockImplementation((): Promise<string[]> => {
+    return Promise.resolve([
+      'Mock suggestion 1', 
+      'Mock suggestion 2',
+      'Mock suggestion 3'
+    ]);
+  }),
+  
+  // Improve writing with text processing
+  improveWriting: jest.fn().mockImplementation((): Promise<string> => {
+    return Promise.resolve('Improved mock text with better grammar and tone.');
+  }),
+  
+  // Configuration method
   configure: jest.fn(),
+  
+  // Clear history state
   clearHistory: jest.fn(),
+  
+  // Clear response cache
   clearCache: jest.fn()
 };
 

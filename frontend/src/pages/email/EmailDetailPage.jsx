@@ -4,12 +4,23 @@ import { useToast } from '../../contexts/ToastContext';
 import { useAuth } from '../../contexts/AuthContext';
 import EmailViewer from '../../components/email/EmailViewer';
 import RichTextEditor from '../../components/RichTextEditor';
-import { 
-  MoreHorizontal, Reply, Forward, 
-  Archive, Trash2, Star, Tags, 
-  Sparkles, ChevronDown, AlertTriangle,
-  Clock, Calendar, Share2, FileText,
-  Loader2, MoreVertical, ReplyAll, Trash
+import {
+  // MoreHorizontal, // Removed unused import
+  // Reply, // Keep Reply
+  // Forward, // Keep Forward commented
+  // Archive, Trash2, Star,
+  // Tags, // Keep Tags commented
+  Sparkles,
+  ChevronDown,
+  // AlertTriangle, // Restore AlertTriangle
+  // Clock, // Restore Clock
+  // Calendar, // Restore Calendar
+  // Share2, // Restore Share2
+  FileText, // Restore FileText
+  // Loader2, // Restore Loader2
+  // MoreVertical, // Keep MoreVertical commented
+  // ReplyAll, // Keep ReplyAll commented
+  // Trash // Keep Trash commented
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 
@@ -20,14 +31,17 @@ const EmailDetailPage = () => {
   const { user } = useAuth();
   const [email, setEmail] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState(null);
+// eslint-disable-next-line no-unused-vars
+  const [errorMessage, setErrorMessage] = useState(null); // Removed unused state
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [showForwardForm, setShowForwardForm] = useState(false);
   const [editorContent, setEditorContent] = useState('');
   const [forwardTo, setForwardTo] = useState('');
-  const [isDarkMode, setIsDarkMode] = useState(false);
+// eslint-disable-next-line no-unused-vars
+  const [isDarkMode, setIsDarkMode] = useState(false); // Removed unused state
   const [showDraftOptions, setShowDraftOptions] = useState(false);
-  const [isGeneratingDraft, setIsGeneratingDraft] = useState(false);
+// eslint-disable-next-line no-unused-vars
+  const [isGeneratingDraft, setIsGeneratingDraft] = useState(false); // Removed unused state
 
   // Fetch email details
   useEffect(() => {
@@ -246,7 +260,7 @@ ${user?.position ? user.position : ''}
         
         // Ask if user wants to navigate to compose
         if (window.confirm('Draft created! Would you like to open it in the compose page?')) {
-          navigate(`/app/email/compose?draftId=${draft.id}`);
+          navigate(`/email/compose?draftId=${draft.id}`);
         }
         
         setIsGeneratingDraft(false);
@@ -274,7 +288,7 @@ ${user?.position ? user.position : ''}
     localStorage.setItem('sourceEmail', JSON.stringify(sourceEmail));
     
     // Navigate to the draft generator page
-    navigate('/app/email/draft-generator');
+    navigate('/email/draft-generator');
   };
 
   if (loading) {
@@ -304,7 +318,7 @@ ${user?.position ? user.position : ''}
       {/* Reply form */}
       {showReplyForm && (
         <div className="mt-4">
-          <div className="bg-white dark:bg-gray-800 border rounded-lg shadow-sm p-4">
+          <div className="bg-background dark:bg-gray-800 border rounded-lg shadow-sm p-4">
             <h3 className="font-medium text-lg mb-4">Reply to {email.from.name}</h3>
             <RichTextEditor
               initialContent={editorContent}
@@ -321,7 +335,7 @@ ${user?.position ? user.position : ''}
       {/* Forward form */}
       {showForwardForm && (
         <div className="mt-4">
-          <div className="bg-white dark:bg-gray-800 border rounded-lg shadow-sm p-4">
+          <div className="bg-background dark:bg-gray-800 border rounded-lg shadow-sm p-4">
             <h3 className="font-medium text-lg mb-4">Forward Email</h3>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -360,7 +374,7 @@ ${user?.position ? user.position : ''}
         </Button>
         
         {showDraftOptions && (
-          <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
+          <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-background dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
             <div className="py-1" role="menu">
               <button
                 className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"

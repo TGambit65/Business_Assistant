@@ -1,0 +1,19 @@
+# Templates Page Screenshot
+
+## Description
+- Same navigation structure as dashboard (top bar, sidebar)
+- Main content shows multiple email templates
+- Templates displayed as cards with preview text
+- "Use Template" buttons on each card
+- Star/favorite and edit options for templates
+- User dropdown menu in top right
+- Category tags for template organization (e.g., Business)
+
+## UI Issues
+- Templates lack visual hierarchy or categorization
+- Template cards blend together with minimal visual distinction
+- Limited preview of template content makes selection difficult
+- Action buttons lack visual emphasis
+- Limited filtering or search options visible
+- No clear way to create new templates from this view
+- Star/favorite functionality isn't visually prominent

@@ -11,6 +11,11 @@
 # production
 /build
 
+# TinyMCE - remove all instances
+/public/tinymce/
+/build/tinymce/
+**/tinymce/
+
 # misc
 .DS_Store
 .env.local

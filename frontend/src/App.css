@@ -1,15 +1,24 @@
 .App {
-  height: 100%;
+  min-height: 100vh;
+  min-width: 100vw;
   width: 100%;
+  height: 100%;
   position: absolute;
   top: 0;
   left: 0;
-  overflow: hidden;
 }
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100vw;
+}
+
 
 /* Add mobile-friendly base styles */
 html, body {
   margin: 0;
+  scrollbar-gutter: stable;
   padding: 0;
   height: 100%;
   width: 100%;
@@ -49,6 +58,7 @@ html, body {
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
 }
 
 /* Fix input styling on iOS */
@@ -59,37 +69,814 @@ input, textarea, button, select {
   font-size: 16px; /* Prevents iOS zoom on focus */
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* Layout Components */
+.app {
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.logo a {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #4285f4;
+  text-decoration: none;
+}
+
+.main-nav ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.main-nav li {
+  margin-left: 1.5rem;
+}
+
+.main-nav a {
+  color: #555;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.main-nav a:hover {
+  color: #4285f4;
+}
+
+.content {
+  flex: 1;
+  padding: 1.5rem;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.app-footer {
+  background-color: #f0f0f0;
+  padding: 1rem;
+  border-top: 1px solid #ddd;
+  margin-top: auto;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.footer-links a {
+  color: #666;
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
+
+/* Home Page */
+.home-page {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.hero {
+  text-align: center;
+  padding: 3rem 1rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.cta-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+.button.primary {
+  background-color: #4285f4;
+  color: white;
+  border: none;
+}
+
+.button.primary:hover {
+  background-color: #356ac3;
+}
+
+.button.secondary {
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.button.secondary:hover {
+  background-color: #e9e9e9;
+}
+
+.features {
+  padding: 1rem;
+}
+
+.features h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.feature-card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+.feature-card h3 {
+  margin-top: 0;
+  color: #4285f4;
+}
+
+/* Inbox Page */
+.inbox-page {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.inbox-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.inbox-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.inbox-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.refresh-button {
+  padding: 0.5rem 1rem;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.refresh-button:hover {
+  background-color: #e9e9e9;
+}
+
+.compose-button {
+  padding: 0.5rem 1rem;
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.compose-button:hover {
+  background-color: #356ac3;
+}
+
+.email-list {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.loading, .empty-inbox, .error-message {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+}
+
+.error-message button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.email-item {
+  display: grid;
+  grid-template-columns: 2fr 5fr 1fr;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.email-item:hover {
+  background-color: #f9f9f9;
+}
+
+.email-item.unread {
+  background-color: #f0f8ff;
+  font-weight: 600;
+}
+
+.email-sender {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.email-content {
+  padding: 0 1rem;
+}
+
+.email-subject {
+  margin-bottom: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.email-preview {
+  color: #666;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.email-date {
+  text-align: right;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Compose Page */
+.compose-page {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.compose-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.compose-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.status-message {
+  margin: 1rem 1.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+}
+
+.status-message.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-message.info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.compose-form {
+  padding: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.form-group.checkbox {
+  display: flex;
+  align-items: center;
+}
+
+.form-group.checkbox label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+.form-group.checkbox input {
+  width: auto;
+  margin-right: 0.5rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.save-draft-button, .reset-button {
+  padding: 0.75rem 1.5rem;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.save-draft-button:hover, .reset-button:hover {
+  background-color: #e9e9e9;
+}
+
+.send-button, .save-button {
+  padding: 0.75rem 1.5rem;
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.send-button:hover, .save-button:hover {
+  background-color: #356ac3;
+}
+
+.send-button:disabled, .save-button:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+}
+
+/* Settings Page */
+.settings-page {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.settings-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.settings-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.settings-form {
+  padding: 1.5rem;
+}
+
+.settings-section {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #eee;
+}
+
+.settings-section h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+  color: #4285f4;
+}
+
+/* Not Found Page */
+.not-found-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+}
+
+.not-found-content {
+  text-align: center;
+  max-width: 500px;
+  padding: 2rem;
+}
+
+.not-found-content h1 {
+  font-size: 6rem;
+  margin: 0;
+  color: #4285f4;
+  line-height: 1;
+}
+
+.not-found-content h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.not-found-content p {
+  margin-bottom: 2rem;
+  color: #666;
+}
+
+/* PWA Related Styles */
+
+/* Install PWA Button */
+.install-container {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+}
+
+.install-pwa-button {
+  padding: 10px 16px;
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.install-pwa-button:hover {
+  background-color: #356ac3;
+}
+
+.install-pwa-button:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+}
+
+/* Network Status Indicator */
+.network-status {
+  display: flex;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.network-status.online {
+  color: #28a745;
+}
+
+.network-status.offline {
+  color: #dc3545;
+}
+
+.network-status-icon {
+  margin-right: 5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.online .network-status-icon {
+  background-color: #28a745;
+}
+
+.offline .network-status-icon {
+  background-color: #dc3545;
+}
+
+/* Notification Banner */
+.notification {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 20px;
+  min-width: 280px;
+  max-width: 400px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 1000;
+  animation: slide-down 0.3s ease-out forwards;
+}
+
+.notification p {
+  margin: 0;
+  flex-grow: 1;
+}
+
+.notification button {
+  margin-left: 10px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: inherit;
+}
+
+.notification .close-btn {
+  background: none;
+  font-size: 18px;
+  padding: 0 6px;
+}
+
+/* Notification types */
+.notification.update {
+  background-color: #4285f4;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.notification.success {
+  background-color: #28a745;
+  color: white;
 }
 
-@keyframes App-logo-spin {
+.notification.error {
+  background-color: #dc3545;
+  color: white;
+}
+
+.notification.warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+/* Error notification for global errors */
+.error-notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #dc3545;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1100;
+  max-width: 350px;
+}
+
+.error-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.error-content p {
+  margin: 0;
+  padding-right: 10px;
+}
+
+.error-content button {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Update notification for service worker updates */
+.update-notification {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background-color: #4285f4;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1100;
+  max-width: 350px;
+}
+
+.update-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.update-content p {
+  margin: 0;
+  padding-right: 10px;
+}
+
+.update-content button {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Animation for notifications */
+@keyframes slide-down {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
+    transform: translate(-50%, -20px);
   }
   to {
-    transform: rotate(360deg);
+    opacity: 1;
+    transform: translate(-50%, 0);
   }
+}
+
+/* Media Queries for Responsive Design */
+@media (max-width: 768px) {
+  .app-header {
+    flex-direction: column;
+    padding: 0.5rem;
+  }
+  
+  .logo {
+    margin-bottom: 0.5rem;
+  }
+  
+  .main-nav ul {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .main-nav li {
+    margin: 0.25rem 0.5rem;
+  }
+  
+  .content {
+    padding: 1rem;
+  }
+  
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .email-item {
+    grid-template-columns: 1fr;
+  }
+  
+  .email-sender, .email-content, .email-date {
+    padding: 0.2rem 0;
+  }
+  
+  .email-date {
+    text-align: left;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .form-actions button {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* At the top of the file, add/modify these styles */
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Header and Footer only visible within layout, not on login page */
+.app-header, .app-footer {
+  display: none;
+}
+
+/* Only show header and footer within the MainLayout */
+.app-layout .app-header,
+.app-layout .app-footer {
+  display: flex;
+}
+
+/* Fix for the login page */
+.login-page-container {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Make sure notification banner is on top */
+.notification {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  max-width: 90%;
+  width: 450px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: slide-down 0.3s ease-out forwards;
+}
+
+/* Make install container float on top right corner */
+.install-container {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 9990;
+}
+
+/* Add this rule to ensure no unauthorized elements appear on login page */
+.login-page-container ~ * {
+  display: none !important;
 }

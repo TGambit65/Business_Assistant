@@ -1,9 +1,11 @@
 // GoogleAuthService.js - Service for handling Google authentication
+import { getEnvVariable, isInDemoMode } from '../utils/envUtils';
 
 // Google OAuth client ID from environment variables
-const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_ID = getEnvVariable('REACT_APP_GOOGLE_CLIENT_ID');
 
-if (!GOOGLE_CLIENT_ID) {
+// Only log an error about missing client ID if we're not in demo mode
+if (!GOOGLE_CLIENT_ID && !isInDemoMode()) {
   console.error('Google Client ID not found. Please set REACT_APP_GOOGLE_CLIENT_ID in your environment variables.');
 }
 
@@ -78,6 +80,30 @@ class GoogleAuthService {
   signInWithGoogle() {
     return new Promise(async (resolve, reject) => {
       try {
+        // Check if we're in demo mode
+        if (isInDemoMode()) {
+          // Return mock Google user data for demo mode
+          const mockGoogleUser = {
+            token: 'mock-google-token',
+            userProfile: {
+              sub: 'google-123456789',
+              name: 'Demo Google User',
+              email: 'demo-google@example.com',
+              picture: 'https://ui-avatars.com/api/?name=Demo+Google&background=4285F4&color=fff',
+            },
+            provider: 'google',
+            expiresAt: new Date().getTime() + (3600 * 1000) // 1 hour expiry
+          };
+          
+          // Store the mock token
+          localStorage.setItem('googleAccessToken', mockGoogleUser.token);
+          
+          // Resolve with mock data
+          setTimeout(() => resolve(mockGoogleUser), 500); // Add slight delay to simulate API call
+          return;
+        }
+        
+        // Continue with real Google auth if not in demo mode
         if (!this.gsiScriptLoaded) {
           await this.loadGoogleAuthScript();
         }
@@ -138,6 +164,17 @@ class GoogleAuthService {
    */
   async fetchUserProfile(accessToken) {
     try {
+      // Return mock user profile in demo mode
+      if (isInDemoMode()) {
+        return {
+          sub: 'google-123456789',
+          name: 'Demo Google User',
+          email: 'demo-google@example.com',
+          picture: 'https://ui-avatars.com/api/?name=Demo+Google&background=4285F4&color=fff',
+        };
+      }
+      
+      // Only proceed with real API call if not in demo mode
       const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
         headers: {
           Authorization: `Bearer ${accessToken}`

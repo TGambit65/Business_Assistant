@@ -1,0 +1,236 @@
+/**
+ * Accessibility Styles
+ */
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus styles */
+.keyboard-user *:focus {
+  outline: 2px solid #2563eb !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.3) !important;
+}
+
+/* Reduced motion */
+.reduced-motion * {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* High contrast mode */
+.high-contrast {
+  --background: #000000;
+  --foreground: #ffffff;
+  --primary: #ffff00;
+  --primary-foreground: #000000;
+  --secondary: #ffffff;
+  --secondary-foreground: #000000;
+  --muted: #333333;
+  --muted-foreground: #ffffff;
+  --accent: #ffff00;
+  --accent-foreground: #000000;
+  --destructive: #ff0000;
+  --destructive-foreground: #ffffff;
+  --border: #ffffff;
+  --input: #ffffff;
+  --ring: #ffff00;
+  --card: #000000;
+  --card-foreground: #ffffff;
+  --popover: #000000;
+  --popover-foreground: #ffffff;
+}
+
+.high-contrast button {
+  border: 2px solid #ffffff !important;
+}
+
+.high-contrast a {
+  text-decoration: underline !important;
+  color: #ffff00 !important;
+}
+
+.high-contrast input,
+.high-contrast textarea,
+.high-contrast select {
+  border: 2px solid #ffffff !important;
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* Font sizes */
+.font-small {
+  font-size: 0.875rem;
+}
+
+.font-medium {
+  font-size: 1rem;
+}
+
+.font-large {
+  font-size: 1.125rem;
+}
+
+.font-x-large {
+  font-size: 1.25rem;
+}
+
+/* Line spacing */
+.line-spacing-normal {
+  line-height: 1.5;
+}
+
+.line-spacing-wide {
+  line-height: 1.8;
+}
+
+.line-spacing-wider {
+  line-height: 2.2;
+}
+
+/* RTL Support */
+.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+.rtl .ml-auto {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.rtl .mr-auto {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+.rtl .text-left {
+  text-align: right;
+}
+
+.rtl .text-right {
+  text-align: left;
+}
+
+/* Skip to content link */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #2563eb;
+  color: white;
+  padding: 8px;
+  z-index: 100;
+  transition: top 0.3s;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
+
+/* Keyboard navigation */
+.keyboard-navigation [role="button"],
+.keyboard-navigation button,
+.keyboard-navigation a,
+.keyboard-navigation input,
+.keyboard-navigation select,
+.keyboard-navigation textarea {
+  transition: outline-offset 0.1s linear;
+  outline-offset: 2px;
+}
+
+.keyboard-navigation [role="button"]:focus,
+.keyboard-navigation button:focus,
+.keyboard-navigation a:focus,
+.keyboard-navigation input:focus,
+.keyboard-navigation select:focus,
+.keyboard-navigation textarea:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: 4px;
+}
+
+/* Accessible tooltips */
+.accessible-tooltip {
+  position: relative;
+}
+
+.accessible-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  z-index: 10;
+}
+
+.accessible-tooltip:hover::after,
+.accessible-tooltip:focus::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+.reduced-motion .accessible-tooltip::after {
+  transition: none;
+}
+
+/* Accessible form error messages */
+.form-error {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.input-error {
+  border-color: #ef4444 !important;
+}
+
+/* Accessible loading indicators */
+.loading-indicator {
+  display: inline-block;
+  position: relative;
+  width: 1em;
+  height: 1em;
+}
+
+.loading-indicator::after {
+  content: " ";
+  display: block;
+  width: 0.875em;
+  height: 0.875em;
+  border-radius: 50%;
+  border: 0.125em solid currentColor;
+  border-color: currentColor transparent currentColor transparent;
+  animation: loading-indicator 1.2s linear infinite;
+}
+
+.reduced-motion .loading-indicator::after {
+  animation: none;
+  border-color: currentColor;
+}
+
+@keyframes loading-indicator {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

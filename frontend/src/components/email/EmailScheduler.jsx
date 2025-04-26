@@ -1,59 +1,183 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../ui/card';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { Calendar } from '../ui/calendar';
-import { Switch } from '../ui/switch';
-import { CalendarDays, Clock, Send, Calculator, Zap, Sun, Moon, Globe } from 'lucide-react';
-import { format } from 'date-fns';
+import PropTypes from 'prop-types';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'; // Removed CardFooter
+// import { Button } from '../ui/button'; // Button is used
+// import { Input } from '../ui/input'; // Input is used
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'; // Select components are not used
+// import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'; // Popover components are not used
+import { Calendar, Clock, ChevronDown, Check, X } from 'lucide-react';
+// import { format } from 'date-fns'; // format is not used
 
 // Sample optimal times data
-const optimalTimes = {
-  Monday: ['10:00 AM', '2:00 PM', '4:30 PM'],
-  Tuesday: ['9:30 AM', '1:00 PM', '3:30 PM'],
-  Wednesday: ['10:30 AM', '2:30 PM', '4:00 PM'],
-  Thursday: ['9:00 AM', '1:30 PM', '4:00 PM'],
-  Friday: ['10:00 AM', '1:00 PM', '3:00 PM'],
-  Saturday: ['11:00 AM', '2:00 PM'],
-  Sunday: ['12:00 PM', '7:00 PM']
-};
+// const optimalTimes = {
+  // Monday: ['10:00 AM', '2:00 PM', '4:30 PM'],
+  // Tuesday: ['9:30 AM', '1:00 PM', '3:30 PM'],
+  // Wednesday: ['10:30 AM', '2:30 PM', '4:00 PM'],
+  // Thursday: ['9:00 AM', '1:30 PM', '4:00 PM'],
+  // Friday: ['10:00 AM', '1:00 PM', '3:00 PM'],
+  // Saturday: ['11:00 AM', '2:00 PM'],
+  // Sunday: ['12:00 PM', '7:00 PM']
+// };
 
 // Time zone options
-const timeZoneOptions = [
-  { value: 'America/New_York', label: 'Eastern Time (ET)' },
-  { value: 'America/Chicago', label: 'Central Time (CT)' },
-  { value: 'America/Denver', label: 'Mountain Time (MT)' },
-  { value: 'America/Los_Angeles', label: 'Pacific Time (PT)' },
-  { value: 'Europe/London', label: 'Greenwich Mean Time (GMT)' },
-  { value: 'Europe/Paris', label: 'Central European Time (CET)' },
-  { value: 'Asia/Tokyo', label: 'Japan Standard Time (JST)' },
-  { value: 'Australia/Sydney', label: 'Australian Eastern Time (AET)' }
-];
+// const timeZoneOptions = [ // Removed unused variable
+//   { value: 'America/New_York', label: 'Eastern Time (ET)' },
+//   { value: 'America/Chicago', label: 'Central Time (CT)' },
+//   { value: 'America/Denver', label: 'Mountain Time (MT)' },
+//   { value: 'America/Los_Angeles', label: 'Pacific Time (PT)' },
+//   { value: 'Europe/London', label: 'Greenwich Mean Time (GMT)' },
+//   { value: 'Europe/Paris', label: 'Central European Time (CET)' },
+//   { value: 'Asia/Tokyo', label: 'Japan Standard Time (JST)' },
+//   { value: 'Australia/Sydney', label: 'Australian Eastern Time (AET)' }
+// ];
 
-export default function EmailScheduler({ onSchedule, onClose }) {
-  const [date, setDate] = useState(new Date());
-  const [time, setTime] = useState('');
-  const [timeZone, setTimeZone] = useState('America/New_York');
-  const [useOptimalTime, setUseOptimalTime] = useState(false);
-  const [useRecipientTimeZone, setUseRecipientTimeZone] = useState(false);
+/**
+ * EmailScheduler component for scheduling emails to be sent at a later time
+ */
+const EmailScheduler = ({ onSchedule, onCancel }) => {
+  // Get current date and time
+  const now = new Date();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(9, 0, 0, 0); // Set to 9:00 AM tomorrow
   
-  const dayOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()];
-  const optimalTimesForSelectedDay = optimalTimes[dayOfWeek] || [];
+  // State
+  const [selectedDate, setSelectedDate] = useState(tomorrow);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [time, /*setTime*/] = useState(''); // setTime is unused
+  const [timeZone, /*setTimeZone*/] = useState('America/New_York'); // setTimeZone is unused
+  const [useOptimalTime, /*setUseOptimalTime*/] = useState(false); // setUseOptimalTime is unused
+  const [useRecipientTimeZone, /*setUseRecipientTimeZone*/] = useState(false); // setUseRecipientTimeZone is unused
   
-  const handleSelectOptimalTime = (selectedTime) => {
-    setTime(selectedTime);
-    setUseOptimalTime(true);
+  // const dayOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][selectedDate.getDay()];
+  // const optimalTimesForSelectedDay = optimalTimes[dayOfWeek] || []; // Removed unused variable
+  
+  // Generate date options
+  const dateOptions = [
+    { label: 'Later today', value: 'today', date: getEndOfDay(now) },
+    { label: 'Tomorrow morning', value: 'tomorrow', date: getTomorrowMorning() },
+    { label: 'Tomorrow afternoon', value: 'tomorrow-afternoon', date: getTomorrowAfternoon() },
+    { label: 'This weekend', value: 'weekend', date: getNextWeekend() },
+    { label: 'Next week', value: 'next-week', date: getNextMonday() },
+    { label: 'Custom date', value: 'custom', date: null },
+  ];
+  
+  // Generate time options
+  const timeOptions = [
+    { label: '8:00 AM', value: '8:00' },
+    { label: '9:00 AM', value: '9:00' },
+    { label: '10:00 AM', value: '10:00' },
+    { label: '12:00 PM', value: '12:00' },
+    { label: '2:00 PM', value: '14:00' },
+    { label: '4:00 PM', value: '16:00' },
+    { label: '6:00 PM', value: '18:00' },
+  ];
+  
+  // Helper functions to get dates
+  function getEndOfDay(date) {
+    const endOfDay = new Date(date);
+    endOfDay.setHours(17, 0, 0, 0); // 5:00 PM
+    return endOfDay;
+  }
+  
+  function getTomorrowMorning() {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(9, 0, 0, 0); // 9:00 AM
+    return tomorrow;
+  }
+  
+  function getTomorrowAfternoon() {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(14, 0, 0, 0); // 2:00 PM
+    return tomorrow;
+  }
+  
+  function getNextWeekend() {
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 = Sunday, 6 = Saturday
+    const daysToWeekend = dayOfWeek === 0 ? 6 : 6 - dayOfWeek; // If today is Sunday, next weekend is 6 days away
+    
+    const weekend = new Date(today);
+    weekend.setDate(today.getDate() + daysToWeekend);
+    weekend.setHours(10, 0, 0, 0); // 10:00 AM
+    return weekend;
+  }
+  
+  function getNextMonday() {
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday
+    const daysToMonday = dayOfWeek === 0 ? 1 : 8 - dayOfWeek; // If today is Sunday, next Monday is tomorrow
+    
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + daysToMonday);
+    monday.setHours(9, 0, 0, 0); // 9:00 AM
+    return monday;
+  }
+  
+  // Handle selecting a predefined date
+  const handleSelectDateOption = (option) => {
+    if (option.value === 'custom') {
+      setShowDatePicker(true);
+    } else {
+      setSelectedDate(option.date);
+      setShowDatePicker(false);
+    }
   };
   
+  // Handle selecting a time
+  const handleSelectTime = (timeOption) => {
+    const [hours, minutes] = timeOption.value.split(':').map(num => parseInt(num, 10));
+    
+    const newDate = new Date(selectedDate);
+    newDate.setHours(hours, minutes, 0, 0);
+    
+    setSelectedDate(newDate);
+    setShowTimePicker(false);
+  };
+  
+  // Handle custom date selection
+  const handleDateChange = (e) => {
+    const date = new Date(e.target.value);
+    const newDate = new Date(selectedDate);
+    
+    newDate.setFullYear(date.getFullYear());
+    newDate.setMonth(date.getMonth());
+    newDate.setDate(date.getDate());
+    
+    setSelectedDate(newDate);
+  };
+  
+  // Format date for display
+  const formatDate = (date) => {
+    const options = { weekday: 'short', month: 'short', day: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
+  };
+  
+  // Format time for display
+  const formatTime = (date) => {
+    const options = { hour: 'numeric', minute: 'numeric', hour12: true };
+    return date.toLocaleTimeString('en-US', options);
+  };
+  
+  // Format date for input
+  const formatDateForInput = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  
+  // Handle schedule button click
   const handleSchedule = () => {
     if (!time) {
       alert('Please select a time');
       return;
     }
     
-    const scheduledDateTime = new Date(date);
+    const scheduledDateTime = new Date(selectedDate);
     const [hours, minutes] = time.includes('PM') 
       ? [parseInt(time.split(':')[0]) + 12, parseInt(time.split(':')[1])] 
       : [parseInt(time.split(':')[0]), parseInt(time.split(':')[1])];
@@ -71,149 +195,139 @@ export default function EmailScheduler({ onSchedule, onClose }) {
     <Card className="w-full max-w-lg shadow-lg border dark:border-gray-700">
       <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-lg">
         <CardTitle className="flex items-center text-xl font-bold">
-          <CalendarDays className="mr-2 h-5 w-5" />
+          <Calendar className="mr-2 h-5 w-5" />
           Schedule Email Delivery
         </CardTitle>
       </CardHeader>
       
       <CardContent className="p-4 space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Select Date</label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-left"
-                >
-                  <CalendarDays className="mr-2 h-4 w-4" />
-                  {format(date, 'PPP')}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  initialFocus
-                  disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Select Time</label>
-            <div className="relative">
-              <Input
-                type="time"
-                value={time.includes('AM') || time.includes('PM') ? '' : time}
-                onChange={(e) => {
-                  setTime(e.target.value);
-                  setUseOptimalTime(false);
-                }}
-                placeholder="HH:MM"
-                className="w-full"
-              />
-              <Clock className="absolute right-3 top-2.5 h-4 w-4 text-gray-500" />
-            </div>
-          </div>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-medium">Schedule Email</h3>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+          >
+            <X size={20} />
+          </button>
         </div>
         
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Time Zone</label>
-          <Select
-            value={timeZone}
-            onValueChange={setTimeZone}
-            disabled={useRecipientTimeZone}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select time zone" />
-            </SelectTrigger>
-            <SelectContent>
-              {timeZoneOptions.map((zone) => (
-                <SelectItem key={zone.value} value={zone.value}>
-                  {zone.label}
-                </SelectItem>
+        <div className="space-y-4">
+          {/* Date selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Send on
+            </label>
+            <div className="space-y-2">
+              {dateOptions.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className={`w-full flex justify-between items-center py-2 px-3 text-left border rounded-md ${
+                    (option.date && option.date.toDateString() === selectedDate.toDateString()) || 
+                    (option.value === 'custom' && showDatePicker)
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                      : 'border-gray-300 dark:border-gray-700 hover:bg-muted dark:hover:bg-gray-800'
+                  }`}
+                  onClick={() => handleSelectDateOption(option)}
+                >
+                  <span>{option.label}</span>
+                  {(option.date && option.date.toDateString() === selectedDate.toDateString()) || 
+                   (option.value === 'custom' && showDatePicker) ? (
+                    <Check size={16} className="text-blue-500" />
+                  ) : null}
+                </button>
               ))}
-            </SelectContent>
-          </Select>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="recipient-timezone"
-            checked={useRecipientTimeZone}
-            onCheckedChange={setUseRecipientTimeZone}
-          />
-          <label
-            htmlFor="recipient-timezone"
-            className="text-sm font-medium cursor-pointer flex items-center"
-          >
-            <Globe className="mr-1 h-4 w-4 text-blue-500" /> 
-            Use recipient's time zone when available
-          </label>
-        </div>
-        
-        <div className="mt-6">
-          <div className="flex items-center gap-2 mb-2">
-            <Zap className="h-4 w-4 text-amber-500" />
-            <h3 className="text-sm font-semibold">Optimal Delivery Times for {dayOfWeek}</h3>
-          </div>
-          
-          <div className="flex flex-wrap gap-2 mt-2">
-            {optimalTimesForSelectedDay.length > 0 ? (
-              optimalTimesForSelectedDay.map((optimalTime, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  size="sm"
-                  className={`${time === optimalTime ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700' : ''} flex items-center`}
-                  onClick={() => handleSelectOptimalTime(optimalTime)}
-                >
-                  {optimalTime.includes('AM') ? (
-                    <Sun className="mr-1 h-3 w-3 text-amber-500" />
-                  ) : (
-                    <Moon className="mr-1 h-3 w-3 text-indigo-500" />
-                  )}
-                  {optimalTime}
-                </Button>
-              ))
-            ) : (
-              <p className="text-sm text-gray-500">No optimal times available for this day.</p>
+            </div>
+            
+            {/* Custom date picker */}
+            {showDatePicker && (
+              <div className="mt-2">
+                <input
+                  type="date"
+                  value={formatDateForInput(selectedDate)}
+                  onChange={handleDateChange}
+                  className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-background dark:bg-gray-800"
+                  min={formatDateForInput(now)}
+                />
+              </div>
             )}
           </div>
           
-          <div className="flex items-center space-x-2 mt-4">
-            <Switch
-              id="use-optimal"
-              checked={useOptimalTime}
-              onCheckedChange={setUseOptimalTime}
-            />
-            <label
-              htmlFor="use-optimal"
-              className="text-sm font-medium cursor-pointer flex items-center"
-            >
-              <Calculator className="mr-1 h-4 w-4 text-green-500" /> 
-              Use AI to determine the optimal send time
+          {/* Time selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Send at
             </label>
+            <div className="relative">
+              <button
+                type="button"
+                className="w-full flex justify-between items-center p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-background dark:bg-gray-800"
+                onClick={() => setShowTimePicker(!showTimePicker)}
+              >
+                <div className="flex items-center">
+                  <Clock size={16} className="mr-2 text-gray-500" />
+                  <span>{formatTime(selectedDate)}</span>
+                </div>
+                <ChevronDown size={16} className={`transition-transform duration-200 ${showTimePicker ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {/* Time dropdown */}
+              {showTimePicker && (
+                <div className="absolute z-10 mt-1 w-full bg-background dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto">
+                  {timeOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      onClick={() => handleSelectTime(option)}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Summary */}
+          <div className="py-3 px-4 bg-muted dark:bg-gray-800 rounded-md border border-border dark:border-gray-700">
+            <div className="flex items-center mb-1">
+              <Calendar size={16} className="mr-2 text-gray-500" />
+              <span className="text-sm font-medium">{formatDate(selectedDate)}</span>
+            </div>
+            <div className="flex items-center">
+              <Clock size={16} className="mr-2 text-gray-500" />
+              <span className="text-sm font-medium">{formatTime(selectedDate)}</span>
+            </div>
+          </div>
+          
+          {/* Actions */}
+          <div className="flex justify-end space-x-2">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md text-gray-700 dark:text-gray-300 hover:bg-muted dark:hover:bg-gray-800"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSchedule}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Schedule
+            </button>
           </div>
         </div>
       </CardContent>
-      
-      <CardFooter className="flex justify-between bg-gray-50 dark:bg-gray-800 rounded-b-lg p-4">
-        <Button variant="ghost" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button 
-          variant="default"
-          className="bg-blue-600 hover:bg-blue-700"
-          onClick={handleSchedule}
-        >
-          <Send className="mr-2 h-4 w-4" />
-          Schedule Email
-        </Button>
-      </CardFooter>
     </Card>
   );
-} 
+};
+
+EmailScheduler.propTypes = {
+  onSchedule: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired
+};
+
+export default EmailScheduler; 

@@ -1,0 +1,353 @@
+/* Force light theme for all pages */
+
+/* Override dark mode styles */
+html.dark {
+  color-scheme: dark !important;
+  --background: #18181b !important;
+  --foreground: #f4f4f5 !important;
+  --card: #23243a !important;
+  --card-foreground: #f4f4f5 !important;
+  --popover: #23243a !important;
+  --popover-foreground: #f4f4f5 !important;
+  --primary: #2563eb !important;
+  --primary-foreground: #f4f4f5 !important;
+  --secondary: #1e293b !important;
+  --secondary-foreground: #a5b4fc !important;
+  --muted: #334155 !important;
+  --muted-foreground: #94a3b8 !important;
+  --accent: #7c3aed !important;
+  --accent-foreground: #f4f4f5 !important;
+  --destructive: #ef4444 !important;
+  --destructive-foreground: #f4f4f5 !important;
+  --border: #334155 !important;
+  --input: #23243a !important;
+  --ring: #38bdf8 !important;
+  --shadow: 0 4px 24px 0 rgba(20, 20, 40, 0.45) !important;
+}
+
+/* Earth Dark Theme */
+html.earth-dark {
+  color-scheme: dark !important;
+  --background: #2d2217 !important;           /* deep earth brown */
+  --foreground: #f5e9da !important;           /* light tan for text */
+  --card: #3e2c1c !important;                 /* rich brown for cards */
+  --card-foreground: #f5e9da !important;
+  --popover: #3e2c1c !important;
+  --popover-foreground: #f5e9da !important;
+  --primary: #ff9800 !important;              /* heavy orange */
+  --primary-foreground: #2d2217 !important;
+  --secondary: #a47551 !important;            /* lighter brown/tan */
+  --secondary-foreground: #fff3e0 !important;
+  --muted: #6d4c2f !important;                /* muted brown */
+  --muted-foreground: #ffe0b2 !important;
+  --accent: #ffb300 !important;               /* strong orange accent */
+  --accent-foreground: #2d2217 !important;
+  --destructive: #d84315 !important;          /* earthy red */
+  --destructive-foreground: #fff3e0 !important;
+  --border: #8d6748 !important;               /* medium brown for borders */
+  --input: #3e2c1c !important;
+  --ring: #ff9800 !important;                 /* orange ring for focus */
+  --shadow: 0 4px 24px 0 rgba(61, 40, 20, 0.45) !important;
+}
+
+/* Force light background on body */
+body, html {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Force white background on all major elements */
+body, #root, .app-container, .app-layout, main, .dashboard-page, .min-h-screen {
+  background-color: white !important;
+  color: #1F2937 !important;
+}
+
+/* Dark mode card and background depth */
+.dark .bg-card, .dark .card, .dark .bg-background {
+  background-color: var(--card) !important;
+  color: var(--card-foreground) !important;
+  box-shadow: var(--shadow, 0 2px 12px 0 rgba(20,20,40,0.25)) !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* Dark mode backgrounds */
+.dark .bg-background,
+.dark .bg-card,
+.dark main,
+.dark .dashboard-page,
+.dark .min-h-screen {
+  background-color: #18181b !important;
+  color: #f4f4f5 !important;
+}
+
+/* Dark mode dashboard/page backgrounds */
+.dark .dashboard-page, .dark .min-h-screen, .dark .bg-background {
+  background-color: var(--background) !important;
+}
+
+/* Override any inline dark backgrounds */
+[style*="background-color"] {
+  background-color: white !important;
+}
+
+/* Override text colors for better contrast on white */
+.text-foreground {
+  color: var(--foreground) !important;
+}
+
+/* Earth Dark: Add more color to secondary/muted backgrounds and cards */
+.earth-dark .bg-secondary,
+.earth-dark .secondary,
+.earth-dark .muted,
+.earth-dark .bg-muted {
+  background: linear-gradient(135deg, var(--secondary) 80%, var(--accent) 100%) !important;
+  color: var(--secondary-foreground) !important;
+}
+
+.earth-dark .status-message.success {
+  background: linear-gradient(90deg, #ffb74d 60%, #ff9800 100%) !important;
+  color: #2d2217 !important;
+}
+.earth-dark .status-message.error {
+  background: linear-gradient(90deg, #d84315 60%, #8d6748 100%) !important;
+  color: #fff3e0 !important;
+}
+.earth-dark .status-message.info {
+  background: linear-gradient(90deg, #a47551 60%, #ffb300 100%) !important;
+  color: #2d2217 !important;
+}
+
+/* Add colored border to input fields in earth dark mode */
+.earth-dark input,
+.earth-dark textarea,
+.earth-dark select {
+  border: 1.5px solid var(--accent);
+  background: var(--input);
+  color: var(--foreground);
+  border-radius: 6px;
+  transition: border-color 0.2s;
+}
+.earth-dark input:focus,
+.earth-dark textarea:focus,
+.earth-dark select:focus {
+  border-color: var(--primary);
+  outline: 2px solid var(--primary);
+}
+
+/* Add more color to headings */
+.earth-dark h1, .earth-dark h2, .earth-dark h3, .earth-dark h4, .earth-dark h5 {
+  color: var(--primary);
+}
+
+/* Dark mode: outline links and buttons, add color and focus states */
+.earth-dark a,
+.earth-dark a:visited,
+.earth-dark .button,
+.earth-dark .btn,
+.earth-dark button,
+.earth-dark input[type="button"],
+.earth-dark input[type="submit"] {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border: 1.5px solid var(--primary);
+  color: var(--primary);
+  background: transparent;
+  border-radius: 6px;
+  transition:
+    outline-color 0.2s,
+    border-color 0.2s,
+    background 0.2s,
+    color 0.2s;
+  box-shadow: 0 0 0 2px var(--primary), 0 2px 12px 0 rgba(60,60,120,0.15);
+}
+
+.earth-dark a:hover,
+.earth-dark .button:hover,
+.earth-dark .btn:hover,
+.earth-dark button:hover,
+.earth-dark input[type="button"]:hover,
+.earth-dark input[type="submit"]:hover,
+.earth-dark a:focus,
+.earth-dark .button:focus,
+.earth-dark .btn:focus,
+.earth-dark button:focus,
+.earth-dark input[type="button"]:focus,
+.earth-dark input[type="submit"]:focus {
+  outline: 2.5px solid var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent), 0 4px 24px 0 rgba(124,58,237,0.25);
+}
+
+/* Add more color to secondary/muted backgrounds and cards */
+.dark .bg-secondary,
+.dark .secondary,
+.dark .muted,
+.dark .bg-muted {
+  background: linear-gradient(135deg, var(--secondary) 80%, var(--accent) 100%) !important;
+  color: var(--secondary-foreground) !important;
+}
+
+.dark .status-message.success {
+  background: linear-gradient(90deg, #22d3ee 60%, #38bdf8 100%) !important;
+  color: #18181b !important;
+}
+.dark .status-message.error {
+  background: linear-gradient(90deg, #f43f5e 60%, #a21caf 100%) !important;
+  color: #f4f4f5 !important;
+}
+.dark .status-message.info {
+  background: linear-gradient(90deg, #818cf8 60%, #38bdf8 100%) !important;
+  color: #18181b !important;
+}
+
+/* Add colored border to input fields in dark mode */
+.dark input,
+.dark textarea,
+.dark select {
+  border: 1.5px solid var(--accent);
+  background: var(--input);
+  color: var(--foreground);
+  border-radius: 6px;
+  transition: border-color 0.2s;
+}
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  border-color: var(--primary);
+  outline: 2px solid var(--primary);
+}
+
+/* Add more color to headings */
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5 {
+  color: var(--accent);
+}
+
+/* Force light borders */
+.border, .border-border {
+  border-color: #E5E7EB !important;
+}
+
+/* Override specific dashboard components */
+.dashboard-page .card,
+.dashboard-page .bg-card,
+.dashboard-page .bg-background,
+.dashboard-page [class*="bg-"] {
+  background-color: white !important;
+}
+
+/* Proper dark theme for all elements in dark mode */
+.dark * {
+  background-color: transparent !important;
+  color: #f4f4f5 !important;
+}
+/* Earth Dark Theme: Earthtones, browns, heavy orange */
+.earth-dark .bg-card, .earth-dark .card, .earth-dark .bg-background {
+  background-color: var(--card) !important;
+  color: var(--card-foreground) !important;
+  box-shadow: var(--shadow, 0 2px 12px 0 rgba(61,40,20,0.25)) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.earth-dark .bg-background,
+.earth-dark main,
+.earth-dark .dashboard-page,
+.earth-dark .min-h-screen {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+.earth-dark .dashboard-page, .earth-dark .min-h-screen, .earth-dark .bg-background {
+  background-color: var(--background) !important;
+}
+
+.earth-dark .text-foreground {
+  color: var(--foreground) !important;
+}
+
+.earth-dark .bg-secondary,
+.earth-dark .secondary,
+.earth-dark .muted,
+.earth-dark .bg-muted {
+  background: linear-gradient(135deg, var(--secondary) 80%, var(--accent) 100%) !important;
+  color: var(--secondary-foreground) !important;
+}
+
+.earth-dark .status-message.success {
+  background: linear-gradient(90deg, #ffb74d 60%, #ff9800 100%) !important;
+  color: #2d2217 !important;
+}
+.earth-dark .status-message.error {
+  background: linear-gradient(90deg, #d84315 60%, #8d6748 100%) !important;
+  color: #fff3e0 !important;
+}
+.earth-dark .status-message.info {
+  background: linear-gradient(90deg, #a47551 60%, #ffb300 100%) !important;
+  color: #2d2217 !important;
+}
+
+.earth-dark input,
+.earth-dark textarea,
+.earth-dark select {
+  border: 1.5px solid var(--accent);
+  background: var(--input);
+  color: var(--foreground);
+  border-radius: 6px;
+  transition: border-color 0.2s;
+}
+.earth-dark input:focus,
+.earth-dark textarea:focus,
+.earth-dark select:focus {
+  border-color: var(--primary);
+  outline: 2px solid var(--primary);
+}
+
+.earth-dark h1, .earth-dark h2, .earth-dark h3, .earth-dark h4, .earth-dark h5 {
+  color: var(--primary);
+}
+
+.earth-dark a,
+.earth-dark a:visited,
+.earth-dark .button,
+.earth-dark .btn,
+.earth-dark button,
+.earth-dark input[type="button"],
+.earth-dark input[type="submit"] {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border: 1.5px solid var(--primary);
+  color: var(--primary);
+  background: transparent;
+  border-radius: 6px;
+  transition:
+    outline-color 0.2s,
+    border-color 0.2s,
+    background 0.2s,
+    color 0.2s;
+  box-shadow: 0 0 0 2px var(--primary), 0 2px 12px 0 rgba(120,72,0,0.15);
+}
+
+.earth-dark a:hover,
+.earth-dark .button:hover,
+.earth-dark .btn:hover,
+.earth-dark button:hover,
+.earth-dark input[type="button"]:hover,
+.earth-dark input[type="submit"]:hover,
+.earth-dark a:focus,
+.earth-dark .button:focus,
+.earth-dark .btn:focus,
+.earth-dark button:focus,
+.earth-dark input[type="button"]:focus,
+.earth-dark input[type="submit"]:focus {
+  outline: 2.5px solid var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent), 0 4px 24px 0 rgba(255,179,0,0.25);
+}
+
+.earth-dark * {
+  background-color: transparent !important;
+  color: var(--foreground) !important;
+}

@@ -1,0 +1,23 @@
+/* Login-specific styles that work with the login theme */
+.login-card {
+  background: var(--login-background);
+  box-shadow: var(--login-card-shadow);
+  border-radius: 1rem;
+}
+
+.login-input {
+  background: var(--login-input-background);
+  border: 1px solid var(--border);
+}
+
+.login-button {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  transition: all 0.2s ease;
+}
+
+.login-button:hover {
+  background: var(--login-button-hover);
+}
+
+/* Remove any !important overrides as they're no longer needed */

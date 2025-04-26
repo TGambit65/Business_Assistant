@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844">
+  <rect width="390" height="844" fill="#f8fafc" />
+  <rect x="0" y="0" width="390" height="60" fill="#1e40af" />
+  <text x="20" y="38" font-family="Arial, sans-serif" font-size="20" fill="white">Compose</text>
+  <rect x="20" y="80" width="350" height="40" rx="4" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <text x="40" y="105" font-family="Arial, sans-serif" font-size="14" fill="#94a3b8">To:</text>
+  <rect x="20" y="130" width="350" height="40" rx="4" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <text x="40" y="155" font-family="Arial, sans-serif" font-size="14" fill="#94a3b8">Subject:</text>
+  <rect x="20" y="180" width="350" height="400" rx="4" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <text x="40" y="205" font-family="Arial, sans-serif" font-size="14" fill="#94a3b8">Write your message...</text>
+  <rect x="20" y="600" width="170" height="40" rx="4" fill="#1e40af" />
+  <text x="80" y="625" font-family="Arial, sans-serif" font-size="14" fill="white">Send</text>
+  <rect x="200" y="600" width="170" height="40" rx="4" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <text x="255" y="625" font-family="Arial, sans-serif" font-size="14" fill="#334155">Save Draft</text>
+</svg> 

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+  <!-- Background -->
+  <rect width="1280" height="800" fill="#f8fafc" />
+  
+  <!-- Left Sidebar -->
+  <rect x="0" y="0" width="240" height="800" fill="#f1f5f9" />
+  <text x="30" y="50" font-family="Arial, sans-serif" font-size="24" fill="#1e40af">Email Assistant</text>
+  
+  <!-- Sidebar Menu Items -->
+  <rect x="20" y="100" width="200" height="40" rx="4" fill="#1e40af" />
+  <text x="60" y="125" font-family="Arial, sans-serif" font-size="16" fill="white">Inbox</text>
+  <text x="180" y="125" font-family="Arial, sans-serif" font-size="16" fill="white">24</text>
+  
+  <rect x="20" y="150" width="200" height="40" rx="4" fill="#f1f5f9" />
+  <text x="60" y="175" font-family="Arial, sans-serif" font-size="16" fill="#334155">Drafts</text>
+  <text x="180" y="175" font-family="Arial, sans-serif" font-size="16" fill="#334155">3</text>
+  
+  <rect x="20" y="200" width="200" height="40" rx="4" fill="#f1f5f9" />
+  <text x="60" y="225" font-family="Arial, sans-serif" font-size="16" fill="#334155">Sent</text>
+  <text x="180" y="225" font-family="Arial, sans-serif" font-size="16" fill="#334155">12</text>
+  
+  <rect x="20" y="250" width="200" height="40" rx="4" fill="#f1f5f9" />
+  <text x="60" y="275" font-family="Arial, sans-serif" font-size="16" fill="#334155">Templates</text>
+  
+  <!-- Compose Button -->
+  <rect x="20" y="700" width="200" height="50" rx="25" fill="#1e40af" />
+  <text x="85" y="730" font-family="Arial, sans-serif" font-size="16" fill="white">Compose</text>
+  
+  <!-- Top Bar -->
+  <rect x="240" y="0" width="1040" height="60" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <text x="260" y="38" font-family="Arial, sans-serif" font-size="22" fill="#1e293b">Inbox</text>
+  
+  <!-- Search Bar -->
+  <rect x="740" y="10" width="300" height="40" rx="20" fill="#f1f5f9" />
+  <text x="760" y="35" font-family="Arial, sans-serif" font-size="14" fill="#94a3b8">Search emails...</text>
+  
+  <!-- Email List -->
+  <rect x="240" y="60" width="1040" height="740" fill="white" />
+  
+  <!-- Email Item 1 -->
+  <rect x="240" y="60" width="1040" height="80" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <text x="260" y="90" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#1e293b">Sarah Johnson</text>
+  <text x="260" y="115" font-family="Arial, sans-serif" font-size="14" fill="#64748b">Meeting agenda for tomorrow</text>
+  <text x="1200" y="90" font-family="Arial, sans-serif" font-size="14" fill="#94a3b8">10:30 AM</text>
+  
+  <!-- Email Item 2 -->
+  <rect x="240" y="140" width="1040" height="80" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <text x="260" y="170" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#1e293b">Mike Stevens</text>
+  <text x="260" y="195" font-family="Arial, sans-serif" font-size="14" fill="#64748b">Project update: Q2 progress report</text>
+  <text x="1200" y="170" font-family="Arial, sans-serif" font-size="14" fill="#94a3b8">Yesterday</text>
+  
+  <!-- Email Item 3 -->
+  <rect x="240" y="220" width="1040" height="80" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <text x="260" y="250" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#1e293b">Acme Corp</text>
+  <text x="260" y="275" font-family="Arial, sans-serif" font-size="14" fill="#64748b">Invoice #3829 - Payment received</text>
+  <text x="1200" y="250" font-family="Arial, sans-serif" font-size="14" fill="#94a3b8">Jul 2</text>
+  
+  <!-- More Email Items -->
+  <rect x="240" y="300" width="1040" height="80" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <rect x="240" y="380" width="1040" height="80" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <rect x="240" y="460" width="1040" height="80" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <rect x="240" y="540" width="1040" height="80" fill="white" stroke="#e2e8f0" stroke-width="1" />
+</svg> 

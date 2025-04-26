@@ -1,0 +1,36 @@
+# Dashboard Page Screenshot
+
+## Description
+- Top navigation bar with Business Assistant branding MUST be visable and on top
+- Business Assistant logo [placeholder] balogo.png
+- Search bar with magnifying glass icon
+- Profile icon with dropdown menu
+- Install App button in top right
+- AI Chat Assistant button in top right
+- Settings button in top right
+- Overview button in top right
+- Analytics button in top right
+- View dropdown menu with Overview and Analytics options
+- User profile picture
+- User name
+- User email
+- Notifications button with number indicator (3)
+- Dark mode toggle in top right
+- Left sidebar with navigation options (Templates, Signatures, Analytics)
+- Main content area with "Urgent Actions" section cards should have quick action buttons (Schedule, Add Task, call *mobile*, and any other deemed appropriate)
+- Email preview cards with priority indicators (high, medium) and analyze data button
+- Online status indicator at bottom
+- AI Chat Assistant button in top right
+
+## UI Issues
+- Default theme is light theme unless dark mode is selected and saved in database
+- Top navigation bar lacks clear structure and hierarchy
+- Main navigation elements (sidebar) have minimal visual styling and are transparent MUST be visible and on top
+- Limited visual distinction between different priority levels
+- Missing dropdown to access overview and analytics (as mentioned in requirements)
+- Icons appear small and lack visual impact
+- Dark theme implementation creates visibility challenges in some areas and should be earth tones in colors
+- Light theme implementation creates visibility challenges in some areas and should be white background in color
+- "Install App" button placement seems inconsistent
+- Limited use of color to create visual hierarchy and differentiate between different priority levels
+- "Install App" button placement seems inconsistent and could be improved

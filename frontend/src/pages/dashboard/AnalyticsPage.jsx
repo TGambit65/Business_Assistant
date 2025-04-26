@@ -1,8 +1,8 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'; // Removed unused Tabs components
 import EmailAnalytics from '../../components/dashboard/EmailAnalytics';
-import { CalendarDays, Users, Clock, BarChart3, Sparkles, MousePointerSquare, Mail, Zap } from 'lucide-react';
+import { CalendarDays, Users, Clock, /* BarChart3, */ Sparkles, MousePointerSquare, Mail, Zap } from 'lucide-react'; // Removed unused BarChart3
 
 const statCards = [
   {
@@ -122,7 +122,7 @@ export default function AnalyticsPage() {
                   {bestSubjectLines.map((item, index) => (
                     <tr 
                       key={index} 
-                      className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      className="border-b dark:border-gray-700 hover:bg-muted dark:hover:bg-gray-800"
                     >
                       <td className="py-3 px-2">{item.subject}</td>
                       <td className="text-center py-3 px-2">

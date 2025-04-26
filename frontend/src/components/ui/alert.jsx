@@ -1,53 +1,57 @@
-import * as React from "react"
-import { cva } from "class-variance-authority"
-import { cn } from "../../lib/utils"
+import React from 'react';
+import { cn } from '../../lib/utils';
 
-const alertVariants = cva(
-  "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground",
-  {
-    variants: {
-      variant: {
-        default: "bg-background text-foreground",
-        destructive:
-          "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
-        success:
-          "border-green-500/50 text-green-700 dark:text-green-400 [&>svg]:text-green-500",
-        warning:
-          "border-yellow-500/50 text-yellow-700 dark:text-yellow-400 [&>svg]:text-yellow-500",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-)
+/**
+ * Alert container component for displaying important messages
+ */
+export function Alert({
+  className,
+  variant = "default",
+  ...props
+}) {
+  return (
+    <div
+      role="alert"
+      className={cn(
+        "relative w-full rounded-lg border p-4",
+        variant === "default" && "bg-background text-foreground",
+        variant === "destructive" && "border-destructive/50 text-destructive dark:border-destructive",
+        className
+      )}
+      {...props}
+    />
+  );
+}
 
-const Alert = React.forwardRef(({ className, variant, ...props }, ref) => (
-  <div
-    ref={ref}
-    role="alert"
-    className={cn(alertVariants({ variant }), className)}
-    {...props}
-  />
-))
-Alert.displayName = "Alert"
+/**
+ * Alert title component for alert headings
+ */
+export function AlertTitle({
+  className,
+  children, // Explicitly accept children
+  ...props
+}) {
+  return (
+    <h5
+      className={cn("mb-1 font-medium leading-none tracking-tight", className)}
+      {...props}
+    >
+      {children} {/* Render children inside the heading */}
+    </h5>
+  );
+}
 
-const AlertTitle = React.forwardRef(({ className, ...props }, ref) => (
-  <h5
-    ref={ref}
-    className={cn("mb-1 font-medium leading-none tracking-tight", className)}
-    {...props}
-  />
-))
-AlertTitle.displayName = "AlertTitle"
-
-const AlertDescription = React.forwardRef(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("text-sm [&_p]:leading-relaxed", className)}
-    {...props}
-  />
-))
-AlertDescription.displayName = "AlertDescription"
-
-export { Alert, AlertTitle, AlertDescription } 
+/**
+ * Alert description component for alert content
+ */
+export function AlertDescription({
+  className,
+  ...props
+}) {
+  return (
+    <div
+      className={cn("text-sm", className)}
+      {...props}
+    />
+  );
+} 

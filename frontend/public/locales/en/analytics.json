@@ -1,0 +1,87 @@
+{
+  "analytics": {
+    "title": "Authentication Analytics",
+    "description": "Monitor authentication patterns and security events",
+    "select_time_range": "Select time range",
+    "refresh": "Refresh data",
+    "export": "Export data",
+    "time_ranges": {
+      "24h": "Last 24 hours",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days",
+      "custom": "Custom range"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "security": "Security",
+      "events": "Events"
+    },
+    "login_attempts": {
+      "title": "Login Attempts",
+      "description": "Number of login attempts over time",
+      "total": "Total Attempts",
+      "success": "Successful",
+      "failure": "Failed"
+    },
+    "auth_methods": {
+      "title": "Authentication Methods",
+      "description": "Distribution of authentication methods used"
+    },
+    "mfa_usage": {
+      "title": "MFA Usage",
+      "description": "Percentage of users with MFA enabled"
+    },
+    "device_types": {
+      "title": "Device Types",
+      "description": "Distribution of device types used for login",
+      "usage": "Usage"
+    },
+    "summary": {
+      "title": "Summary",
+      "description": "Key authentication metrics",
+      "total_logins": "Total Logins",
+      "success_rate": "Success Rate",
+      "mfa_usage": "MFA Usage",
+      "security_events": "Security Events"
+    },
+    "security_events": {
+      "title": "Security Events",
+      "description": "Security-related events over time",
+      "suspicious": "Suspicious Activity",
+      "brute_force": "Brute Force Attempts",
+      "new_device": "New Devices"
+    },
+    "security_summary": {
+      "title": "Security Summary",
+      "description": "Overview of security events and status",
+      "suspicious_activity": "Suspicious Activity",
+      "events_detected": "events detected",
+      "brute_force": "Brute Force Attacks",
+      "attempts_blocked": "attempts blocked",
+      "new_devices": "New Devices",
+      "devices_registered": "new devices registered",
+      "mfa_protection": "MFA Protection",
+      "accounts_protected": "of accounts protected",
+      "view_security_report": "View Full Security Report"
+    },
+    "security_recommendations": {
+      "title": "Security Recommendations",
+      "description": "Suggestions to improve your security posture",
+      "increase_mfa": "Increase MFA Adoption",
+      "increase_mfa_description": "Only 45% of your users have MFA enabled. Consider making MFA mandatory for all users.",
+      "review_devices": "Review Trusted Devices",
+      "review_devices_description": "There are 45 trusted devices registered. Review and remove any that are no longer in use.",
+      "enable_biometric": "Enable Biometric Authentication",
+      "enable_biometric_description": "Biometric authentication provides an additional layer of security with better user experience.",
+      "learn_more": "Learn more",
+      "view_devices": "View devices",
+      "setup_now": "Set up now"
+    },
+    "recent_events": {
+      "title": "Recent Authentication Events",
+      "description": "Latest authentication and security events",
+      "view_all_events": "View All Events"
+    }
+  }
+}

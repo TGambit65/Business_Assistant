@@ -1,47 +1,67 @@
-import * as React from "react";
-import * as TabsPrimitive from "@radix-ui/react-tabs";
-import { cn } from "../../lib/utils";
+import React from 'react';
+import { cn } from '../../lib/utils';
 
-const Tabs = TabsPrimitive.Root;
+/**
+ * Tabs container component
+ */
+export function Tabs({ className, ...props }) {
+  return (
+    <div className={cn("data-[orientation=vertical]:flex-col", className)} {...props} />
+  );
+}
 
-const TabsList = React.forwardRef(({ className, ...props }, ref) => (
-  <TabsPrimitive.List
-    ref={ref}
-    className={cn(
-      "inline-flex h-10 items-center justify-center rounded-md bg-gray-100 p-1 text-gray-500 dark:bg-gray-800 dark:text-gray-400",
-      className
-    )}
-    {...props}
-  />
-));
-TabsList.displayName = TabsPrimitive.List.displayName;
+/**
+ * Tabs list component that contains the tab triggers
+ */
+export function TabsList({ className, ...props }) {
+  return (
+    <div
+      role="tablist"
+      className={cn(
+        "inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
+        className
+      )}
+      {...props}
+    />
+  );
+}
 
-const TabsTrigger = React.forwardRef(({ className, ...props }, ref) => (
-  <TabsPrimitive.Trigger
-    ref={ref}
-    className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm dark:ring-offset-gray-950 dark:focus-visible:ring-gray-800 dark:data-[state=active]:bg-gray-950 dark:data-[state=active]:text-gray-50",
-      className
-    )}
-    {...props}
-  />
-));
-TabsTrigger.displayName = TabsPrimitive.Trigger.displayName;
+/**
+ * Tab trigger component that activates a tab when clicked
+ */
+export function TabsTrigger({ className, ...props }) {
+  return (
+    <button
+      role="tab"
+      className={cn(
+        "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
+        className
+      )}
+      {...props}
+    />
+  );
+}
 
-const TabsContent = React.forwardRef(({ className, ...props }, ref) => (
-  <TabsPrimitive.Content
-    ref={ref}
-    className={cn(
-      "mt-2 ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 dark:ring-offset-gray-950 dark:focus-visible:ring-gray-800",
-      className
-    )}
-    {...props}
-  />
-));
-TabsContent.displayName = TabsPrimitive.Content.displayName;
+/**
+ * Tab content component that displays content when its trigger is active
+ */
+export function TabsContent({ className, ...props }) {
+  return (
+    <div
+      role="tabpanel"
+      className={cn(
+        "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        className
+      )}
+      {...props}
+    />
+  );
+}
 
-// Add compatible Tab component for backward compatibility
-const Tab = React.forwardRef(({ className, ...props }, ref) => (
+/**
+ * Tab component for backward compatibility with existing code
+ */
+export const Tab = React.forwardRef(({ className, ...props }, ref) => (
   <TabsTrigger
     ref={ref}
     className={cn(
@@ -53,8 +73,10 @@ const Tab = React.forwardRef(({ className, ...props }, ref) => (
 ));
 Tab.displayName = "Tab";
 
-// Add compatible TabPanel component for backward compatibility
-const TabPanel = React.forwardRef(({ className, ...props }, ref) => (
+/**
+ * TabPanel component for backward compatibility with existing code
+ */
+export const TabPanel = React.forwardRef(({ className, ...props }, ref) => (
   <TabsContent
     ref={ref}
     className={cn(
@@ -64,6 +86,4 @@ const TabPanel = React.forwardRef(({ className, ...props }, ref) => (
     {...props}
   />
 ));
-TabPanel.displayName = "TabPanel";
-
-export { Tabs, TabsList, TabsTrigger, TabsContent, Tab, TabPanel }; 
+TabPanel.displayName = "TabPanel"; 

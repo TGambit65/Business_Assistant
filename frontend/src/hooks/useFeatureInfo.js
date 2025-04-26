@@ -241,31 +241,24 @@ const DEFAULT_FEATURES = {
 };
 
 /**
- * Hook for showing a feature info popup
+ * Hook to manage feature info modals state
  * @returns {Object} Functions and state for managing feature info popup
  */
 export const useFeatureInfo = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentFeature, setCurrentFeature] = useState(null);
 
-  /**
-   * Show the feature info modal for a specific feature
-   * @param {string} featureKey - The key of the feature in DEFAULT_FEATURES
-   */
-  const showFeatureInfo = (featureKey) => {
-    if (DEFAULT_FEATURES[featureKey]) {
-      setCurrentFeature(DEFAULT_FEATURES[featureKey]);
-      setIsOpen(true);
-    } else {
-      console.warn(`Feature info for '${featureKey}' not found`);
-    }
+  const showFeatureInfo = (feature) => {
+    setCurrentFeature(feature);
+    setIsOpen(true);
   };
 
-  /**
-   * Close the feature info modal
-   */
   const closeFeatureInfo = () => {
     setIsOpen(false);
+    // Reset the current feature after closing animation completes
+    setTimeout(() => {
+      setCurrentFeature(null);
+    }, 300);
   };
 
   return {
@@ -274,4 +267,6 @@ export const useFeatureInfo = () => {
     showFeatureInfo,
     closeFeatureInfo
   };
-}; 
+};
+
+export default useFeatureInfo;

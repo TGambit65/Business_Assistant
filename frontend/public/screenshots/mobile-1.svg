@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844">
+  <rect width="390" height="844" fill="#f8fafc" />
+  <rect x="0" y="0" width="390" height="60" fill="#1e40af" />
+  <text x="20" y="38" font-family="Arial, sans-serif" font-size="20" fill="white">Email Assistant</text>
+  <rect x="20" y="80" width="350" height="120" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <text x="40" y="110" font-family="Arial, sans-serif" font-size="16" fill="#334155">Inbox</text>
+  <text x="340" y="110" font-family="Arial, sans-serif" font-size="14" fill="#64748b" text-anchor="end">12</text>
+  <rect x="20" y="220" width="350" height="120" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <text x="40" y="250" font-family="Arial, sans-serif" font-size="16" fill="#334155">Drafts</text>
+  <text x="340" y="250" font-family="Arial, sans-serif" font-size="14" fill="#64748b" text-anchor="end">3</text>
+  <rect x="20" y="360" width="350" height="120" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <text x="40" y="390" font-family="Arial, sans-serif" font-size="16" fill="#334155">Sent</text>
+  <text x="340" y="390" font-family="Arial, sans-serif" font-size="14" fill="#64748b" text-anchor="end">27</text>
+  <rect x="20" y="500" width="350" height="120" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" />
+  <text x="40" y="530" font-family="Arial, sans-serif" font-size="16" fill="#334155">Templates</text>
+  <text x="340" y="530" font-family="Arial, sans-serif" font-size="14" fill="#64748b" text-anchor="end">8</text>
+  <circle cx="335" cy="784" r="30" fill="#1e40af" />
+  <line x1="335" y1="774" x2="335" y2="794" stroke="white" stroke-width="2" />
+  <line x1="325" y1="784" x2="345" y2="784" stroke="white" stroke-width="2" />
+</svg> 

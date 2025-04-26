@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Direct Dashboard Access</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f8f9fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    
+    .container {
+      background-color: white;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 500px;
+    }
+    
+    h1 {
+      margin-top: 0;
+      color: #2563eb;
+    }
+    
+    p {
+      margin-bottom: 20px;
+    }
+    
+    .button {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-block;
+      text-decoration: none;
+      margin: 10px;
+    }
+    
+    .secondary {
+      background-color: #64748b;
+    }
+    
+    .button:hover {
+      opacity: 0.9;
+    }
+    
+    .status {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 4px;
+      display: none;
+    }
+    
+    .success {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+    
+    .error {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Direct Dashboard Access</h1>
+    <p>This page will set you as authenticated and take you directly to the dashboard.</p>
+    
+    <button id="access-dashboard" class="button">
+      Go to Dashboard
+    </button>
+    
+    <a href="/login" class="button secondary">
+      Return to Login
+    </a>
+    
+    <div id="status" class="status"></div>
+  </div>
+  
+  <script>
+    document.getElementById('access-dashboard').addEventListener('click', function() {
+      try {
+        // Set authentication in localStorage
+        localStorage.setItem('isAuthenticated', 'true');
+        
+        // Optional: Set a mock user
+        const mockUser = {
+          id: '123',
+          name: 'Test User',
+          email: 'test@example.com'
+        };
+        localStorage.setItem('user', JSON.stringify(mockUser));
+        
+        // Clear any potential redirect paths
+        sessionStorage.removeItem('redirectAfterLogin');
+        
+        // Show success message
+        const status = document.getElementById('status');
+        status.textContent = 'Authentication set! Redirecting to dashboard...';
+        status.className = 'status success';
+        status.style.display = 'block';
+        
+        // Redirect with timestamp to prevent caching
+        setTimeout(() => {
+          window.location.href = '/dashboard?ts=' + Date.now();
+        }, 1000);
+      } catch (error) {
+        // Show error message
+        const status = document.getElementById('status');
+        status.textContent = 'Error: ' + error.message;
+        status.className = 'status error';
+        status.style.display = 'block';
+      }
+    });
+    
+    // Auto-execute after 3 seconds if no interaction
+    setTimeout(function() {
+      document.getElementById('status').textContent = 'If the dashboard doesn\'t load properly, try direct access:';
+      document.getElementById('status').className = 'status';
+      document.getElementById('status').style.display = 'block';
+      
+      // Add direct link option
+      const directLink = document.createElement('a');
+      directLink.href = '/direct-dashboard';
+      directLink.textContent = 'Access Dashboard Directly (Bypass Layout)';
+      directLink.className = 'button';
+      directLink.style.marginTop = '10px';
+      directLink.style.display = 'inline-block';
+      document.getElementById('status').appendChild(document.createElement('br'));
+      document.getElementById('status').appendChild(directLink);
+    }, 3000);
+  </script>
+</body>
+</html> 

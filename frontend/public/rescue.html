@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Assistant Emergency Reset</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .container {
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      color: #d32f2f;
+      margin-top: 0;
+    }
+    
+    .alert {
+      background-color: #fff8e1;
+      border-left: 4px solid #ffc107;
+      padding: 12px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+    }
+    
+    button {
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    
+    button.danger {
+      background-color: #f44336;
+    }
+    
+    button:hover {
+      opacity: 0.9;
+    }
+    
+    .success {
+      background-color: #e8f5e9;
+      border-left: 4px solid #4caf50;
+      padding: 12px;
+      margin-top: 20px;
+      border-radius: 4px;
+      display: none;
+    }
+    
+    .actions {
+      margin-top: 20px;
+    }
+    
+    code {
+      background-color: #f1f1f1;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-family: Consolas, Monaco, 'Andale Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Email Assistant Emergency Reset</h1>
+    
+    <div class="alert">
+      <strong>Warning:</strong> This page will reset your application state to resolve stuck login issues or infinite redirect loops. You will need to log in again after using these tools.
+    </div>
+    
+    <h2>What happened?</h2>
+    <p>
+      The application may be stuck in a navigation loop between pages or experiencing a resource constraint issue. This can happen due to:
+    </p>
+    <ul>
+      <li>Conflicting authentication state</li>
+      <li>Navigation errors</li>
+      <li>Browser resource limitations</li>
+      <li>Storage inconsistencies</li>
+    </ul>
+    
+    <h2>Fix Options</h2>
+    <div class="actions">
+      <button id="reset-auth" onclick="resetAuth()">
+        Reset Authentication
+      </button>
+      
+      <button id="clear-storage" onclick="clearStorage()">
+        Clear All Storage
+      </button>
+      
+      <button id="restart-app" class="danger" onclick="restartApp()">
+        Complete Reset & Restart
+      </button>
+      
+      <a href="/force-dashboard.html" style="
+        display: inline-block;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+      ">
+        Force Dashboard Access
+      </a>
+    </div>
+    
+    <div id="success-message" class="success">
+      <strong>Success!</strong> <span id="action-message"></span>
+    </div>
+    
+    <h2>Manual Fix</h2>
+    <p>
+      If the buttons above don't work, you can try these steps manually:
+    </p>
+    <ol>
+      <li>Open your browser's developer tools (F12 or Ctrl+Shift+I)</li>
+      <li>Go to the Application tab</li>
+      <li>Select "Local Storage" and "Session Storage" on the left</li>
+      <li>Clear all items</li>
+      <li>Navigate to <a href="/login">/login</a> to start over</li>
+    </ol>
+  </div>
+  
+  <script>
+    function resetAuth() {
+      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('user');
+      sessionStorage.removeItem('redirectAfterLogin');
+      
+      showSuccess('Authentication data has been reset. <a href="/login">Click here</a> to return to the login page.');
+    }
+    
+    function clearStorage() {
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      showSuccess('All storage has been cleared. <a href="/login">Click here</a> to return to the login page.');
+    }
+    
+    function restartApp() {
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Clear cache for this domain (doesn't work in all browsers)
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          names.forEach(function(name) {
+            caches.delete(name);
+          });
+        });
+      }
+      
+      // Redirect with cache-busting parameter
+      window.location.href = '/login?reset=' + Date.now();
+    }
+    
+    function showSuccess(message) {
+      const successElement = document.getElementById('success-message');
+      const messageElement = document.getElementById('action-message');
+      
+      messageElement.innerHTML = message;
+      successElement.style.display = 'block';
+      
+      // Scroll to show the message
+      successElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html> 

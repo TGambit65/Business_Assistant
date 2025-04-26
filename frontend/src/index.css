@@ -4,33 +4,33 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 100%; /* White */
+    --foreground: 215 28% 17%; /* neutral-800 (#1F2937) */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 215 28% 17%; /* neutral-800 (#1F2937) */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%; /* White */
+    --popover-foreground: 215 28% 17%; /* neutral-800 (#1F2937) */
 
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 217 91% 60%; /* brand-blue (#3B82F6) */
+    --primary-foreground: 210 40% 98%; /* neutral-50 (#F9FAFB) */
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 220 16% 95%; /* neutral-100 (#F3F4F6) */
+    --secondary-foreground: 215 28% 17%; /* neutral-800 (#1F2937) */
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 16% 95%; /* neutral-100 (#F3F4F6) */
+    --muted-foreground: 220 9% 46%; /* neutral-600 (#6B7280) */
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 220 16% 95%; /* neutral-100 (#F3F4F6) */
+    --accent-foreground: 217 91% 60%; /* brand-blue (#3B82F6) */
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%; /* status-red (#EF4444) */
+    --destructive-foreground: 210 40% 98%; /* neutral-50 (#F9FAFB) */
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 220 14% 91%; /* neutral-200 (#E5E7EB) */
+    --input: 220 14% 91%; /* neutral-200 (#E5E7EB) */
+    --ring: 217 91% 60%; /* brand-blue (#3B82F6) */
 
     --radius: 0.5rem;
 
@@ -42,33 +42,33 @@
   }
 
   .dark {
-    --background: 40 20% 60%;
-    --foreground: 210 40% 98%;
+    --background: 25 14% 26%; /* Darker, more neutral background */
+    --foreground: 210 40% 98%; /* Keep bright foreground */
 
-    --card: 20 20% 20%;
+    --card: 215 19% 27%; /* Darker card background for more contrast */
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 215 19% 27%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 40 92% 55%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 217 91% 60%; /* Brighter primary color */
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 215 19% 27%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 215 19% 27%;
+    --muted-foreground: 220 14% 91%; /* Brighter muted text for better readability */
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 215 19% 27%; /* Slightly brighter accent */
+    --accent-foreground: 217 91% 60%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 84.2% 60.2%; /* Brighter destructive for visibility */
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 220 9% 46%; /* More visible borders */
+    --input: 220 9% 46%; /* More visible input outlines */
+    --ring: 217 91% 60%; /* Brighter focus rings */
 
     /* Chart colors */
     --chart-1: 40 92% 55%;
@@ -76,14 +76,90 @@
     --chart-3: 140 60% 50%;
     --chart-4: 260 50% 60%;
   }
-}
 
-@layer base {
+  html {
+    /* Base font size for mobile devices */
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  /* Responsive typography - scale up for larger screens */
+  @media (min-width: 640px) {
+    html {
+      font-size: 16px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    html {
+      font-size: 16px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    html {
+      font-size: 17px;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    html {
+      font-size: 18px;
+    }
+  }
+
+  /* Responsive heading sizes */
+  h1 {
+    @apply text-2xl sm:text-3xl md:text-4xl leading-tight font-bold tracking-tight;
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    @apply text-xl sm:text-2xl md:text-3xl leading-tight font-semibold tracking-tight;
+    margin-bottom: 0.75rem;
+  }
+
+  h3 {
+    @apply text-lg sm:text-xl md:text-2xl leading-snug font-medium;
+    margin-bottom: 0.5rem;
+  }
+
+  h4 {
+    @apply text-base sm:text-lg md:text-xl leading-snug font-medium;
+    margin-bottom: 0.5rem;
+  }
+
+  p, li, a {
+    @apply text-sm sm:text-base leading-relaxed;
+    margin-bottom: 1rem;
+  }
+  
+  small {
+    @apply text-xs sm:text-sm;
+  }
+
+  /* Anchor tag touch targets */
+  a {
+    @apply inline-block;
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Improve form element sizing for touch */
+  input, select, textarea, button {
+    @apply h-12 px-4 py-2 text-base;
+    min-height: 44px;
+    min-width: 44px;
+  }
+
   * {
     @apply border-border;
   }
+  
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
@@ -214,16 +290,42 @@ body {
   }
   
   /* Form elements focus styles */
-  .form-input:focus, 
-  .form-select:focus, 
+  .form-input:focus,
+  .form-select:focus,
   .form-textarea:focus {
     @apply border-blue-500 ring-2 ring-blue-200 outline-none;
   }
   
-  .dark .form-input:focus, 
-  .dark .form-select:focus, 
+  .dark .form-input:focus,
+  .dark .form-select:focus,
   .dark .form-textarea:focus {
     @apply border-blue-400 ring-2 ring-blue-800 outline-none;
+  }
+  
+  /* Enhanced navigation & menu elements */
+  .main-nav-item {
+    @apply px-4 py-2 rounded-md transition-colors duration-150 ease-in-out;
+    @apply hover:bg-gray-100 hover:text-gray-900;
+    @apply dark:hover:bg-gray-800 dark:hover:text-white;
+    @apply font-medium;
+  }
+  
+  .main-nav-item.active {
+    @apply bg-blue-50 text-blue-700;
+    @apply dark:bg-blue-900 dark:text-blue-200;
+    @apply font-semibold;
+  }
+  
+  /* Custom Install App button */
+  .install-app-button {
+    @apply px-4 py-2 rounded-md text-white bg-blue-600;
+    @apply hover:bg-blue-700;
+    @apply dark:bg-blue-500 dark:hover:bg-blue-400;
+    @apply transition-colors duration-150 ease-in-out;
+    @apply font-medium text-sm;
+    @apply shadow-md;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+    @apply dark:focus:ring-blue-400 dark:focus:ring-offset-gray-900;
   }
 }
 
@@ -341,4 +443,283 @@ body {
 
 .public-DraftStyleDefault-block {
   margin: 0.5em 0;
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 640px) {
+  /* Improve touch targets for mobile */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Safe areas for notched devices */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* Prevent pull-to-refresh on iOS */
+  html, body {
+    overscroll-behavior-y: none;
+  }
+  
+  /* Better scrolling */
+  .smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
+/* Custom theme variables */
+:root[data-custom-theme="blue"] {
+  --primary: #1d4ed8;
+  --primary-foreground: #ffffff;
+  --secondary: #6b7280;
+  --accent: #1e40af;
+  --accent-hover: #1e3a8a;
+}
+
+:root[data-custom-theme="green"] {
+  --primary: #16a34a;
+  --primary-foreground: #ffffff;
+  --secondary: #6b7280;
+  --accent: #15803d;
+  --accent-hover: #166534;
+}
+
+:root[data-custom-theme="purple"] {
+  --primary: #8b5cf6;
+  --primary-foreground: #ffffff;
+  --secondary: #6b7280;
+  --accent: #7c3aed;
+  --accent-hover: #6d28d9;
+}
+
+/* Hide scrollbar for cleaner look on mobile */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Update notification styles */
+.update-notification {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  z-index: 9999;
+}
+
+.update-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.update-content p {
+  margin: 0;
+}
+
+#update-button {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.dark #update-button {
+  background-color: var(--primary);
+  color: black;
+}
+
+/* Reset and base styles */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body, h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd {
+  margin: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  line-height: 1.5;
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+img, picture, svg {
+  max-width: 100%;
+  display: block;
+}
+
+input, button, textarea, select {
+  font: inherit;
+}
+
+/* Remove default bullet points from lists */
+ul[class], ol[class] {
+  list-style: none;
+  padding: 0;
+}
+
+/* Anchor elements that don't have a class get default styles */
+a:not([class]) {
+  text-decoration-skip-ink: auto;
+  color: #4285f4;
+}
+
+/* Simple focus styles */
+a:focus, button:focus, input:focus, select:focus, textarea:focus {
+  outline: 2px solid #4285f4;
+  outline-offset: 1px;
+}
+
+/* Remove outline for mouse users, but keep it for keyboard */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Make code elements easy to read */
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  background-color: #f0f0f0;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+/* Root variables for theming */
+:root {
+  --color-primary: #4285f4;
+  --color-primary-dark: #356ac3;
+  --color-secondary: #f5f5f5;
+  --color-text: #333;
+  --color-text-light: #666;
+  --color-background: #f5f5f5;
+  --color-background-light: #fff;
+  --color-border: #ddd;
+  --color-success: #28a745;
+  --color-error: #dc3545;
+  --color-warning: #ffc107;
+  --color-info: #17a2b8;
+  --shadow-small: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-large: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --radius-small: 4px;
+  --radius-medium: 8px;
+  --radius-large: 12px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text: #f0f0f0;
+    --color-text-light: #ccc;
+    --color-background: #1a1a1a;
+    --color-background-light: #2a2a2a;
+    --color-border: #444;
+    --shadow-small: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-medium: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-large: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+  
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+  }
+  
+  code {
+    background-color: #333;
+  }
+}
+
+/* Utility classes */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Better accessibility for screen readers */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Add these z-index rules below the existing :root declarations */
+
+/* Z-index priority ordering for modals and overlays */
+.modal-container,
+[role="dialog"] {
+  z-index: 1000; /* Base z-index for modals */
+}
+
+.notification {
+  z-index: 1010; /* Notifications should be above modals */
+}
+
+.toast-container {
+  z-index: 1020; /* Toasts should be above notifications */
+}
+
+.overlay {
+  z-index: 990; /* Overlay slightly below modals */
+}
+
+/* Specific overlay for the Google Sign-in modal */
+.google-signin-overlay {
+  z-index: 1005; /* Higher than regular modals but below notifications */
 }

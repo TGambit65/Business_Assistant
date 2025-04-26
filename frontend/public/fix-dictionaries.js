@@ -133,7 +133,7 @@ function createMinimalDictionary() {
     'hello', 'world', 'test', 'dictionary', 'typo', 'javascript',
     'example', 'word', 'computer', 'program', 'spellcheck', 'correct',
     'incorrect', 'misspelled', 'language', 'english', 'text', 'editor',
-    'tinymce', 'plugin', 'browser', 'web', 'development', 'programming',
+    'draftjs', 'plugin', 'browser', 'web', 'development', 'programming',
     'the', 'quick', 'brown', 'fox', 'jumps', 'over', 'lazy', 'dog',
     'We', 'They', 'She', 'He', 'It', 'You', 'I', 'me', 'us', 'them', 'him', 'her',
     'apple', 'orange', 'banana', 'grape', 'fruit', 'vegetable', 'food', 'drink',
@@ -166,7 +166,7 @@ ${basicWords.join('\n')}`;
 // Function to export the custom dictionary
 function exportCustomDictionary() {
   try {
-    const stored = localStorage.getItem('tinymce_custom_dictionary');
+    const stored = localStorage.getItem('draftjs_custom_dictionary');
     if (!stored) {
       alert('No custom dictionary found. Add words to your dictionary first.');
       return;
@@ -240,7 +240,7 @@ function importCustomDictionary() {
         }
         
         // Save back to localStorage
-        localStorage.setItem('tinymce_custom_dictionary', JSON.stringify(customWords));
+        localStorage.setItem('draftjs_custom_dictionary', JSON.stringify(customWords));
         
         const status = document.createElement('div');
         status.innerHTML = `

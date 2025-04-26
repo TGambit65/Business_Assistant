@@ -2,18 +2,40 @@ import React, { createContext, useCallback, useContext, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '../components/ui/alert';
 import { X } from 'lucide-react';
 
-export const ToastContext = createContext({});
+// Define the type for the toast context
+interface ToastContextType {
+  showToast: (title: string, message: string, type?: string, duration?: number) => string;
+  success: (message: string, options?: { title?: string; duration?: number }) => string;
+  error: (message: string, options?: { title?: string; duration?: number }) => string;
+  warning: (message: string, options?: { title?: string; duration?: number }) => string;
+  info: (message: string, options?: { title?: string; duration?: number }) => string;
+  clearAll: () => void;
+  remove: (id: string) => void;
+}
 
-export function ToastProvider({ children }) {
-  const [toasts, setToasts] = useState([]);
+export const ToastContext = createContext<ToastContextType>({} as ToastContextType);
 
-  const removeToast = useCallback((id) => {
+interface Toast {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+}
+
+interface ToastProviderProps {
+  children: React.ReactNode;
+}
+
+export function ToastProvider({ children }: ToastProviderProps) {
+  const [toasts, setToasts] = useState<Toast[]>([]);
+
+  const removeToast = useCallback((id: string) => {
     setToasts((currentToasts) => currentToasts.filter((toast) => toast.id !== id));
   }, []);
 
-  const showToast = useCallback((title, message, type = 'default', duration = 5000) => {
-    const id = Math.random().toString(36).substr(2, 9);
-    
+  const showToast = useCallback((title: string, message: string, type: string = 'default', duration: number = 5000): string => {
+    const id = Math.random().toString(36).substring(2, 11);
+
     setToasts((currentToasts) => [...currentToasts, { id, title, message, type }]);
 
     if (duration > 0) {
@@ -25,19 +47,19 @@ export function ToastProvider({ children }) {
     return id;
   }, [removeToast]);
 
-  const success = useCallback((message, options = {}) => {
+  const success = useCallback((message: string, options: { title?: string; duration?: number } = {}) => {
     return showToast(options.title || 'Success', message, 'success', options.duration || 5000);
   }, [showToast]);
 
-  const error = useCallback((message, options = {}) => {
+  const error = useCallback((message: string, options: { title?: string; duration?: number } = {}) => {
     return showToast(options.title || 'Error', message, 'destructive', options.duration || 5000);
   }, [showToast]);
 
-  const warning = useCallback((message, options = {}) => {
+  const warning = useCallback((message: string, options: { title?: string; duration?: number } = {}) => {
     return showToast(options.title || 'Warning', message, 'warning', options.duration || 5000);
   }, [showToast]);
 
-  const info = useCallback((message, options = {}) => {
+  const info = useCallback((message: string, options: { title?: string; duration?: number } = {}) => {
     return showToast(options.title || 'Info', message, 'default', options.duration || 5000);
   }, [showToast]);
 
@@ -71,8 +93,8 @@ export function ToastProvider({ children }) {
             >
               <X className="h-4 w-4" />
             </button>
-            <AlertTitle>{toast.title}</AlertTitle>
-            <AlertDescription>{toast.message}</AlertDescription>
+            <AlertTitle className="text-sm font-medium">{toast.title}</AlertTitle>
+            <AlertDescription className="text-sm">{toast.message}</AlertDescription>
           </Alert>
         ))}
       </div>
@@ -86,4 +108,4 @@ export const useToast = () => {
     throw new Error('useToast must be used within a ToastProvider');
   }
   return context;
-}; 
+};

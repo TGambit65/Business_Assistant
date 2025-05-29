@@ -11,7 +11,7 @@ import { Sparkles, ArrowRight, ArrowLeft } from 'lucide-react';
 import BasicInfoForm from '../../components/email/draft/BasicInfoForm';
 import DetailsForm from '../../components/email/draft/DetailsForm';
 import DraftPreview from '../../components/email/draft/DraftPreview';
-import AIEmailAssistant from '../../components/email/AIEmailAssistant.jsx';
+import AIEmailAssistant from '../../components/email/AIEmailAssistant';
 
 /**
  * DraftGeneratorPageRefactored Component

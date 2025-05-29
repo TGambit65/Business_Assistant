@@ -32,7 +32,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslation } from 'react-i18next';
-import AIEmailAssistant from './AIEmailAssistant.jsx';
+import AIEmailAssistant from './AIEmailAssistant';
 import { 
   detectLanguageWithConfidence, 
   shouldSuggestTranslation, 

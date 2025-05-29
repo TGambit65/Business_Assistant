@@ -155,11 +155,11 @@ export const AnalyticsDashboard = lazy(
 
 // Email components
 export const AIEmailAssistant = lazy(
-  () => import('../components/email/AIEmailAssistant.jsx')
+  () => import('../components/email/AIEmailAssistant')
 );
 
 export const EmailEditor = lazy(
-  () => import('../components/email/EmailEditor.jsx')
+  () => import('../components/email/EmailEditor')
 );
 
 export const TemplateEditor = lazy(
@@ -197,7 +197,7 @@ export function preloadRelatedRoutes(currentPath: string) {
   } else if (currentPath.startsWith('/email')) {
     // Preload other email-related pages
     import('../pages/email/TemplatesPage');
-    import('../components/email/AIEmailAssistant.jsx');
+    import('../components/email/AIEmailAssistant');
   } else if (currentPath.startsWith('/settings')) {
     // Preload other settings pages
     import('../pages/settings/SecuritySettingsPage');

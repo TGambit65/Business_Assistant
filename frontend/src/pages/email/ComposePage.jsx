@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import EmailScheduler from '../../components/email/EmailScheduler';
 import EmailEditor from '../../components/email/EmailEditor.jsx';
-import AIEmailAssistant from '../../components/email/AIEmailAssistant';
+import AIEmailAssistant from '../../components/email/AIEmailAssistant.jsx';
 import TemplateSelectorButton from '../../components/email/TemplateSelectorButton';
 import useNavigateTo from '../../hooks/useNavigateTo';
 

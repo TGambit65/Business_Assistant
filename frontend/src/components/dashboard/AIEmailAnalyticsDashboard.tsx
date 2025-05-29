@@ -151,8 +151,8 @@ export const AIEmailAnalyticsDashboard: React.FC = () => {
         </div>
         <div className="flex gap-2">
           <DateRangePicker
-            value={dateRange}
-            onChange={setDateRange}
+            value={{ from: dateRange.start, to: dateRange.end }}
+            onChange={(range) => setDateRange({ start: range.from || new Date(), end: range.to || new Date() })}
             className="w-auto"
           />
           <Select value={selectedFeature} onValueChange={setSelectedFeature}>

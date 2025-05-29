@@ -83,11 +83,15 @@ export const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
           <div className="space-y-2">
             <Label>Date Range</Label>
             <DateRangePicker
-              value={filter.dateRange || {
-                start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-                end: new Date()
+              className="w-full"
+              value={{
+                from: filter.dateRange?.start || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+                to: filter.dateRange?.end || new Date()
               }}
-              onChange={handleDateRangeChange}
+              onChange={(range) => handleDateRangeChange({
+                start: range.from,
+                end: range.to
+              })}
             />
           </div>
 

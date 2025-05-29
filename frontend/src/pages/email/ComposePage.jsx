@@ -1,18 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom'; // Import useLocation
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input'; // Assuming Input from ui
 // import { Textarea } from '../../components/ui/textarea'; // Not used - EmailEditor is used for body
 import { Label } from '../../components/ui/label'; // Assuming Label from ui
 import { useToast } from '../../contexts/ToastContext';
+import { useAuth } from '../../contexts/AuthContext';
 import {
   Send, X, Paperclip, ChevronDown, Clock, Star,
   Save, Trash2, Maximize2, Minimize2,
-  Sparkles, BrainCircuit, Wand, Loader2 // Added Loader2
+  Sparkles, BrainCircuit, Wand, Loader2, FileText,
+  Edit, Reply
 } from 'lucide-react';
 import EmailScheduler from '../../components/email/EmailScheduler';
-import EmailEditor from '../../components/email/EmailEditor';
+import EmailEditor from '../../components/email/EmailEditor.jsx';
+import AIEmailAssistant from '../../components/email/AIEmailAssistant';
+import TemplateSelectorButton from '../../components/email/TemplateSelectorButton';
 import useNavigateTo from '../../hooks/useNavigateTo';
 
 // Reusable Dropdown Component (Keep as is)
@@ -43,6 +48,7 @@ const Dropdown = ({ trigger, children, isOpen, setIsOpen }) => {
 };
 
 export default function ComposePage() {
+  const { t } = useTranslation(['emails', 'common']);
   const { success, info, warning } = useToast();
   const navigate = useNavigate();
   const navigateTo = useNavigateTo();
@@ -50,9 +56,11 @@ export default function ComposePage() {
   const fileInputRef = useRef(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+  const { user } = useAuth();
+  const currentUserId = user?.uid || 'guest-user';
   const [showDraftsMenu, setShowDraftsMenu] = useState(false);
-  // const [showAIAssistant, setShowAIAssistant] = useState(false); // Assuming AI Assistant is separate component/logic
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [aiAssistantMode, setAIAssistantMode] = useState('compose');
   const [showScheduler, setShowScheduler] = useState(false);
   const [scheduledDate, setScheduledDate] = useState(null);
   const [savedDrafts, setSavedDrafts] = useState([
@@ -84,13 +92,6 @@ export default function ComposePage() {
     }
   }, [location.state, location.pathname, navigate]);
   // --- End Effect ---
-
-
-  // Sample templates (Keep for Template dropdown functionality)
-  const [templates] = useState([
-    { id: 1, name: 'Meeting Follow-up', category: 'Business', subject: 'Follow-up: {{meeting_name}} - Next Steps', body: `Hi {{recipient_name}},\n\nThank you for your time...`, favorite: true },
-    { id: 2, name: 'Thank You Note', category: 'Personal', subject: 'Thank You for {{event_or_gift}}', body: `Dear {{recipient_name}},\n\nI wanted to express my sincere thanks...`, favorite: false }
-  ]);
 
   // Handle form input changes
   const handleInputChange = (e) => {
@@ -129,10 +130,9 @@ export default function ComposePage() {
   };
 
   // Apply a template to the current email
-  const applyTemplate = (template) => {
-    setEmailData(prev => ({ ...prev, subject: template.subject, body: template.body }));
-    setShowTemplateSelector(false);
-    success(`Template "${template.name}" applied`);
+  const handleTemplateSelect = (templateData) => {
+    setEmailData(prev => ({ ...prev, subject: templateData.subject, body: templateData.content }));
+    success('Template applied successfully');
   };
 
   // Save draft
@@ -158,7 +158,7 @@ export default function ComposePage() {
   // Send email
   const sendEmail = () => {
     if (!emailData.to) { warning('Please specify at least one recipient'); return; }
-    
+
     setLoading(true);
     // Simulating API call
     setTimeout(() => {
@@ -173,7 +173,7 @@ export default function ComposePage() {
   const scheduleEmail = (date) => {
     if (!emailData.to) { warning('Please specify at least one recipient'); return; }
     if (!emailData.subject) { warning('Please add a subject for scheduled emails'); return; }
-    
+
     setScheduledDate(date);
     setShowScheduler(false);
     success(`Email scheduled for ${date.toLocaleString()}`);
@@ -185,7 +185,7 @@ export default function ComposePage() {
       navigate('/inbox');
       return;
     }
-    
+
     if (window.confirm('Are you sure you want to discard this draft?')) {
       navigate('/inbox');
     }
@@ -199,14 +199,25 @@ export default function ComposePage() {
   const toggleFullScreen = () => { setIsFullScreen(!isFullScreen); };
 
   // Trigger file input click
-  const triggerFileUpload = () => { if (fileInputRef.current) { fileInputRef.current.click(); } };
+  const triggerFileUpload = () => { if (fileInputRef.current) { fileInputRef.current.click(); } }
+
+  // AI Assistant handlers
+  const openAIAssistant = (mode) => {
+    setAIAssistantMode(mode);
+    setShowAIAssistant(true);
+  };
+
+  const handleApplyAIText = (text) => {
+    setEmailData(prev => ({ ...prev, body: text }));
+    success('AI-generated text applied to email');
+  };;
 
   return (
     <div className={`email-compose ${isFullScreen ? 'fixed inset-0 z-50 bg-background' : ''}`}>
       <Card className={`border shadow-sm ${isFullScreen ? 'rounded-none h-full' : 'mt-4'}`}>
         <CardHeader className="border-b p-3 bg-muted/30">
           <div className="flex justify-between items-center">
-            <CardTitle className="text-xl">Compose Email</CardTitle>
+            <CardTitle className="text-xl">{t('emails:compose.title')}</CardTitle>
             <div className="flex space-x-1">
               <Button variant="ghost" size="sm" onClick={toggleFullScreen} title={isFullScreen ? 'Exit fullscreen' : 'Enter fullscreen'}>
                 {isFullScreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
@@ -223,19 +234,19 @@ export default function ComposePage() {
             {/* Recipients */}
             <div className="space-y-4">
               <div className="grid grid-cols-[auto,1fr] gap-4 items-center">
-                <Label htmlFor="to" className="font-medium text-right w-14">To:</Label>
+                <Label htmlFor="to" className="font-medium text-right w-14">{t('emails:compose.to')}:</Label>
                 <Input
                   id="to"
                   name="to"
                   value={emailData.to}
                   onChange={handleInputChange}
-                  placeholder="recipient@example.com"
+                  placeholder={t('emails:compose.to_placeholder')}
                   className="flex-1"
                 />
               </div>
 
               <div className="grid grid-cols-[auto,1fr] gap-4 items-center">
-                <Label htmlFor="cc" className="font-medium text-right w-14">Cc:</Label>
+                <Label htmlFor="cc" className="font-medium text-right w-14">{t('emails:compose.cc')}:</Label>
                 <Input
                   id="cc"
                   name="cc"
@@ -247,7 +258,7 @@ export default function ComposePage() {
               </div>
 
               <div className="grid grid-cols-[auto,1fr] gap-4 items-center">
-                <Label htmlFor="bcc" className="font-medium text-right w-14">Bcc:</Label>
+                <Label htmlFor="bcc" className="font-medium text-right w-14">{t('emails:compose.bcc')}:</Label>
                 <Input
                   id="bcc"
                   name="bcc"
@@ -259,13 +270,13 @@ export default function ComposePage() {
               </div>
 
               <div className="grid grid-cols-[auto,1fr] gap-4 items-center">
-                <Label htmlFor="subject" className="font-medium text-right w-14">Subject:</Label>
+                <Label htmlFor="subject" className="font-medium text-right w-14">{t('emails:compose.subject')}:</Label>
                 <Input
                   id="subject"
                   name="subject"
                   value={emailData.subject}
                   onChange={handleInputChange}
-                  placeholder="Type subject here..."
+                  placeholder={t('emails:compose.subject_placeholder')}
                   className="flex-1"
                 />
               </div>
@@ -283,7 +294,7 @@ export default function ComposePage() {
             {/* Attachments */}
             {emailData.attachments.length > 0 && (
               <div className="border rounded-md p-3 bg-muted/20">
-                <h3 className="text-sm font-medium mb-2">Attachments ({emailData.attachments.length})</h3>
+                <h3 className="text-sm font-medium mb-2">{t('emails:compose.attachments')} ({emailData.attachments.length})</h3>
                 <div className="space-y-2">
                   {emailData.attachments.map((attachment) => (
                     <div key={attachment.id} className="flex items-center justify-between bg-background p-2 rounded-md">
@@ -296,9 +307,9 @@ export default function ComposePage() {
                           <p className="text-xs text-muted-foreground">{formatFileSize(attachment.size)}</p>
                         </div>
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => removeAttachment(attachment.id)}
                         className="h-7 w-7 p-0"
                       >
@@ -314,7 +325,7 @@ export default function ComposePage() {
             <div className="flex flex-wrap gap-2">
               <Button onClick={sendEmail} disabled={loading} className="flex items-center">
                 {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
-                Send
+                {t('emails:compose.send')}
               </Button>
 
               <input
@@ -324,10 +335,10 @@ export default function ComposePage() {
                 className="hidden"
                 multiple
               />
-              
+
               <Button variant="outline" onClick={triggerFileUpload} className="flex items-center">
                 <Paperclip className="h-4 w-4 mr-2" />
-                Attach
+                {t('emails:compose.attach')}
               </Button>
 
               {/* Drafts dropdown */}
@@ -346,13 +357,13 @@ export default function ComposePage() {
                   <Button variant="secondary" className="w-full mb-2" onClick={saveDraft}>
                     Save current draft
                   </Button>
-                  
+
                   <div className="text-sm font-medium mb-1 mt-3 text-muted-foreground">Saved Drafts</div>
-                  
+
                   {savedDrafts.length > 0 ? (
                     <div className="max-h-[200px] overflow-y-auto">
                       {savedDrafts.map((draft) => (
-                        <div 
+                        <div
                           key={draft.id}
                           className="p-2 hover:bg-muted rounded-sm cursor-pointer"
                           onClick={() => loadDraft(draft)}
@@ -371,45 +382,16 @@ export default function ComposePage() {
                 </div>
               </Dropdown>
 
-              {/* Template dropdown */}
-              <Dropdown
-                isOpen={showTemplateSelector}
-                setIsOpen={setShowTemplateSelector}
-                trigger={
-                  <Button variant="outline" className="flex items-center">
-                    <FileText className="h-4 w-4 mr-2" />
-                    Templates
-                    <ChevronDown className="h-4 w-4 ml-2" />
-                  </Button>
-                }
-              >
-                <div className="p-2">
-                  <div className="text-sm font-medium mb-1 text-muted-foreground">Templates</div>
-                  {templates.map(template => (
-                    <div 
-                      key={template.id}
-                      className="p-2 hover:bg-muted rounded-sm cursor-pointer flex items-center justify-between"
-                      onClick={() => applyTemplate(template)}
-                    >
-                      <div>
-                        <div className="font-medium text-sm">{template.name}</div>
-                        <div className="text-xs text-muted-foreground">{template.category}</div>
-                      </div>
-                      {template.favorite && <Star className="h-4 w-4 text-amber-500" />}
-                    </div>
-                  ))}
-                  <div className="mt-2 pt-2 border-t">
-                    <Button variant="ghost" size="sm" className="w-full text-primary justify-start">
-                      Manage templates...
-                    </Button>
-                  </div>
-                </div>
-              </Dropdown>
+              {/* Template selector */}
+              <TemplateSelectorButton
+                userId={currentUserId}
+                onTemplateSelect={handleTemplateSelect}
+              />
 
               {/* Schedule dropdown */}
-              <Button 
-                variant="outline" 
-                onClick={() => setShowScheduler(!showScheduler)} 
+              <Button
+                variant="outline"
+                onClick={() => setShowScheduler(!showScheduler)}
                 className="flex items-center relative"
               >
                 <Clock className="h-4 w-4 mr-2" />
@@ -428,33 +410,58 @@ export default function ComposePage() {
 
               {/* AI Assistant */}
               <Dropdown
-                isOpen={false} // Using direct navigation now
+                isOpen={false}
                 setIsOpen={() => {}}
                 trigger={
                   <Button variant="outline" className="flex items-center group">
                     <BrainCircuit className="h-4 w-4 mr-2 text-primary group-hover:animate-pulse" />
-                    AI Draft
+                    AI Assistant
                     <ChevronDown className="h-4 w-4 ml-2" />
                   </Button>
                 }
               >
                 <div className="p-2">
-                  <div className="text-sm font-medium mb-2 text-muted-foreground">AI Email Generation</div>
-                  <Button 
-                    variant="secondary" 
-                    className="w-full mb-2 justify-start" 
-                    onClick={handleNavigateToQuickDraft}
+                  <div className="text-sm font-medium mb-2 text-muted-foreground">AI Email Assistance</div>
+                  <Button
+                    variant="secondary"
+                    className="w-full mb-2 justify-start"
+                    onClick={() => openAIAssistant('compose')}
                   >
                     <Wand className="h-4 w-4 mr-2" />
-                    Quick Draft
+                    Compose New
                   </Button>
-                  <Button 
-                    variant="secondary" 
-                    className="w-full mb-2 justify-start" 
-                    onClick={handleNavigateToAdvancedDraft}
+                  <Button
+                    variant="secondary"
+                    className="w-full mb-2 justify-start"
+                    onClick={() => openAIAssistant('rewrite')}
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Rewrite Selected
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    className="w-full mb-2 justify-start"
+                    onClick={() => openAIAssistant('reply')}
+                  >
+                    <Reply className="h-4 w-4 mr-2" />
+                    Generate Reply
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    className="w-full mb-2 justify-start"
+                    onClick={() => openAIAssistant('summarize')}
+                  >
+                    {/* eslint-disable-next-line react/jsx-no-undef */}
+                    <FileText className="h-4 w-4 mr-2" />
+                    Summarize
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    className="w-full mb-2 justify-start"
+                    onClick={() => openAIAssistant('draft')}
                   >
                     <Sparkles className="h-4 w-4 mr-2" />
-                    Advanced Draft
+                    Full Draft
                   </Button>
                 </div>
               </Dropdown>
@@ -467,6 +474,20 @@ export default function ComposePage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* AI Email Assistant Modal */}
+      {showAIAssistant && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <AIEmailAssistant
+            onApplyText={handleApplyAIText}
+            onClose={() => setShowAIAssistant(false)}
+            currentContent={emailData.body}
+            selectedText=""
+            isReply={false}
+            mode={aiAssistantMode}
+          />
+        </div>
+      )}
     </div>
   );
 }

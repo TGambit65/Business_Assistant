@@ -9,7 +9,7 @@ import { useEnhancedAuth } from '../../auth';
 import { useToast } from '../../contexts/ToastContext';
 import { useFeatureInfo } from '../../hooks/useFeatureInfo';
 import GoogleSignInModal from '../../components/auth/GoogleSignInModal';
-import { Lock, Mail, AlertTriangle, Fingerprint, Globe, Eye, EyeOff } from 'lucide-react';
+import { Lock, Mail, AlertTriangle, Fingerprint, Globe, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { isDemoMode } from '../../utils/envUtils';
 import { useTheme } from '../../contexts/NewThemeContext';
 import { useTranslation } from 'react-i18next';
@@ -460,7 +460,7 @@ export default function LoginPage() {
                 <Checkbox
                   id="remember"
                   checked={rememberMe}
-                  onCheckedChange={(checked) => setRememberMe(checked)}
+                  onChange={(e) => setRememberMe(e.target.checked)}
                   disabled={isLoading}
                 />
                 <Label
@@ -478,6 +478,7 @@ export default function LoginPage() {
               >
                 {isLoading ? (
                   <>
+                    {/* eslint-disable-next-line react/jsx-no-undef */}
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     {t('buttons.signing_in')}
                   </>

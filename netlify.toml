@@ -11,6 +11,8 @@
   NETLIFY_SKIP_CACHE = "true"
   # Demo mode set to true to use mock data instead of real API
   REACT_APP_USE_DEMO_MODE = "true"
+  # Show more build output
+  CI = "false"
 
 # Cache settings for better performance
 [[headers]]

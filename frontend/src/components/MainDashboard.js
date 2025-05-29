@@ -10,7 +10,6 @@ import {
   Menu,
   X,
   Sparkles,
-  LayoutDashboard,
   BarChart2,
   ChevronDown,
   MessageSquare,
@@ -20,8 +19,7 @@ import {
   Zap,
   FileText,
   Edit3,
-  Eye,
-  PenTool
+  Clock
 } from "lucide-react";
 import RichTextEditor from "./RichTextEditor";
 import NotificationsDropdown from "./ui/NotificationsDropdown";
@@ -31,7 +29,7 @@ import { UrgentActionsPanel } from "./dashboard/UrgentActionsPanel";
 import SettingsPage from "./SettingsPage";
 import InstallPWAButton from "./InstallPWAButton";
 // Assuming these contexts exist and provide the necessary values/functions
-import { useAuth } from "../contexts/AuthContext";
+// import { useAuth } from "../contexts/AuthContext"; // Not used
 import { useTheme } from "../contexts/ThemeContext";
 import { useNavigate } from "react-router-dom";
 
@@ -61,16 +59,17 @@ const Button = ({ variant, size, className, onClick, children, ...props }) => (
 /**
  * Placeholder ScrollArea component
  */
-const ScrollArea = ({ className, children }) => (
-  <div className={`overflow-auto ${className}`}>{children}</div>
-);
+// ScrollArea component - not used
+// const ScrollArea = ({ className, children }) => (
+//   <div className={`overflow-auto ${className}`}>{children}</div>
+// );
 
-// Placeholder Dropdown components (replace with actual implementation if available)
-const DropdownMenu = ({ children }) => <div className="relative inline-block text-left">{children}</div>;
-const DropdownMenuTrigger = ({ children, asChild }) => React.cloneElement(children, { /* Add necessary props */ }); // Basic trigger
-const DropdownMenuContent = ({ children, className }) => <div className={`absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-card dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50 ${className}`}>{children}</div>;
-const DropdownMenuItem = ({ children, onSelect }) => <button onClick={onSelect} className="block w-full px-4 py-2 text-sm text-card-foreground dark:text-gray-200 hover:bg-accent dark:hover:bg-gray-700 text-left">{children}</button>;
-const DropdownMenuSeparator = () => <hr className="border-border dark:border-gray-700 my-1" />;
+// Placeholder Dropdown components - not used
+// const DropdownMenu = ({ children }) => <div className="relative inline-block text-left">{children}</div>;
+// const DropdownMenuTrigger = ({ children, asChild }) => React.cloneElement(children, { /* Add necessary props */ }); // Basic trigger
+// const DropdownMenuContent = ({ children, className }) => <div className={`absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-card dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50 ${className}`}>{children}</div>;
+// const DropdownMenuItem = ({ children, onSelect }) => <button onClick={onSelect} className="block w-full px-4 py-2 text-sm text-card-foreground dark:text-gray-200 hover:bg-accent dark:hover:bg-gray-700 text-left">{children}</button>;
+// const DropdownMenuSeparator = () => <hr className="border-border dark:border-gray-700 my-1" />;
 
 
 /* -------------------------------------------------------------------------- */
@@ -174,11 +173,15 @@ export default function MainDashboard() {
   const [showSettings, setShowSettings] = useState(false);
   const [selectedBox, setSelectedBox] = useState("all");
   const { theme, toggleTheme, setTheme } = useTheme(); // Use ThemeContext
-  const darkMode = theme === 'dark' || theme === 'earthDark';
+  // const darkMode = theme === 'dark' || theme === 'earthDark'; // Not used
   const [editingEmail, setEditingEmail] = useState(null);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  const [isAIChatCollapsed, setIsAIChatCollapsed] = useState(false);
+  const [mobileActiveTab, setMobileActiveTab] = useState('quick-access');
+  const [showUrgentAlert, setShowUrgentAlert] = useState(false);
+  const [hasSeenUrgentActions, setHasSeenUrgentActions] = useState(false);
   // const { user, logout } = useAuth(); // Get user info and logout function if needed
-  const [activeTab, setActiveTab] = useState('actions');
+  // const [activeTab, setActiveTab] = useState('actions'); // Not used
   const navigate = useNavigate();
 
   // Default categories/boxes
@@ -202,13 +205,13 @@ export default function MainDashboard() {
     { priority: "low", id: 4, subject: "Weekend Social Gathering", dateTimeReceived: "2025-03-09 05:00 PM", sender: "club@social.com", to: "members@social.com", cc: "", bcc: "", quickSummary: "Get together this weekend.", fullSummary: "Join us for a weekend social gathering at the downtown club. Expect great food, music, and company.", draft: "AI Draft (Sonnet 3.7) for Social Gathering: Lorem ipsum AI content...", category: "social", starred: false },
   ];
 
-  // Filter emails based on selected category
-  const filteredEmails =
-    selectedBox === "all"
-      ? sampleEmails
-      : sampleEmails.filter(
-          (email) => email.category === boxes.find(b => b.id === selectedBox)?.id // Match category ID
-        );
+  // Filter emails based on selected category - not used
+  // const filteredEmails =
+  //   selectedBox === "all"
+  //     ? sampleEmails
+  //     : sampleEmails.filter(
+  //         (email) => email.category === boxes.find(b => b.id === selectedBox)?.id // Match category ID
+  //       );
 
   // Toggle "important" star for a box
   const toggleImportant = (boxId) => {
@@ -378,12 +381,30 @@ export default function MainDashboard() {
     }
   };
 
+  // Check for urgent actions on mount
+  React.useEffect(() => {
+    const highPriorityActions = urgentActions.filter(action => action.priority === 'high');
+    if (highPriorityActions.length > 0 && !hasSeenUrgentActions) {
+      setShowUrgentAlert(true);
+    }
+  }, []);
+
+  // Handle viewing urgent actions
+  const handleViewUrgentActions = () => {
+    setHasSeenUrgentActions(true);
+    setShowUrgentAlert(false);
+    setMobileActiveTab('urgent-actions');
+  };
+
+  // Get count of high priority actions
+  const urgentCount = urgentActions.filter(action => action.priority === 'high').length;
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background">
       {/* Sidebar */}
       <div
         className={`
-          ${showMobileSidebar ? 'fixed inset-0 z-40 block w-full' : 'hidden'}
+          ${showMobileSidebar ? 'fixed inset-0 z-40 block w-full bg-gradient-to-b from-blue-700 to-blue-900 dark:from-gray-800 dark:to-gray-900' : 'hidden'}
           md:relative md:block md:w-72 lg:w-80 flex-shrink-0 bg-gradient-to-b from-blue-700 to-blue-900 dark:from-gray-800 dark:to-gray-900 text-white shadow-lg
         `}
         aria-label="Email Categories Sidebar"
@@ -546,8 +567,36 @@ export default function MainDashboard() {
       
         {/* Main content area */}
         <div className="p-4 md:p-6">
-          {/* Header with settings toggle */}
-          <div className="md:flex items-center justify-between mb-6 hidden">
+          {/* Mobile Header */}
+          <div className="flex items-center justify-between mb-6 md:hidden">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowMobileSidebar(true)}
+                className="p-2 rounded-lg hover:bg-accent"
+                aria-label="Open menu"
+              >
+                <Menu size={20} />
+              </button>
+              <div>
+                <h1 className="text-lg font-bold tracking-tight dark:text-white">
+                  Command Center
+                </h1>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <NotificationsDropdown />
+              <button
+                className="p-2 rounded-full hover:bg-accent dark:hover:bg-gray-700"
+                onClick={() => setShowSettings(!showSettings)}
+                aria-label="Settings"
+              >
+                <Settings size={20} />
+              </button>
+            </div>
+          </div>
+          
+          {/* Desktop Header */}
+          <div className="hidden md:flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold tracking-tight dark:text-white">
                 {boxes.find((b) => b.id === selectedBox)?.name || "All Emails"}
@@ -592,77 +641,240 @@ export default function MainDashboard() {
               onClose={() => setShowSettings(false)}
             />
           ) : (
-            /* Dashboard panels */
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Quick Access Panel */}
-              <div className="col-span-1">
-                <QuickAccessPanel 
-                  items={quickAccessItems}
-                  onEditItems={handleEditQuickAccess}
-                  onAddItem={handleAddQuickAccess}
-                  onRemoveItem={handleRemoveQuickAccess}
-                />
+            <>
+              {/* Mobile Tab Navigation - Only visible on mobile */}
+              <div className="xl:hidden sticky top-0 z-10 bg-background border-b border-gray-200 dark:border-gray-700 -mx-4 mb-4">
+                <div className="flex justify-around">
+                  <button
+                    onClick={() => setMobileActiveTab('quick-access')}
+                    className={`flex-1 py-3 px-4 text-sm font-medium transition-colors relative ${
+                      mobileActiveTab === 'quick-access' 
+                        ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' 
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                    }`}
+                  >
+                    <Calendar className="w-5 h-5 mx-auto mb-1" />
+                    Quick Access
+                  </button>
+                  
+                  <button
+                    onClick={() => setMobileActiveTab('urgent-actions')}
+                    className={`flex-1 py-3 px-4 text-sm font-medium transition-colors relative ${
+                      mobileActiveTab === 'urgent-actions' 
+                        ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' 
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                    }`}
+                  >
+                    <AlertCircle className="w-5 h-5 mx-auto mb-1" />
+                    Urgent Actions
+                    {urgentCount > 0 && (
+                      <span className="absolute top-2 right-1/2 translate-x-6 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {urgentCount}
+                      </span>
+                    )}
+                  </button>
+                  
+                  <button
+                    onClick={() => setMobileActiveTab('ai-chat')}
+                    className={`flex-1 py-3 px-4 text-sm font-medium transition-colors relative ${
+                      mobileActiveTab === 'ai-chat' 
+                        ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' 
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                    }`}
+                  >
+                    <Sparkles className="w-5 h-5 mx-auto mb-1" />
+                    AI Chat
+                  </button>
+                </div>
               </div>
 
-              {/* Urgent Actions Panel */}
-              <div className="col-span-1">
-                <UrgentActionsPanel
-                  actions={urgentActions}
-                  onActionClick={(action) => console.log('Action clicked:', action.title)}
-                  onSchedule={handleSchedule}
-                  onAddTask={handleAddTask}
-                  onRead={handleRead}
-                  onAnalyze={handleAnalyze}
-                />
-              </div>
+              {/* Mobile Single Panel View */}
+              <div className="xl:hidden">
+                {mobileActiveTab === 'quick-access' && (
+                  <QuickAccessPanel 
+                    items={quickAccessItems}
+                    onEditItems={handleEditQuickAccess}
+                    onAddItem={handleAddQuickAccess}
+                    onRemoveItem={handleRemoveQuickAccess}
+                  />
+                )}
 
-              {/* AI Chat Panel */}
-              <div className="col-span-1">
-                <div className="bg-background dark:bg-gray-800 rounded-lg shadow-sm h-[calc(100vh-13rem)] overflow-hidden flex flex-col">
-                  <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Sparkles className="w-5 h-5 mr-2 text-purple-500" />
-                      <h2 className="text-lg font-semibold">AI Chat Assistant</h2>
+                {mobileActiveTab === 'urgent-actions' && (
+                  <UrgentActionsPanel
+                    actions={urgentActions}
+                    onActionClick={(action) => console.log('Action clicked:', action.title)}
+                    onSchedule={handleSchedule}
+                    onAddTask={handleAddTask}
+                    onRead={handleRead}
+                    onAnalyze={handleAnalyze}
+                  />
+                )}
+
+                {mobileActiveTab === 'ai-chat' && (
+                  <div className="bg-background dark:bg-gray-800 rounded-lg shadow-sm h-[calc(100vh-20rem)] overflow-hidden flex flex-col">
+                    <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+                      <div className="flex items-center">
+                        <Sparkles className="w-5 h-5 mr-2 text-purple-500" />
+                        <h2 className="text-lg font-semibold">AI Chat Assistant</h2>
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-4 overflow-auto flex-grow">
-                    <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
-                      <Sparkles size={40} className="mb-2 text-purple-500 opacity-80" />
-                      <p className="mb-1 font-medium">AI Chat Assistant</p>
-                      <p className="text-sm max-w-xs">
-                        Ask me anything about email management, drafting responses, or organizing your inbox
-                      </p>
-                      <div className="mt-4 grid grid-cols-1 gap-2">
-                        <button className="text-left text-sm px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                          How can I write a professional email?
-                        </button>
-                        <button className="text-left text-sm px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                          Draft an email to reschedule a meeting
-                        </button>
-                        <button className="text-left text-sm px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                          Tips for managing email overload
+                    <div className="p-4 overflow-auto flex-grow">
+                      <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
+                        <Sparkles size={40} className="mb-2 text-purple-500 opacity-80" />
+                        <p className="mb-1 font-medium">AI Chat Assistant</p>
+                        <p className="text-sm max-w-xs">
+                          Ask me anything about email management, drafting responses, or organizing your inbox
+                        </p>
+                        <div className="mt-4 grid grid-cols-1 gap-2 w-full max-w-sm">
+                          <button className="text-left text-sm px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                            How can I write a professional email?
+                          </button>
+                          <button className="text-left text-sm px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                            Draft an email to reschedule a meeting
+                          </button>
+                          <button className="text-left text-sm px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                            Tips for managing email overload
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-4 border-t border-gray-100 dark:border-gray-700">
+                      <div className="flex">
+                        <input 
+                          type="text" 
+                          placeholder="Type a message..." 
+                          className="flex-grow p-2 border rounded-l-md focus:outline-none focus:ring-1 focus:ring-purple-400 dark:bg-gray-700 dark:border-gray-600 text-sm"
+                        />
+                        <button className="bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-r-md">
+                          <Edit3 className="h-5 w-5" />
                         </button>
                       </div>
                     </div>
                   </div>
-                  <div className="p-4 border-t border-gray-100 dark:border-gray-700">
-                    <div className="flex">
-                      <input 
-                        type="text" 
-                        placeholder="Type a message..." 
-                        className="flex-grow p-2 border rounded-l-md focus:outline-none focus:ring-1 focus:ring-purple-400 dark:bg-gray-700 dark:border-gray-600"
-                      />
-                      <button className="bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-r-md">
-                        <Edit3 className="h-5 w-5" />
-                      </button>
+                )}
+              </div>
+
+              {/* Desktop Grid View */}
+              <div className="hidden xl:grid xl:grid-cols-3 xl:gap-6">
+                {/* Quick Access Panel */}
+                <div className="w-full">
+                  <QuickAccessPanel 
+                    items={quickAccessItems}
+                    onEditItems={handleEditQuickAccess}
+                    onAddItem={handleAddQuickAccess}
+                    onRemoveItem={handleRemoveQuickAccess}
+                  />
+                </div>
+
+                {/* Urgent Actions Panel */}
+                <div className="w-full">
+                  <UrgentActionsPanel
+                    actions={urgentActions}
+                    onActionClick={(action) => console.log('Action clicked:', action.title)}
+                    onSchedule={handleSchedule}
+                    onAddTask={handleAddTask}
+                    onRead={handleRead}
+                    onAnalyze={handleAnalyze}
+                  />
+                </div>
+
+                {/* AI Chat Panel */}
+                <div className="w-full">
+                  <div className="bg-background dark:bg-gray-800 rounded-lg shadow-sm h-[calc(100vh-13rem)] overflow-hidden flex flex-col">
+                    <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Sparkles className="w-5 h-5 mr-2 text-purple-500" />
+                        <h2 className="text-lg font-semibold">AI Chat Assistant</h2>
+                      </div>
+                    </div>
+                    <div className="p-4 overflow-auto flex-grow">
+                      <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
+                        <Sparkles size={40} className="mb-2 text-purple-500 opacity-80" />
+                        <p className="mb-1 font-medium">AI Chat Assistant</p>
+                        <p className="text-sm max-w-xs">
+                          Ask me anything about email management, drafting responses, or organizing your inbox
+                        </p>
+                        <div className="mt-4 grid grid-cols-1 gap-2 w-full max-w-sm">
+                          <button className="text-left text-sm px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                            How can I write a professional email?
+                          </button>
+                          <button className="text-left text-sm px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                            Draft an email to reschedule a meeting
+                          </button>
+                          <button className="text-left text-sm px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                            Tips for managing email overload
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-4 border-t border-gray-100 dark:border-gray-700">
+                      <div className="flex">
+                        <input 
+                          type="text" 
+                          placeholder="Type a message..." 
+                          className="flex-grow p-2 border rounded-l-md focus:outline-none focus:ring-1 focus:ring-purple-400 dark:bg-gray-700 dark:border-gray-600 text-sm"
+                        />
+                        <button className="bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-r-md">
+                          <Edit3 className="h-5 w-5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </>
+          )
           )}
         </div>
       </div>
+
+      {/* Urgent Actions Alert Modal */}
+      {showUrgentAlert && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="flex items-center mb-4">
+              <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-full mr-4">
+                <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                  Urgent Actions Required
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  You have {urgentCount} high priority {urgentCount === 1 ? 'action' : 'actions'} waiting
+                </p>
+              </div>
+            </div>
+            
+            <div className="space-y-3 mb-6">
+              {urgentActions.filter(action => action.priority === 'high').slice(0, 3).map((action) => (
+                <div key={action.id} className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                  <h3 className="font-medium text-sm">{action.title}</h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{action.time}</p>
+                </div>
+              ))}
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={handleViewUrgentActions}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              >
+                View Actions
+              </button>
+              <button
+                onClick={() => {
+                  setShowUrgentAlert(false);
+                  setHasSeenUrgentActions(true);
+                }}
+                className="flex-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-medium py-2 px-4 rounded-lg transition-colors"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Email editing modal */}
       {editingEmail && (
@@ -680,6 +892,7 @@ export default function MainDashboard() {
 /*                          EMAIL CARD COMPONENT                              */
 /* -------------------------------------------------------------------------- */
 
+/* EmailCard component - not used
 function EmailCard({ email, setEditingEmail }) {
   // Determine priority styling
   const priorityStyles = {
@@ -742,7 +955,7 @@ function EmailCard({ email, setEditingEmail }) {
       </div>
     </div>
   );
-}
+} */
 
 /* -------------------------------------------------------------------------- */
 /*                         CATEGORY BOX COMPONENT                             */

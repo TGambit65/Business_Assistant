@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
-import { Button } from '../ui/Button';
+import { useTranslation } from 'react-i18next';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
 import { UrgentAction } from '../../types/dashboard';
-import { Calendar, CheckCircle, Clock, AlertCircle, Eye, FileText, Edit3 } from 'lucide-react';
+import { Calendar, CheckCircle, Clock, AlertCircle, Eye, FileText, Edit3, ChevronDown, ChevronUp } from 'lucide-react';
 import { getPriorityBadge, getPriorityClass } from '../../utils/dashboardUtils';
 
 interface UrgentActionsPanelProps {
@@ -22,8 +23,10 @@ export const UrgentActionsPanel: React.FC<UrgentActionsPanelProps> = ({
   onAnalyze,
   onRead,
 }) => {
+  const { t } = useTranslation(['dashboard', 'common']);
   const [activeTab, setActiveTab] = useState<'actions' | 'summaries'>('actions');
   const [actionSummaries, setActionSummaries] = useState<{[key: string]: string}>({});
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Generate mock summaries for actions
   const handleGenerateSummary = (action: UrgentAction) => {
@@ -44,32 +47,42 @@ export const UrgentActionsPanel: React.FC<UrgentActionsPanelProps> = ({
   return (
     <Card className="flex flex-col h-full">
       <CardHeader className="border-b p-4 flex-shrink-0">
-        <div className="flex justify-between items-center w-full">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center w-full gap-3 sm:gap-0">
           <CardTitle className="flex items-center text-lg font-semibold">
             <AlertCircle className="w-5 h-5 mr-2 text-red-500" />
-            Urgent Actions
+            {t('dashboard:urgent.title')}
           </CardTitle>
-          <div className="flex space-x-1">
+          <div className="flex space-x-1 w-full sm:w-auto">
+            {/* Mobile collapse button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 xl:hidden mr-2"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              aria-label={isCollapsed ? "Expand Urgent Actions" : "Collapse Urgent Actions"}
+            >
+              {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+            </Button>
             <Button
               variant={activeTab === 'actions' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setActiveTab('actions')}
-              className={activeTab === 'actions' ? 'bg-primary text-primary-foreground' : ''}
+              className={`flex-1 sm:flex-initial ${activeTab === 'actions' ? 'bg-primary text-primary-foreground' : ''}`}
             >
-              Actions
+              {t('dashboard:urgent.actions')}
             </Button>
             <Button
               variant={activeTab === 'summaries' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setActiveTab('summaries')}
-              className={activeTab === 'summaries' ? 'bg-primary text-primary-foreground' : ''}
+              className={`flex-1 sm:flex-initial ${activeTab === 'summaries' ? 'bg-primary text-primary-foreground' : ''}`}
             >
-              Summaries
+              {t('dashboard:urgent.summaries')}
             </Button>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-4 flex-grow overflow-auto">
+      <CardContent className={`p-4 flex-grow overflow-auto ${isCollapsed ? 'hidden xl:block' : ''}`}>
         {actions.length > 0 ? (
           <div className="space-y-3">
             {actions.map((action) => (
@@ -90,7 +103,7 @@ export const UrgentActionsPanel: React.FC<UrgentActionsPanelProps> = ({
                     </div>
                     {action.from && (
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        From: {action.from}
+                        {t('common.from')}: {action.from}
                       </p>
                     )}
                     <p className="text-sm text-gray-500 dark:text-gray-500 mb-1">
@@ -107,7 +120,7 @@ export const UrgentActionsPanel: React.FC<UrgentActionsPanelProps> = ({
                 </div>
 
                 {/* Action Buttons - Different colors for each action */}
-                <div className="flex flex-wrap gap-2 mt-3">
+                <div className="flex flex-wrap gap-2 mt-3 sm:gap-2">
                   {onSchedule && (
                     <Button
                       variant="secondary"
@@ -116,11 +129,12 @@ export const UrgentActionsPanel: React.FC<UrgentActionsPanelProps> = ({
                         e.stopPropagation();
                         onSchedule(action);
                       }}
-                      className="bg-blue-500 hover:bg-blue-600 text-white"
+                      className="bg-blue-500 hover:bg-blue-600 text-white min-w-[80px] flex-1 sm:flex-initial"
                       title="Schedule"
                     >
                       <Calendar className="h-4 w-4 mr-1" />
-                      <span>Schedule</span>
+                      <span className="hidden sm:inline">{t('dashboard:urgent.schedule')}</span>
+                      <span className="sm:hidden">Schedule</span>
                     </Button>
                   )}
                   
@@ -132,11 +146,12 @@ export const UrgentActionsPanel: React.FC<UrgentActionsPanelProps> = ({
                         e.stopPropagation();
                         onAddTask(action);
                       }}
-                      className="bg-green-500 hover:bg-green-600 text-white"
+                      className="bg-green-500 hover:bg-green-600 text-white min-w-[80px] flex-1 sm:flex-initial"
                       title="Add Task"
                     >
                       <CheckCircle className="h-4 w-4 mr-1" />
-                      <span>Add Task</span>
+                      <span className="hidden sm:inline">{t('dashboard:urgent.add_task')}</span>
+                      <span className="sm:hidden">Task</span>
                     </Button>
                   )}
                   
@@ -148,11 +163,12 @@ export const UrgentActionsPanel: React.FC<UrgentActionsPanelProps> = ({
                         e.stopPropagation();
                         onRead(action);
                       }}
-                      className="bg-purple-500 hover:bg-purple-600 text-white"
+                      className="bg-purple-500 hover:bg-purple-600 text-white min-w-[80px] flex-1 sm:flex-initial"
                       title="Read"
                     >
                       <Eye className="h-4 w-4 mr-1" />
-                      <span>Read</span>
+                      <span className="hidden sm:inline">{t('dashboard:urgent.read')}</span>
+                      <span className="sm:hidden">Read</span>
                     </Button>
                   )}
                   
@@ -164,11 +180,12 @@ export const UrgentActionsPanel: React.FC<UrgentActionsPanelProps> = ({
                         e.stopPropagation();
                         onAnalyze(action);
                       }}
-                      className="bg-amber-500 hover:bg-amber-600 text-white"
+                      className="bg-amber-500 hover:bg-amber-600 text-white min-w-[80px] flex-1 sm:flex-initial"
                       title="Analyze"
                     >
                       <FileText className="h-4 w-4 mr-1" />
-                      <span>Analyze</span>
+                      <span className="hidden sm:inline">{t('dashboard:urgent.analyze')}</span>
+                      <span className="sm:hidden">Analyze</span>
                     </Button>
                   )}
                   
@@ -181,11 +198,12 @@ export const UrgentActionsPanel: React.FC<UrgentActionsPanelProps> = ({
                         handleGenerateSummary(action);
                         setActiveTab('summaries');
                       }}
-                      className="ml-auto"
+                      className="ml-auto min-w-[80px] flex-1 sm:flex-initial sm:ml-auto"
                       title="Generate Summary"
                     >
                       <Edit3 className="h-4 w-4 mr-1" />
-                      <span>Summary</span>
+                      <span className="hidden sm:inline">{t('dashboard:urgent.summary')}</span>
+                      <span className="sm:hidden">Summary</span>
                     </Button>
                   )}
                 </div>
@@ -196,10 +214,10 @@ export const UrgentActionsPanel: React.FC<UrgentActionsPanelProps> = ({
           <div className="flex flex-col items-center justify-center p-6 text-center">
             <CheckCircle className="h-14 w-14 text-green-500 mb-3" />
             <p className="text-gray-600 dark:text-gray-400 font-medium">
-              No urgent actions at the moment!
+              {t('dashboard:urgent.no_actions')}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
-              Everything is under control
+              {t('dashboard:urgent.all_clear')}
             </p>
           </div>
         )}

@@ -1,8 +1,8 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
-import { Button } from '../ui/Button';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
 import { QuickAccessItem } from '../../types/dashboard';
-import { Edit3, Plus, Trash2 } from 'lucide-react';
+import { Edit3, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface QuickAccessPanelProps {
   items: QuickAccessItem[];
@@ -17,6 +17,8 @@ export const QuickAccessPanel: React.FC<QuickAccessPanelProps> = ({
   onEditItems,
   onRemoveItem,
 }) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   return (
     <Card className="flex flex-col h-full">
       <CardHeader className="flex-shrink-0 border-b p-4">
@@ -25,13 +27,23 @@ export const QuickAccessPanel: React.FC<QuickAccessPanelProps> = ({
             Quick Access
           </CardTitle>
           <div className="flex gap-1">
+            {/* Mobile collapse button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 xl:hidden"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              aria-label={isCollapsed ? "Expand Quick Access" : "Collapse Quick Access"}
+            >
+              {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+            </Button>
             {onEditItems && (
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8"
                 onClick={onEditItems}
-                title="Edit Quick Access"
+                aria-label="Edit Quick Access"
               >
                 <Edit3 className="h-4 w-4" />
               </Button>
@@ -39,7 +51,7 @@ export const QuickAccessPanel: React.FC<QuickAccessPanelProps> = ({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="flex-grow p-4 overflow-auto">
+      <CardContent className={`flex-grow p-4 overflow-auto ${isCollapsed ? 'hidden xl:block' : ''}`}>
         {items.length > 0 ? (
           <div className="space-y-2">
             {items.map((item, index) => (
@@ -66,7 +78,7 @@ export const QuickAccessPanel: React.FC<QuickAccessPanelProps> = ({
                         e.stopPropagation();
                         onEditItems();
                       }}
-                      title="Edit"
+                      aria-label="Edit item"
                     >
                       <Edit3 className="h-3.5 w-3.5" />
                     </Button>
@@ -80,7 +92,7 @@ export const QuickAccessPanel: React.FC<QuickAccessPanelProps> = ({
                         e.stopPropagation();
                         onRemoveItem(index);
                       }}
-                      title="Remove"
+                      aria-label="Remove item"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>

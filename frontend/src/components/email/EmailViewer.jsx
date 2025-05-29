@@ -1,20 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  ArrowLeft, 
-  Star, 
-  Reply, 
-  // Forward,  // Removed unused import
-  Trash2, 
-  Archive, 
-  Printer, 
-  AlertCircle, 
-  Paperclip, 
+import {
+  ArrowLeft,
+  Star,
+  Reply,
+  Trash2,
+  Archive,
+  Printer,
+  AlertCircle,
+  Paperclip,
   CornerUpRight,
   Sparkles,
-  // PenTool, // Removed unused import
-  // Save, // Removed unused import
-  // Send, // Removed unused import
-  // FileText, // Removed unused import
   UserPlus,
   Calendar,
   Clock,
@@ -22,28 +17,33 @@ import {
   CheckSquare,
   Share2,
   Timer,
-  // FileQuestion, // Removed unused import
-  // MessageSquare, // Removed unused import
   BarChart,
-  // ExternalLink, // Removed unused import
   ShoppingCart,
-  // ThumbsUp, // Removed unused import
   ClipboardList,
   Layers,
-  // ChevronDown, // Removed unused import
   CheckCircle,
   Zap,
-  // X, // Removed unused import
-  // MoreHorizontal, // Removed unused import
-  Loader2
+  Loader2,
+  Languages,
+  Globe
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../contexts/ToastContext';
+import { useTranslation } from 'react-i18next';
+import AIEmailAssistant from './AIEmailAssistant.jsx';
+import { 
+  detectLanguageWithConfidence, 
+  shouldSuggestTranslation, 
+  getLanguageDisplayName,
+  isRTLLanguage 
+} from '../../utils/languageDetection';
+import { getCurrentLanguage } from '../../i18n';
+import { AIEmailService } from '../../services/AIEmailService';
 
-const EmailViewer = ({ 
-  email, 
+const EmailViewer = ({
+  email,
   onBack,
   onReply,
   onForward,
@@ -54,6 +54,7 @@ const EmailViewer = ({
   onGenerateDraft
 }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation(['emails', 'common']);
   const { success, info, /*error*/ } = useToast(); // Removed unused error
   const [emailSummary, setEmailSummary] = useState(email?.summary || null);
   const [generatingSummary, setGeneratingSummary] = useState(false);
@@ -62,25 +63,49 @@ const EmailViewer = ({
   const [openDropdown, setOpenDropdown] = useState(null);
   const dropdownRefs = useRef({});
   const [isGeneratingDraft, setIsGeneratingDraft] = useState(false);
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [aiAssistantMode, setAIAssistantMode] = useState('reply');
+  
+  // Language detection state
+  const [detectedLanguage, setDetectedLanguage] = useState(null);
+  const [showTranslationSuggestion, setShowTranslationSuggestion] = useState(false);
+  const [translatedContent, setTranslatedContent] = useState(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const aiEmailService = AIEmailService.getInstance();
+
+  // Language detection effect
+  useEffect(() => {
+    if (email?.body) {
+      const currentLanguage = getCurrentLanguage();
+      const detection = detectLanguageWithConfidence(email.body);
+      
+      setDetectedLanguage(detection);
+      
+      // Show translation suggestion if needed
+      if (shouldSuggestTranslation(email.body, currentLanguage)) {
+        setShowTranslationSuggestion(true);
+      }
+    }
+  }, [email?.body]);
 
   useEffect(() => {
     function handleClickOutside(event) {
       let clickedInsideDropdown = false;
-      
+
       Object.keys(dropdownRefs.current).forEach(key => {
         if (
-          dropdownRefs.current[key] && 
+          dropdownRefs.current[key] &&
           dropdownRefs.current[key].contains(event.target)
         ) {
           clickedInsideDropdown = true;
         }
       });
-      
+
       if (!clickedInsideDropdown) {
         setOpenDropdown(null);
       }
     }
-    
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -99,6 +124,34 @@ const EmailViewer = ({
       icon
     });
     setFeatureInfoModalOpen(true);
+  };
+
+  // Handle email translation
+  const handleTranslateEmail = async () => {
+    if (!email?.body || !detectedLanguage?.language) return;
+    
+    setIsTranslating(true);
+    try {
+      const currentLanguage = getCurrentLanguage();
+      const translated = await aiEmailService.translateContent(
+        email.body,
+        currentLanguage,
+        detectedLanguage.language
+      );
+      setTranslatedContent(translated);
+      setShowTranslationSuggestion(false);
+      success(t('emails:viewer.translation_success'));
+    } catch (error) {
+      console.error('Translation failed:', error);
+      info(t('emails:viewer.translation_failed'));
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  // Toggle between original and translated content
+  const toggleTranslation = () => {
+    setTranslatedContent(translatedContent ? null : true);
   };
 
   const handleSalesCRMFeature = (feature) => {
@@ -271,26 +324,41 @@ const EmailViewer = ({
 
   const handleGenerateDraft = () => {
     if (typeof onGenerateDraft === 'function') {
+      setIsGeneratingDraft(true);
       onGenerateDraft(email);
+      // Reset the state after a delay (in real implementation, this would be controlled by the parent component)
+      setTimeout(() => setIsGeneratingDraft(false), 2000);
       return;
     }
-    
+
+    // Open the AI assistant in reply mode
     setIsGeneratingDraft(true);
-    
-    setTimeout(() => {
-      setIsGeneratingDraft(false);
-      success("AI Draft Created", { 
-        description: "Your response draft has been generated successfully." 
-      });
-      info("Draft Ready", { 
-        description: "The AI-generated draft is now available in your reply box." 
-      });
-    }, 2000);
+    setAIAssistantMode('reply');
+    setShowAIAssistant(true);
+    // Reset when AI assistant is closed
+    setTimeout(() => setIsGeneratingDraft(false), 1000);
+  };
+
+  // Handle applying AI-generated text
+  const handleApplyAIText = (text) => {
+    setShowAIAssistant(false);
+    setIsGeneratingDraft(false); // Reset generating state
+    success("AI Draft Created", {
+      description: "Your response draft has been generated successfully."
+    });
+    info("Draft Ready", {
+      description: "The AI-generated draft is now available in your reply box."
+    });
+
+    // In a real implementation, this would apply the text to the reply editor
+    if (onReply) {
+      onReply(text);
+    }
   };
 
   const FeatureInfoModal = ({ isOpen, onClose, content }) => {
     if (!isOpen) return null;
-    
+
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
         <div className="bg-background dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
@@ -299,9 +367,9 @@ const EmailViewer = ({
               {content.icon}
               <h2 className="text-xl font-bold ml-3 text-foreground dark:text-white">{content.title}</h2>
             </div>
-            
+
             <p className="text-gray-700 dark:text-gray-300 mb-4">{content.description}</p>
-            
+
             <div className="mb-4">
               <h3 className="text-lg font-semibold text-foreground dark:text-white mb-2">Key Benefits</h3>
               <ul className="space-y-2">
@@ -313,13 +381,13 @@ const EmailViewer = ({
                 ))}
               </ul>
             </div>
-            
+
             <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-4">
               <p className="text-blue-700 dark:text-blue-300 text-sm">
                 <strong>Coming Soon:</strong> This feature is under development and will be available in our next release.
               </p>
             </div>
-            
+
             <div className="flex justify-end">
               <button
                 onClick={onClose}
@@ -361,12 +429,12 @@ const EmailViewer = ({
   // Format the initials safely based on different possible from structures
   const getSenderInitials = () => {
     if (!email || !email.from) return '?';
-    
+
     // Case 1: from is an object with name property
     if (typeof email.from === 'object' && email.from.name) {
       return email.from.name.split(' ').map(n => n[0]).join('');
     }
-    
+
     // Case 2: from is a string that could be an email or name
     if (typeof email.from === 'string') {
       // Check if it looks like an email
@@ -378,18 +446,18 @@ const EmailViewer = ({
         return email.from.split(' ').map(n => n[0]).join('');
       }
     }
-    
+
     return '?';
   };
 
   // Get sender display name safely
   const getSenderName = () => {
     if (!email || !email.from) return 'Unknown Sender';
-    
+
     if (typeof email.from === 'object' && email.from.name) {
       return email.from.name;
     }
-    
+
     if (typeof email.from === 'string') {
       // If it has @, it's likely an email address
       if (email.from.includes('@')) {
@@ -397,22 +465,22 @@ const EmailViewer = ({
       }
       return email.from;
     }
-    
+
     return 'Unknown Sender';
   };
 
   // Get sender email safely
   const getSenderEmail = () => {
     if (!email || !email.from) return '';
-    
+
     if (typeof email.from === 'object' && email.from.email) {
       return email.from.email;
     }
-    
+
     if (typeof email.from === 'string' && email.from.includes('@')) {
       return email.from;
     }
-    
+
     return '';
   };
 
@@ -437,7 +505,7 @@ const EmailViewer = ({
 
     setGeneratingSummary(true);
     info('Generating email summary...');
-    
+
     // Simulate API call for demo
     setTimeout(() => {
       setGeneratingSummary(false);
@@ -451,10 +519,10 @@ const EmailViewer = ({
       <CardHeader className="border-b p-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="mr-2" 
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mr-2"
               onClick={onBack || (() => navigate(-1))}
             >
               <ArrowLeft className="h-5 w-5" />
@@ -463,35 +531,35 @@ const EmailViewer = ({
           </div>
           <div className="flex items-center space-x-1">
             {/* Action buttons */}
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => toggleStar()} 
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => toggleStar()}
               className={email.isStarred ? "text-yellow-500 hover:text-yellow-600" : "text-gray-500 hover:text-gray-600"}
             >
               <Star className="h-5 w-5" fill={email.isStarred ? "currentColor" : "none"} />
             </Button>
-            
+
             {/* Add the Sales & CRM dropdown button */}
             <div className="relative" ref={el => dropdownRefs.current['salesCRM'] = el}>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => toggleDropdown('salesCRM')}
-                className={openDropdown === 'salesCRM' 
-                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300" 
+                className={openDropdown === 'salesCRM'
+                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
                   : "text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300"}
               >
                 <ShoppingCart className="h-5 w-5" />
               </Button>
-              
+
               {openDropdown === 'salesCRM' && (
                 <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg z-20 bg-background dark:bg-gray-800 border border-border dark:border-gray-700">
                   <div className="py-1">
                     <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 border-b border-border dark:border-gray-700">
                       Sales & CRM Actions
                     </div>
-                    <button 
+                    <button
                       onClick={() => {
                         handleSalesCRMFeature('save-to-crm');
                         setOpenDropdown(null);
@@ -501,7 +569,7 @@ const EmailViewer = ({
                       <UserPlus className="h-4 w-4 mr-2 text-blue-600" />
                       <span>Save to CRM</span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         handleSalesCRMFeature('schedule-followup');
                         setOpenDropdown(null);
@@ -511,7 +579,7 @@ const EmailViewer = ({
                       <Calendar className="h-4 w-4 mr-2 text-cyan-600" />
                       <span>Schedule Follow-up</span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         handleSalesCRMFeature('meeting-scheduler');
                         setOpenDropdown(null);
@@ -521,7 +589,7 @@ const EmailViewer = ({
                       <Clock className="h-4 w-4 mr-2 text-teal-600" />
                       <span>Meeting Scheduler</span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         handleSalesCRMFeature('view-history');
                         setOpenDropdown(null);
@@ -531,7 +599,7 @@ const EmailViewer = ({
                       <BarChart className="h-4 w-4 mr-2 text-indigo-600" />
                       <span>View History</span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         handleSalesCRMFeature('share-with-team');
                         setOpenDropdown(null);
@@ -541,7 +609,7 @@ const EmailViewer = ({
                       <Share2 className="h-4 w-4 mr-2 text-pink-600" />
                       <span>Share with Team</span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         handleSalesCRMFeature('sales-actions');
                         setOpenDropdown(null);
@@ -555,27 +623,27 @@ const EmailViewer = ({
                 </div>
               )}
             </div>
-            
+
             {/* Add the Productivity dropdown button */}
             <div className="relative" ref={el => dropdownRefs.current['productivity'] = el}>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => toggleDropdown('productivity')}
-                className={openDropdown === 'productivity' 
-                  ? "bg-amber-100 text-amber-600 dark:bg-amber-900 dark:text-amber-300" 
+                className={openDropdown === 'productivity'
+                  ? "bg-amber-100 text-amber-600 dark:bg-amber-900 dark:text-amber-300"
                   : "text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300"}
               >
                 <Zap className="h-5 w-5" />
               </Button>
-              
+
               {openDropdown === 'productivity' && (
                 <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg z-20 bg-background dark:bg-gray-800 border border-border dark:border-gray-700">
                   <div className="py-1">
                     <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 border-b border-border dark:border-gray-700">
                       Productivity Actions
                     </div>
-                    <button 
+                    <button
                       onClick={() => {
                         handleProductivityFeature('create-task');
                         setOpenDropdown(null);
@@ -585,7 +653,7 @@ const EmailViewer = ({
                       <CheckSquare className="h-4 w-4 mr-2 text-amber-600" />
                       <span>Create Task</span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         handleProductivityFeature('templates');
                         setOpenDropdown(null);
@@ -595,7 +663,7 @@ const EmailViewer = ({
                       <ClipboardList className="h-4 w-4 mr-2 text-fuchsia-600" />
                       <span>Templates</span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         handleProductivityFeature('schedule-send');
                         setOpenDropdown(null);
@@ -605,7 +673,7 @@ const EmailViewer = ({
                       <Timer className="h-4 w-4 mr-2 text-red-600" />
                       <span>Schedule Send</span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         handleProductivityFeature('extract-analyze');
                         setOpenDropdown(null);
@@ -615,7 +683,7 @@ const EmailViewer = ({
                       <Layers className="h-4 w-4 mr-2 text-emerald-600" />
                       <span>Extract & Analyze</span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         handleProductivityFeature('knowledge-base');
                         setOpenDropdown(null);
@@ -629,7 +697,7 @@ const EmailViewer = ({
                 </div>
               )}
             </div>
-            
+
             <Button
               onClick={handleGenerateDraft}
               disabled={isGeneratingDraft}
@@ -647,24 +715,24 @@ const EmailViewer = ({
                 </>
               )}
             </Button>
-            
-            <Button 
-              variant="ghost" 
-              size="sm" 
+
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={onDelete || (() => {})}
             >
               <Trash2 className="h-5 w-5" />
             </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={onArchive || (() => {})}
             >
               <Archive className="h-5 w-5" />
             </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={onPrint || (() => window.print())}
             >
               <Printer className="h-5 w-5" />
@@ -694,7 +762,7 @@ const EmailViewer = ({
               <div className="mt-1 text-sm">
                 <span className="text-gray-600 dark:text-gray-400">To: </span>
                 {email.to ? (
-                  Array.isArray(email.to) 
+                  Array.isArray(email.to)
                     ? email.to.map(recipient => typeof recipient === 'object' ? (recipient.name || recipient.email) : recipient).join(', ')
                     : email.to
                 ) : 'No recipients'}
@@ -702,7 +770,7 @@ const EmailViewer = ({
               {email.labels && email.labels.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1">
                   {email.labels.map((label, index) => (
-                    <span 
+                    <span
                       key={index}
                       className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
                     >
@@ -749,11 +817,80 @@ const EmailViewer = ({
           </div>
         )}
 
+        {/* Language Detection Banner */}
+        {showTranslationSuggestion && detectedLanguage && (
+          <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border-b">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Globe className="h-4 w-4 text-yellow-600 dark:text-yellow-400 mr-2" />
+                <div>
+                  <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                    {t('emails:viewer.language_detected', { 
+                      language: getLanguageDisplayName(detectedLanguage.language) 
+                    })}
+                  </p>
+                  <p className="text-xs text-yellow-600 dark:text-yellow-400">
+                    {t('emails:viewer.translation_suggestion')}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleTranslateEmail}
+                  disabled={isTranslating}
+                  className="text-yellow-700 border-yellow-300 hover:bg-yellow-100"
+                >
+                  {isTranslating ? (
+                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                  ) : (
+                    <Languages className="h-4 w-4 mr-1" />
+                  )}
+                  {isTranslating ? t('common.translating') : t('emails:viewer.translate')}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setShowTranslationSuggestion(false)}
+                  className="text-yellow-600"
+                >
+                  ×
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Translation Controls (if translated) */}
+        {translatedContent && (
+          <div className="p-4 bg-green-50 dark:bg-green-900/20 border-b">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Languages className="h-4 w-4 text-green-600 dark:text-green-400 mr-2" />
+                <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                  {t('emails:viewer.translated_content')}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={toggleTranslation}
+                className="text-green-700 border-green-300 hover:bg-green-100"
+              >
+                {t('emails:viewer.view_original')}
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Email Body */}
-        <div className="p-4">
-          <div 
+        <div className={`p-4 ${isRTLLanguage(detectedLanguage?.language) ? 'text-right' : 'text-left'}`}>
+          <div
             className="prose prose-sm max-w-none dark:prose-invert"
-            dangerouslySetInnerHTML={{ __html: email.body || email.summary || 'No content available' }}
+            dangerouslySetInnerHTML={{ 
+              __html: translatedContent || email.body || email.summary || 'No content available' 
+            }}
           />
         </div>
 
@@ -765,7 +902,7 @@ const EmailViewer = ({
             </h3>
             <div className="space-y-2">
               {email.attachments.map((attachment) => (
-                <div 
+                <div
                   key={attachment.id}
                   className="flex items-center p-2 border rounded-md"
                 >
@@ -774,7 +911,7 @@ const EmailViewer = ({
                     <p className="text-sm font-medium">{attachment.filename}</p>
                     <p className="text-xs text-gray-500">{formatFileSize(attachment.size)}</p>
                   </div>
-                  <Button 
+                  <Button
                     size="sm"
                     variant="outline"
                     className="text-blue-600 border-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-400 dark:hover:bg-blue-900/20"
@@ -791,14 +928,14 @@ const EmailViewer = ({
         <div className="p-4 border-t">
           <h3 className="font-medium text-sm mb-3">Primary Actions</h3>
           <div className="flex space-x-2">
-            <Button 
+            <Button
               className="flex items-center"
               onClick={onReply || (() => {})}
             >
               <Reply className="h-4 w-4 mr-2" />
               Reply
             </Button>
-            <Button 
+            <Button
               variant="outline"
               className="flex items-center"
               onClick={onForward || (() => {})}
@@ -806,7 +943,7 @@ const EmailViewer = ({
               <CornerUpRight className="h-4 w-4 mr-2" />
               Forward
             </Button>
-            <Button 
+            <Button
               variant="outline"
               className="flex items-center"
               onClick={onPrint || (() => window.print())}
@@ -818,13 +955,31 @@ const EmailViewer = ({
         </div>
       </CardContent>
       {/* Feature Info Modal */}
-      <FeatureInfoModal 
-        isOpen={featureInfoModalOpen} 
-        onClose={() => setFeatureInfoModalOpen(false)} 
-        content={featureInfoContent} 
+      <FeatureInfoModal
+        isOpen={featureInfoModalOpen}
+        onClose={() => setFeatureInfoModalOpen(false)}
+        content={featureInfoContent}
       />
+
+      {/* AI Email Assistant Modal */}
+      {showAIAssistant && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <AIEmailAssistant
+            onApplyText={handleApplyAIText}
+            onClose={() => {
+              setShowAIAssistant(false);
+              setIsGeneratingDraft(false); // Reset generating state when closed
+            }}
+            currentContent=""
+            selectedText=""
+            isReply={true}
+            originalEmail={email}
+            mode={aiAssistantMode}
+          />
+        </div>
+      )}
     </Card>
   );
 };
 
-export default EmailViewer; 
+export default EmailViewer;

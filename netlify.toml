@@ -1,10 +1,10 @@
 [build]
   base = "frontend"
-  command = "rm -rf node_modules package-lock.json && npm cache clean --force && npm install --legacy-peer-deps && npm run build"
+  command = "rm -rf node_modules package-lock.json && npm cache clean --force && npm install --force --legacy-peer-deps && npm run build"
   publish = "build"
 
 [build.environment]
-  NODE_VERSION = "16.20.2"
+  NODE_VERSION = "18.17.0"
   NPM_FLAGS = "--legacy-peer-deps"
   # Demo mode set to true to use mock data instead of real API
   REACT_APP_USE_DEMO_MODE = "true"

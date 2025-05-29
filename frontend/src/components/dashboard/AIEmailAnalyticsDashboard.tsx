@@ -231,7 +231,7 @@ export const AIEmailAnalyticsDashboard: React.FC = () => {
 
       {/* Main Analytics Tabs */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="usage">Usage Analytics</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>

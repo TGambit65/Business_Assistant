@@ -193,7 +193,7 @@ export const UserAnalyticsView: React.FC<UserAnalyticsViewProps> = ({
 
       {/* Detailed Analytics Tabs */}
       <Tabs defaultValue="usage" className="space-y-4">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="usage">Usage Patterns</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
           <TabsTrigger value="preferences">Preferences</TabsTrigger>

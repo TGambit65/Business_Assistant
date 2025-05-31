@@ -48,7 +48,7 @@ const Dropdown = ({ trigger, children, isOpen, setIsOpen }) => {
 };
 
 export default function ComposePage() {
-  const { t } = useTranslation(['emails', 'common']);
+  const { t } = useTranslation('emails');
   const { success, info, warning } = useToast();
   const navigate = useNavigate();
   const navigateTo = useNavigateTo();

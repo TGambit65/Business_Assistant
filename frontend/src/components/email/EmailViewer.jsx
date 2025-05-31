@@ -54,7 +54,7 @@ const EmailViewer = ({
   onGenerateDraft
 }) => {
   const navigate = useNavigate();
-  const { t } = useTranslation(['emails', 'common']);
+  const { t } = useTranslation('emails');
   const { success, info, /*error*/ } = useToast(); // Removed unused error
   const [emailSummary, setEmailSummary] = useState(email?.summary || null);
   const [generatingSummary, setGeneratingSummary] = useState(false);

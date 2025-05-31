@@ -4,6 +4,11 @@
  * This file contains utility functions that are used across multiple test files.
  */
 
+import * as React from 'react';
+import { render, RenderOptions } from '@testing-library/react';
+import { I18nextProvider } from 'react-i18next';
+import i18n from './i18n-test-setup';
+
 /**
  * Resize the browser window to the specified dimensions
  * @param width The new width of the window
@@ -115,4 +120,20 @@ export function resetWindowMocks(): void {
     configurable: true,
     value: global.IntersectionObserver
   });
-} 
+}
+
+/**
+ * Custom render function that wraps components with i18n provider
+ * @param component The component to render
+ * @param options Additional render options
+ */
+export function renderWithI18n(
+  component: React.ReactElement,
+  options?: RenderOptions
+) {
+  const wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    return React.createElement(I18nextProvider, { i18n }, children);
+  };
+
+  return render(component, { wrapper, ...options });
+}

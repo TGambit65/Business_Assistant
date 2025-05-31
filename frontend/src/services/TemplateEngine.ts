@@ -1,26 +1,29 @@
-import { Template, TemplateContext, AISuggestion, TemplateValidationResult, Variable } from '../types/template';
+import { Template, TemplateContext, AISuggestion, TemplateValidationResult, Variable } from '../../../shared/types/template';
 import { SecurityManager } from '../security/SecurityManager';
-import { analyticsService } from './AnalyticsService';
-import deepseekService from './DeepseekService';
+import { analyticsService as AnalyticsService } from './AnalyticsService';
+import DeepseekService from './DeepseekService';
 import { AIRequestContext } from '../types/deepseek';
-import { UserPreferences } from '../types/user';
+import { defaultPreferences } from '../types/preferences';
+
+/**
+ * Template Engine Dependencies
+ */
+export interface TemplateEngineDependencies {
+  analyticsService: any;
+  deepseekService: any;
+  securityManager: any;
+}
 
 export class TemplateEngine {
-  private static instance: TemplateEngine;
   private templates: Map<string, Template> = new Map();
-  private securityManager: SecurityManager;
-  private aiService: typeof deepseekService;
+  private securityManager: any;
+  private analyticsService: any;
+  private deepseekService: any;
 
-  private constructor() {
-    this.securityManager = SecurityManager.getInstance();
-    this.aiService = deepseekService;
-  }
-
-  public static getInstance(): TemplateEngine {
-    if (!TemplateEngine.instance) {
-      TemplateEngine.instance = new TemplateEngine();
-    }
-    return TemplateEngine.instance;
+  constructor(dependencies: TemplateEngineDependencies) {
+    this.securityManager = dependencies.securityManager;
+    this.analyticsService = dependencies.analyticsService;
+    this.deepseekService = dependencies.deepseekService;
   }
 
   public async createTemplate(template: Omit<Template, 'id' | 'createdAt' | 'updatedAt' | 'version'>): Promise<Template> {
@@ -48,7 +51,7 @@ export class TemplateEngine {
     this.templates.set(sanitizedTemplate.id, sanitizedTemplate);
 
     // Track template creation
-    analyticsService.trackMetric('template.created', 1, {
+    this.analyticsService.trackMetric('template.created', 1, {
       templateId: sanitizedTemplate.id,
       category: sanitizedTemplate.category
     });
@@ -89,7 +92,7 @@ export class TemplateEngine {
     }
 
     // Track template usage
-    analyticsService.trackMetric('template.used', 1, {
+    this.analyticsService.trackMetric('template.used', 1, {
       templateId,
       category: template.category
     });
@@ -97,7 +100,7 @@ export class TemplateEngine {
     return content;
   }
 
-  public async getAISuggestions(template: Template, context: TemplateContext): Promise<AISuggestion[]> {
+  public async getAISuggestions(template: Template, _context: TemplateContext): Promise<AISuggestion[]> {
     if (!template.aiSuggestions) {
       return [];
     }
@@ -106,25 +109,11 @@ export class TemplateEngine {
     const aiContext: AIRequestContext = {
       systemPrompt: `Generate suggestions for the following template: ${template.name}`,
       userHistory: [],
-      userPreferences: {
-        defaultEmailSignature: '',
-        defaultReplySignature: '',
-        defaultLanguage: 'en',
-        defaultTone: 'professional',
-        showNotifications: true,
-        emailRefreshInterval: 300,
-        sendReceiptConfirmation: true,
-        defaultFontSize: '14px',
-        defaultFontFamily: 'Arial, sans-serif',
-        useRichTextEditor: true,
-        useSpellCheck: true,
-        alwaysShowBcc: false,
-        useThreadView: true
-      }
+      userPreferences: defaultPreferences
     };
 
     // Get AI suggestions
-    const response = await this.aiService.generateEmailDraft(aiContext);
+    const response = await this.deepseekService.generateEmailDraft(aiContext);
     
     // Transform AI response into AISuggestion format
     return [{
@@ -261,4 +250,9 @@ export class TemplateEngine {
   }
 }
 
-export const templateEngine = TemplateEngine.getInstance(); 
+// Export a singleton instance
+export const templateEngine = new TemplateEngine({
+  analyticsService: AnalyticsService,
+  deepseekService: DeepseekService,
+  securityManager: SecurityManager.getInstance()
+}); 

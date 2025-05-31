@@ -310,6 +310,47 @@ const builtInThemes = {
       '--shadow-lg': '0 0 20px rgba(255, 153, 51, 0.5)',
     }
   },
+  blue: {
+    name: 'Blue',
+    description: 'Modern blue theme',
+    variables: {
+      '--background': 'hsl(210, 100%, 98%)',
+      '--foreground': 'hsl(222.2, 84%, 4.9%)',
+      '--primary': 'hsl(210, 100%, 50%)',
+      '--primary-foreground': 'hsl(0, 0%, 100%)',
+      '--secondary': 'hsl(210, 100%, 96%)',
+      '--secondary-foreground': 'hsl(222.2, 47.4%, 11.2%)',
+      '--muted': 'hsl(210, 100%, 96%)',
+      '--muted-foreground': 'hsl(215.4, 16.3%, 46.9%)',
+      '--accent': 'hsl(210, 100%, 40%)',
+      '--accent-foreground': 'hsl(0, 0%, 100%)',
+      '--destructive': 'hsl(0, 84.2%, 60.2%)',
+      '--destructive-foreground': 'hsl(210, 40%, 98%)',
+      '--border': 'hsl(210, 100%, 90%)',
+      '--input': 'hsl(210, 100%, 90%)',
+      '--ring': 'hsl(210, 100%, 50%)',
+      '--card': 'hsl(0, 0%, 100%)',
+      '--card-foreground': 'hsl(222.2, 84%, 4.9%)',
+      '--popover': 'hsl(0, 0%, 100%)',
+      '--popover-foreground': 'hsl(222.2, 84%, 4.9%)',
+      '--network-status-connected': '#22c55e',
+      '--network-status-connected-text': 'white',
+      '--network-status-poor': '#f59e0b',
+      '--network-status-poor-text': 'white',
+      '--network-status-offline': '#ef4444',
+      '--network-status-offline-text': 'white',
+      '--chart-1': 'hsl(210, 100%, 50%)',
+      '--chart-2': 'hsl(190, 100%, 50%)',
+      '--chart-3': 'hsl(230, 100%, 50%)',
+      '--chart-4': 'hsl(250, 100%, 50%)',
+      '--tooltip-bg': 'rgba(0, 0, 0, 0.8)',
+      '--tooltip-text': 'white',
+      '--shadow-sm': '0 1px 2px 0 rgba(0, 123, 255, 0.05)',
+      '--shadow': '0 1px 3px 0 rgba(0, 123, 255, 0.1), 0 1px 2px 0 rgba(0, 123, 255, 0.06)',
+      '--shadow-md': '0 4px 6px -1px rgba(0, 123, 255, 0.1), 0 2px 4px -1px rgba(0, 123, 255, 0.06)',
+      '--shadow-lg': '0 10px 15px -3px rgba(0, 123, 255, 0.1), 0 4px 6px -2px rgba(0, 123, 255, 0.05)',
+    }
+  },
   loginThemeOld: {
     name: 'Login Theme (Old)',
     description: 'Clean, professional login interface theme',
@@ -369,8 +410,8 @@ export const ThemeProvider = ({ children }) => {
   // Apply theme function - defined before it's used
   const applyTheme = React.useCallback((name) => {
     const theme = allThemes[name]?.variables;
-    console.log('[ThemeContext] applyTheme called with:', name);
-    console.log('[ThemeContext] theme variables to apply:', theme);
+    // console.log('[ThemeContext] applyTheme called with:', name);
+    // console.log('[ThemeContext] theme variables to apply:', theme);
     if (!theme) {
       console.error(`[ThemeContext] Theme "${name}" not found!`);
       return;
@@ -392,16 +433,16 @@ export const ThemeProvider = ({ children }) => {
 
     // Properly set dark mode class based on theme
     if (['dark', 'earthDark', 'starTrekLCARS', 'highContrast'].includes(name) || name.includes('dark') || name.includes('Dark')) {
-      console.log('[ThemeContext] Adding "dark" class to documentElement');
+      // console.log('[ThemeContext] Adding "dark" class to documentElement');
       document.documentElement.classList.add('dark');
     } else {
-      console.log('[ThemeContext] Removing "dark" class from documentElement');
+      // console.log('[ThemeContext] Removing "dark" class from documentElement');
       document.documentElement.classList.remove('dark');
     }
 
     // For debugging
-    console.log(`[ThemeContext] Theme applied: ${name}`);
-    console.log(`[ThemeContext] Dark mode class present: ${document.documentElement.classList.contains('dark')}`);
+    // console.log(`[ThemeContext] Theme applied: ${name}`);
+    // console.log(`[ThemeContext] Dark mode class present: ${document.documentElement.classList.contains('dark')}`);
   }, [allThemes]);
 
   // Load user themes from localStorage
@@ -416,46 +457,35 @@ export const ThemeProvider = ({ children }) => {
     }
   }, []);
 
-  // Initial theme application on mount
+  // Initial theme application on mount with safeguards
   useEffect(() => {
-    console.log('[ThemeContext] Initial application of theme on mount:', themeName);
-    // Delay slightly to ensure DOM is ready
     const timer = setTimeout(() => {
       const savedTheme = localStorage.getItem('theme');
-      if (savedTheme && allThemes[savedTheme]) {
-        console.log(`[ThemeContext] Applying saved theme on mount: ${savedTheme}`);
+      if (savedTheme && allThemes[savedTheme] && savedTheme !== themeName) {
         setThemeName(savedTheme);
         applyTheme(savedTheme);
-      } else {
-        console.log(`[ThemeContext] No saved theme found, applying default: ${themeName}`);
+      } else if (!localStorage.getItem('theme')) {
         applyTheme(themeName);
       }
-    }, 50);
-
+    }, 100); // Slightly longer delay to ensure DOM is ready
     return () => clearTimeout(timer);
-  }, [themeName, allThemes, applyTheme]);
+  }, []); // No dependencies to prevent re-runs
 
   // Save user themes to localStorage
   useEffect(() => {
     localStorage.setItem('userThemes', JSON.stringify(userThemes));
   }, [userThemes]);
 
-  // Apply theme when theme name changes
+  // Apply theme when theme name changes - with safeguards
   useEffect(() => {
-    console.log('[ThemeContext] Theme useEffect triggered with theme:', themeName);
-    // First try to load saved theme from localStorage
     const savedTheme = localStorage.getItem('theme');
-
     if (savedTheme && savedTheme !== themeName) {
-      console.log(`[ThemeContext] Loading saved theme from localStorage: ${savedTheme}`);
       setThemeName(savedTheme);
     } else {
-      // Apply current theme if we're not loading from localStorage
-      console.log(`[ThemeContext] Applying current theme: ${themeName}`);
       applyTheme(themeName);
       localStorage.setItem('theme', themeName);
     }
-  }, [themeName, allThemes, applyTheme]);
+  }, [themeName]); // Only depend on themeName to reduce re-renders
 
   const setTheme = useCallback((newTheme) => {
     if (newTheme === 'loginTheme') {

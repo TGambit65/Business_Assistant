@@ -1,20 +1,14 @@
+import { format } from 'date-fns';
+import { ChevronDown, Filter, RotateCcw, Search, X } from 'lucide-react';
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+
+import type { AnalyticsFilter } from '../../types/analytics';
 import { Button } from '../ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { DateRangePicker } from '../ui/date-range-picker';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { Checkbox } from '../ui/checkbox';
 import { Slider } from '../ui/slider';
-import { DateRangePicker } from '../ui/date-range-picker';
-import type { AnalyticsFilter } from '../../types/analytics';
-import { 
-  Filter, 
-  X, 
-  ChevronDown,
-  Search,
-  RotateCcw
-} from 'lucide-react';
-import { format } from 'date-fns';
 
 interface AnalyticsFiltersProps {
   filter: AnalyticsFilter;
@@ -27,7 +21,7 @@ export const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
   filter,
   onFilterChange,
   onApply,
-  onReset
+  onReset,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -40,18 +34,18 @@ export const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
     const newFeatures = currentFeatures.includes(feature)
       ? currentFeatures.filter(f => f !== feature)
       : [...currentFeatures, feature];
-    
-    onFilterChange({ 
-      ...filter, 
-      featureType: newFeatures.length > 0 ? newFeatures : undefined 
+
+    onFilterChange({
+      ...filter,
+      featureType: newFeatures.length > 0 ? newFeatures : undefined,
     });
   };
 
   const handleSatisfactionChange = (value: number | number[]) => {
     const numValue = Array.isArray(value) ? value[0] : value;
-    onFilterChange({ 
-      ...filter, 
-      minSatisfaction: numValue > 1 ? numValue : undefined 
+    onFilterChange({
+      ...filter,
+      minSatisfaction: numValue > 1 ? numValue : undefined,
     });
   };
 
@@ -59,10 +53,7 @@ export const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
 
   return (
     <Card>
-      <CardHeader 
-        className="cursor-pointer"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
+      <CardHeader className="cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
@@ -71,12 +62,12 @@ export const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
             </CardTitle>
             <CardDescription>Filter analytics data by various criteria</CardDescription>
           </div>
-          <ChevronDown 
-            className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} 
+          <ChevronDown
+            className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
           />
         </div>
       </CardHeader>
-      
+
       {isExpanded && (
         <CardContent className="space-y-6">
           {/* Date Range Filter */}
@@ -86,12 +77,24 @@ export const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
               className="w-full"
               value={{
                 from: filter.dateRange?.start || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-                to: filter.dateRange?.end || new Date()
+                to: filter.dateRange?.end || new Date(),
               }}
-              onChange={(range) => handleDateRangeChange({
-                start: range.from,
-                end: range.to
-              })}
+              onChange={range => {
+                if (range?.from && range?.to) {
+                  handleDateRangeChange({
+                    start: range.from,
+                    end: range.to,
+                  });
+                } else if (range) {
+                  // Handle partial selection by providing fallbacks
+                  const fallbackStart = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+                  const fallbackEnd = new Date();
+                  handleDateRangeChange({
+                    start: range.from || fallbackStart,
+                    end: range.to || fallbackEnd,
+                  });
+                }
+              }}
             />
           </div>
 
@@ -101,15 +104,14 @@ export const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {features.map(feature => (
                 <div key={feature} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={feature}
+                  <input
+                    type="checkbox"
                     checked={(filter.featureType || []).includes(feature)}
-                    onCheckedChange={() => handleFeatureToggle(feature)}
+                    onChange={() => handleFeatureToggle(feature)}
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    aria-label={`Filter by ${feature}`}
                   />
-                  <label
-                    htmlFor={feature}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize"
-                  >
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize">
                     {feature}
                   </label>
                 </div>
@@ -142,10 +144,12 @@ export const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
               id="userId"
               placeholder="Enter user ID to filter by specific user"
               value={filter.userId || ''}
-              onChange={(e) => onFilterChange({ 
-                ...filter, 
-                userId: e.target.value || undefined 
-              })}
+              onChange={e =>
+                onFilterChange({
+                  ...filter,
+                  userId: e.target.value || undefined,
+                })
+              }
             />
           </div>
 
@@ -175,40 +179,40 @@ export const QuickFilters: React.FC<{
       filter: {
         dateRange: {
           start: new Date(new Date().setHours(0, 0, 0, 0)),
-          end: new Date()
-        }
-      }
+          end: new Date(),
+        },
+      },
     },
     {
       label: 'Last 7 Days',
       filter: {
         dateRange: {
           start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-          end: new Date()
-        }
-      }
+          end: new Date(),
+        },
+      },
     },
     {
       label: 'Last 30 Days',
       filter: {
         dateRange: {
           start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-          end: new Date()
-        }
-      }
+          end: new Date(),
+        },
+      },
     },
     {
       label: 'High Satisfaction',
       filter: {
-        minSatisfaction: 4
-      }
+        minSatisfaction: 4,
+      },
     },
     {
       label: 'Compose Only',
       filter: {
-        featureType: ['compose']
-      }
-    }
+        featureType: ['compose'],
+      },
+    },
   ];
 
   return (
@@ -237,7 +241,7 @@ export const ActiveFilters: React.FC<{
     activeFilters.push({
       key: 'dateRange',
       label: 'Date Range',
-      value: `${format(filter.dateRange.start, 'MMM d')} - ${format(filter.dateRange.end, 'MMM d')}`
+      value: `${format(filter.dateRange.start, 'MMM d')} - ${format(filter.dateRange.end, 'MMM d')}`,
     });
   }
 
@@ -245,7 +249,7 @@ export const ActiveFilters: React.FC<{
     activeFilters.push({
       key: 'featureType',
       label: 'Features',
-      value: filter.featureType.join(', ')
+      value: filter.featureType.join(', '),
     });
   }
 
@@ -253,7 +257,7 @@ export const ActiveFilters: React.FC<{
     activeFilters.push({
       key: 'minSatisfaction',
       label: 'Min Satisfaction',
-      value: `${filter.minSatisfaction}+`
+      value: `${filter.minSatisfaction}+`,
     });
   }
 
@@ -261,7 +265,7 @@ export const ActiveFilters: React.FC<{
     activeFilters.push({
       key: 'userId',
       label: 'User',
-      value: filter.userId
+      value: filter.userId,
     });
   }
 
@@ -270,11 +274,7 @@ export const ActiveFilters: React.FC<{
   return (
     <div className="flex gap-2 flex-wrap">
       {activeFilters.map(({ key, label, value }) => (
-        <Badge
-          key={key}
-          variant="secondary"
-          className="pl-3 pr-1 py-1 flex items-center gap-1"
-        >
+        <Badge key={key} variant="secondary" className="pl-3 pr-1 py-1 flex items-center gap-1">
           <span className="text-xs">
             {label}: <strong>{value}</strong>
           </span>
@@ -302,11 +302,13 @@ const Badge: React.FC<{
     default: 'bg-primary text-primary-foreground hover:bg-primary/80',
     secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
     destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/80',
-    outline: 'text-foreground border border-input'
+    outline: 'text-foreground border border-input',
   };
 
   return (
-    <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors ${variants[variant]} ${className}`}>
+    <div
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors ${variants[variant]} ${className}`}
+    >
       {children}
     </div>
   );
